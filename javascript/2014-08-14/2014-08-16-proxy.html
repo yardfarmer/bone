@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>jQuery.proxy demo</title>
+  <!-- <script src="http://code.jquery.com/jquery&#45;1.10.2.js"></script> -->
+  <script src="../../jquery/jquery-1.10.js"></script>
+</head>
+<body>
+ 
+<p><button type="button" id="test">Test</button></p>
+<div id="log"></div>
+ 
+<script>
+
+
+var me = {
+  type: "zombie",
+  test: function( event ) {
+    // Without proxy, `this` would refer to the event target
+    // use event.target to reference that element.
+    var element = event.target;
+    $( element ).css( "background-color", "red" );
+ 
+    // With proxy, `this` refers to the me object encapsulating
+    // this function.
+    $( "#log" ).append( "Hello " + this.type + "<br>" );
+    $( "#test" ).off( "click", this.test );
+  }
+};
+ 
+var you = {
+  type: "person",
+  test: function( event ) {
+	console.log(this);
+    $( "#log" ).append( this.type + " " );
+  }
+};
+ 
+// Execute you.test() in the context of the `you` object
+// no matter where it is called
+// i.e. the `this` keyword will refer to `you`
+
+
+
+// gist
+// jQuery.proxy( function, context )
+// Takes a function and returns a new one that always have a particular context.
+// 固定函数的执行上下文，execution context
+// 致使，在任何环境下执行，this 的值不变。
+var youClick = $.proxy( you.test, me ); 
+ 
+console.log(1);
+youClick();
+you.test();
+
+var a = you.test;
+
+a();
+
+var b = youClick;
+
+b();
+console.log(2);
+
+
+
+// attach click handlers to #test
+$( "#test" )
+  // this === "zombie"; handler unbound after first click
+  .on( "click", $.proxy( me.test, me ) )
+ 
+  // this === "person"
+  .on( "click", youClick )
+ 
+  // this === "zombie"
+  .on( "click", $.proxy( you.test, me ) )
+ 
+  // this === "<button> element"
+  .on( "click", you.test );
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+ 
+</body>
+</html>
+

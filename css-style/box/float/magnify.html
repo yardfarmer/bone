@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        #container{
+            width: 200px;
+            height: 200px;
+            position: relative;
+        }
+        #left,#top,#bottom {
+            width: 50%;
+            position: absolute;
+        }
+
+        #left{
+            left: 0px;
+            height: 100%;
+            background: #ff0000;
+        }
+
+
+        #left:hover{
+            left: -10px;
+            top: -10px;
+            height: 120%;
+            width: 70%;
+            z-index: 10;
+            padding: -10px;
+            background: palegreen;
+        }
+
+        #top{
+            top: 0px;
+            right: 0px;
+            height: 50%;
+            background: green;
+        }
+
+        #bottom{
+            bottom: 0px;
+            right: 0px;
+            height: 50%;
+            background: goldenrod;
+        }
+
+    </style>
+</head>
+<body>
+<div id="container">
+    <div id="left"></div>
+    <div id="top"></div>
+    <div id="bottom"></div>
+</div>
+</body>
+</html>

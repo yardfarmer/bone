@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<script>
+
+    var Person  = function (p, q) {
+
+        if(p !== undefined) {  this.p = p; }
+        if(q !== undefined) {  this.q = q; }
+
+    };
+
+    Person.prototype.p = 2;
+    Person.prototype.q = 3;
+    Person.prototype.add = function () { return this.p + this.q; }
+
+    var ali = new Person();
+
+    console.log(ali.add());
+
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="gbk">
+    <title></title>
+
+    <style>
+        /* @group general styles
+        ------------------------------------------------------------*/
+
+        /*webkit 默认 margin 为1em*/
+
+        /*ul, menu, dir {*/
+        /*display: block;*/
+        /*list-style-type: disc;*/
+        /*-webkit-margin-before: 1em;*/
+        /*-webkit-margin-after: 1em;*/
+        /*-webkit-margin-start: 0px;*/
+        /*-webkit-margin-end: 0px;*/
+        /*-webkit-padding-start: 40px;*/
+        /*}*/
+
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .side {
+            float: left;
+            width: 330px;
+            overflow: hidden;
+            font-family: "microsoft yahei";
+        }
+
+        .side-inner {
+            position: relative;
+            width: 330px;
+            background: #e5ebeb;
+            overflow: hidden;
+        }
+
+        .banner {
+            position: relative;
+            height: 474px;
+        }
+
+        .banner a {
+            display: block;
+            height: 475px;
+        }
+
+        .banner a:before {
+            content: "";
+            position: absolute;
+            width: 80px;
+            height: 350px;
+            top: 0;
+            left: -150px;
+            overflow: hidden;
+            background: -moz-linear-gradient(left, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, 0) 100%);
+            background: -webkit-gradient(linear, left top, right top, color-stop(0%, rgba(255, 255, 255, 0)), color-stop(50%, rgba(255, 255, 255, .2)), color-stop(100%, rgba(255, 255, 255, 0)));
+            background: -webkit-linear-gradient(left, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, 0) 100%);
+            background: -o-linear-gradient(left, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, 0) 100%);
+            -webkit-transform: skewX(-25deg);
+            -moz-transform: skewX(-25deg);
+        }
+
+        .themes {
+            height: 46px;
+            padding-left: 25px;
+        }
+
+        .themes {
+            position: relative;
+            margin-top: -237px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, .5);
+        }
+
+        .themes li {
+            width: 140px;
+            padding: 10px 0;
+            float: left;
+            height: 26px;
+        }
+
+        .assists {
+            position: relative;
+            height: 48px;
+            padding: 21px 0 0;
+            font-size: 14px;
+            line-height: 24px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, .7);
+        }
+
+        .assists li {
+            width: 135px;
+            float: left;
+            height: 24px;
+            padding-left: 25px;
+            overflow: hidden;
+        }
+
+        .assists li a {
+            white-space: nowrap;
+            color: #666;
+            text-decoration: none;
+        }
+
+        .words {
+            height: 122px;
+            background: rgba(255, 255, 255, .7);
+        }
+
+        .words li {
+            height: 96px;
+        }
+
+        .words li {
+            float: left;
+            width: 135px;
+            height: 48px;
+            padding: 7px 0 0 25px;
+            overflow: hidden;
+        }
+
+        .words a {
+            float: left;
+            margin-right: 10px;
+            line-height: 24px;
+            white-space: nowrap;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="side">
+    <div class="side-inner">
+        <div class="banner">
+            <a href="#" title="" target="_blank">
+                <img src="http://img11.360buyimg.com/da/jfs/t1630/144/1216584627/65940/acb78b7e/55c17ab5Ndc081d7c.jpg"
+                     width="330" height="475" alt="">
+            </a>
+
+        </div>
+        <ul class="themes">
+
+            <li class="fore1">
+                <a target="_blank" href="http://baby.jd.com/ ">
+                    <i class="icon"></i>
+                    <span>母婴用品 </span>
+                </a>
+            </li>
+            <li class="fore2">
+                <a target="_blank" href="http://channel.jd.com/1319-1525.html  ">
+                    <i class="icon"></i>
+                    <span>尿裤湿巾</span>
+                </a>
+            </li>
+        </ul>
+
+        <ul class="assists">
+            <li class="fore1">
+                <a href="#" target="_blank">Z170主板首发评测</a>
+                <i>&gt;</i>
+            </li>
+            <li class="fore2">
+                <a href="http://group.jd.com/thread/20000241/20875455/20001141.htm" target="_blank">Ding
+                    Dong智能音箱测评</a>
+                <i>&gt;</i>
+            </li>
+            <li class="fore3">
+                <a href="http://group.jd.com/thread/20000121/20874841/20000338.htm" target="_blank">爱路由
+                    免费领回家</a>
+                <i>&gt;</i>
+            </li>
+            <li class="fore4">
+                <a href="http://group.jd.com/thread/20000391/20875275/20001174.htm" target="_blank">索尼黑卡IV评测</a><i>
+                &gt;</i>
+            </li>
+        </ul>
+
+        <ul class="words">
+            <li class="fore1">
+
+            </li>
+            <li class="fore2">
+
+            </li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

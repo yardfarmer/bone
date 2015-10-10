@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+  /*
+    优点：
+  1. 同时支持块级和内联元素
+  2. 支持所有浏览器
+
+  缺点：
+  1.只能显示一行，多了会溢出，因为每行的高度跟父容器相同。
+
+  */
+</script>
+  <style>
+
+
+	div{
+		height: 500px;
+		width: 200px;
+		border: 1px dotted;
+		line-height: 500px;
+		overflow:hidden; 
+	}
+  </style>
+</head>
+<body>
+	<div>
+		<span>Hello World</span>
+		<span>Hello World</span>
+		<span>Hello World</span> 
+		<!-- 过多的部分会被 hidden -->
+		<span>Hello World</span>
+	</div>
+</body>
+</html>

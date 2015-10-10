@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>change on</title>
+    <style>
+
+        ul {
+            clear: both;
+        }
+
+        li {
+            float: left;
+            width: 30%;
+            border: 1px solid #ccc;
+            line-height: 50px;
+            height: 50px;
+            margin: 10px;
+        }
+    </style>
+    <!--<script src="../jquery.js"></script>-->
+    <script src="//cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
+</head>
+<body>
+
+<ul class="one">
+    <li id="foo" class="foo">foo</li>
+    <li id="bar">bar</li>
+</ul>
+
+<script>
+//    $(function () {
+//
+//        // gist:
+//        // $("ul li") 返回的是 jQuery 对象
+//        // 而 $("ul li").get() (retrieve) 返回的是数组
+//        // 且可以用下标读取数组
+//
+//        var jqObj = $("ul li");
+//        var domElementList = jqObj.get();
+//        // var a = $("ul li");
+//        console.log(jqObj, domElementList);
+//
+//        // get(index) 返回的原生的 DomElement 对象,
+//        // jQuery.eq(position) 返回的是 jQuery 对象集合中的一个 jQuery 对象
+//        var b = $("ul li").get(1);
+//        console.log("get(index)", b);
+//
+//    });
+
+
+    //    $("li", ".two").click(function (event) {
+    //        event.stopPropagation();
+    //        var domelement = $(this).get(0);
+    //        console.log($(this).get());
+    //        $("span:first").text("Clicked on - " + domelement.nodeName);
+    //    });
+
+//    jQ(document).on(onEvent, '.coupons-item', function (e) {
+//        var data = jQ(this).css('backgroundColor', 'red').data();
+
+//    $(function(){
+        $(document).on('click', '.two li', function clickHandler() {
+            console.log($(this).get());
+        });
+//    });
+
+
+//    setTimeout();
+
+</script>
+
+
+<ul class="two">
+    <li class="foo"><span>ABC</span></li>
+    <li class="bar">bar</li>
+</ul>
+
+</body>
+</html>

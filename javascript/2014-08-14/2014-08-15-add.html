@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>add demo</title>
+  <style>
+
+  </style>
+  <!--script src="http://code.jquery.com/jquery-1.10.2.js"></script-->
+  <script src="../../jquery/jquery-1.10.js"></script>
+</head>
+<body>
+ 
+<div>1</div>
+<div>2</div>
+<div>3</div>
+<div>4</div>
+<div>5</div>
+<div>6</div>
+ 
+<p>Added this... (notice no border)</p>
+ 
+<script>
+
+// gist: 
+// 1. 容易误解的是：add() 添加到 jQuery 对象，所以不会影响到 DOM 的表现
+
+//$( "div" ).css( "border", "2px solid red" )
+//  .add( "p" )
+//  .css( "background", "yellow" );
+
+//$("div").add("<p>hello world</p>").appendTo("body");
+
+// 2. detach() 方法类似 remove(); 不过
+
+//var a = $("div").detach();
+var a = $("div").remove();
+var b = a.add("p");
+var c = b.appendTo("body");
+console.log(a,b,c);
+
+//$("div").detach().add("p").appendTo("body");
+
+</script>
+ 
+</body>
+</html>

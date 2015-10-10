@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+
+</head>
+<body>
+<button id="btn" class="btnClass">click</button>
+<script>
+
+    var btn = document.querySelector("button");
+
+
+    btn.addEventListener('click', function () {
+        console.log("captured");
+    }, true);
+
+    btn.addEventListener('click', function () {
+        console.log("bubble");
+    }, false);
+
+
+
+
+
+</script>
+</body>
+</html>

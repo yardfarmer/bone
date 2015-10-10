@@ -1,0 +1,8 @@
+@startuml
+
+note left of 开发机: 个人的开发机器
+note right of 代理机:适用于测试,运营,设计师等没有开发环境的同学预览使用,\n免去用户的域名绑定,且可提供数据mock; 前后端联调解耦
+
+开发机 -> 代理机: sync同步
+
+@enduml

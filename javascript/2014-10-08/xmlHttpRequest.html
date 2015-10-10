@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+</head>
+<body>
+	<script>
+	   /*
+		*   HTML5新的标准中，增加了 CORS ” Cross-Origin Resource Sharing”特性，
+		*   这个特性的出现使得跨域通信只需通过配置http协议头来即可解决。
+		*
+		*   跨域请求的服务器端需要设置响应头:
+		*   Access-Control-Allow-Credentials:true
+		*	Access-Control-Allow-Origin:http://parent.com:8080
+		*	Access-Control-Request-Method:GET,POST
+		*/
+		function Ajax(){ 
+			var xmlHttpReq = null;
+			if (window.ActiveXObject){//IE5 IE6
+				xmlHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			else if (window.XMLHttpRequest){
+				xmlHttpReq = new XMLHttpRequest();
+			}
+			if(xmlHttpReq != null){
+				xmlHttpReq.open("POST","http://localhost:8080/nodeA/Here",true);    //采用异步方式
+				xmlHttpReq.withCredentials = true; // 可以跨域发送 cookie
+				xmlHttpReq.onreadystatechange=RequestCallBack; // 回调
+				xmlHttpReq.send("hello world");    // get方式提交,所以可以使用null参调用
+			
+				//Uncaught InvalidStateError: Failed to set the 'withCredentials' property on 'XMLHttpRequest': The value may only be set if the object's state is UNSENT or OPENED.
+				//xmlHttpReq.withCredentials = true; // 设置晚了
+
+				// A wildcard '*' cannot be used in the 'Access-Control-Allow-Origin'
+				// header when the credentials flag is true.
+				// Origin 'null' is therefore not allowed access. // 'null' 是因为没有经由服务器发送数据
+
+			}
+			function RequestCallBack(){ //一旦readyState值改变，将会调用这个函数
+				if(xmlHttpReq.readyState == 4){
+						if(xmlHttpReq.status == 200){
+							// xmlHttpReq.responseText;
+						}
+				}
+			}
+		}
+		Ajax();
+	</script>
+</body>
+</html>

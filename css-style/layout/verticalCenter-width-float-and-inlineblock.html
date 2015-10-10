@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+		height: 600px;
+	}
+	.content {
+		border:  1px solid red;
+		clear: both;
+		height: 240px;
+		width: 200px;
+		position:relative;
+	}
+	#floater {
+		border: 1px solid green;
+		float: left; 
+		/* 为什么用 float？  */
+		/* 因为如果 block 是不可以的，会换行。 */
+		/* inline 也是不行的，没有高度。 */
+		/* 所以替代方案是： inline-block, */
+		/* 但是因为 inline-block 的兼容性不太好，ie6，7 */
+		/* display: inline-block; */
+		height: 50%;
+		margin-bottom:-120px;
+	}
+  </style>
+</head>
+<body>
+			<div id = 'floater'></div>
+			<div class='content'>
+				hello vertical algin
+			</div>
+			<p>abc</p>
+</body>
+</html>
+
+
+
+

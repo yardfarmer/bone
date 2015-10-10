@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        p > span {
+			height: 300px;
+			width: 300px;
+			color: green;
+
+			margin: 100px 20px 200px 100px;
+
+		}
+
+		p > img {
+
+			/* 宽高、margin,padding 对行内替换元素有效 */
+			height: 60px;
+			width: 30px;
+			margin: 10px 20px 20px 10px;
+			background-color: red;
+			border: 1px solid;
+		}
+    </style>
+</head>
+
+
+<!-- 行内元素的 padding/margin 水平方向可用，垂直方向无效 -->
+<!-- 非替换行内元素的 height/width 无效 -->
+
+
+<body>
+    <p>天朗气<span>清</span>，惠风和畅</p>
+	<p>Lorem nesciunt illum eius officia<span>Ipsum tenetur voluptates asperiores laudantium.</span> est at minus quas repudiandae neque veritatis perferendis neque laboriosam laudantium. Sapiente nulla iure recusandae veritatis culpa accusamus et? Ex debitis iusto quisquam <img src=""> dolorem nostrum.</p>
+</body>
+
+
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+	<title>
+
+    </title>
+<script src="../../jquery/jquery-1.10.js"></script>
+
+</head>
+<body>
+
+<script>
+
+	var myself = {
+		name: 'yakun',
+		run: function() {
+			console.log("i'm running 1000 meters..."+this.name);
+		}
+	}
+	
+	var delerate = {
+		name: 'yuejiang',
+		run: function() {
+			console.log("i'm running 1000 meters... "+this.name);
+		}
+	}
+
+	$(function(){
+		// insert you code 
+		
+	   /*
+		*   $(callback):
+		*	如果传入一个函数，则在 document 上绑定一个 ready 事件监听函数，当 dom 加载结束时执行。
+		*   ready 事件的触发要早于 load 事件。ready 事件是
+		*   DOMContentLoaded 事件、onreadystatechange 事件和函数 doScrollCheck 的统称。
+		*/
+		var a  = $(function(){ console.log('------') });
+
+	   /*
+		*   $.proxy(function, context):
+		*   返回一个 function 中的上下文为 context 的新函数。
+		*   即 函数中的 this 为指定的 context 对象。
+		*/
+		$( $.proxy(myself.run, delerate) );
+
+	});
+</script>
+
+</body>
+</html>

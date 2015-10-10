@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>jQuery 构造函数 7 种用法</title>
+	<script src="../../jquery/jquery-1.10.js"></script>
+</head>
+<body>
+  <p id="p1">p1</p>
+  <script>
+
+// 1. jQuery ( selector [, context] )
+
+// 2.1 jQuery(html [,ownerDocument])
+// 如果传入的字符串参数看起来像一段代码，jQuery 则尝试用这段HTML 代码创建新的 dom 元素。
+
+// 第二个参数ownerDocument 用于指定创建新DOM 元素的文档对象， 如果不传入，则默认为当前文档对象。
+
+
+// 2.2 jQuery(htmlSingleTag [,props])
+// 如果 html 代码是一个单独标签，那么第二个参数还可以是 props；
+// props 是一个包含属性、事件的普通对象
+
+	var $p2 = $("<p/>",{
+		attr1:"atr1",
+		text:"clickme",
+		click: function() {
+				$(this).css("color","red");
+			}
+	});
+	$p2.appendTo("body");
+	console.log($p2);
+
+
+// 3. jQuery( elemnt )、jQuery( elementArray )
+// 封装 dom 元素为 jQuery 对象
+
+// 4. jQuery( object )
+// 封装普通对象为 jQuery 对象
+
+// 5. jQuery(callback)
+// 绑定 ready 事件监听函数，当 dom 结构加载完成时执行
+
+// 6. jQuery( jQuery object )
+// 接受一个 jQuery 对象，返回该 jQuery 对象的拷贝副本
+
+// 7. jQuery(,null,'',undefined) 
+// 创建一个空的 jQuery 对象
+  </script>
+</body>
+</html>

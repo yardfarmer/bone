@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <script>
+
+        var man = {
+            hands:2,
+            legs:2,
+            heads:1
+        };
+
+        if(typeof Object.prototype.clone == "undefined"){
+            Object.prototype.clone = function(){
+
+            }
+        }
+
+        for(var i in man){
+            if(man.hasOwnProperty(i)){ //过滤
+                console.log(i,":",man[i]);
+            }
+        }
+
+        console.log("-------------");
+
+        for(var i in man ){
+            console.log(i,":",man[i]);
+        }
+
+        var arrs = ['a','b','c','d','e'];
+
+        for(var i in arrs){
+            console.log(i,":",arrs[i]);
+        }
+
+         //  call(caller,param....) 在使用一个指定的this值和若干个指定的参数值的前提下调用某个函数或方法
+
+                // 使用call方法调用父构造函数
+                // 在一个子构造函数中可以通过调用父类构造函数的call方法实现继承
+
+                function Product(name,price){
+                    this.name = name;
+                    this.price = price;
+
+                    if (price < 0) {
+                        throw RangeException('Cannot create producet "' + name + '"');
+                    }
+
+                    return this;
+                }
+
+                function Food(name,price){
+                    Product.call(this,name,price);
+                    this.category = 'food';
+                }
+                Food.prototype = new Product(); //Food.prototype.constructor == new Product() who's constructor = Product;
+
+
+                function Toy(name,price){
+                    Product.call(this,name,price);
+                    this.category = 'toy';
+                }
+                Toy.prototype = new Product();
+
+                var cheese = new Food('feta',5);
+                var fun = new Toy('rebot',40);
+
+
+          // apply(thisArg[,argArray]) 该方法作用和call(callerObj[,param....])类似,只有一个区别就是
+          // call方法接受若干参数个参数的列表,而apply方法接受的是一个包含多个参数的数组
+
+
+
+    </script>
+</body>
+</html>

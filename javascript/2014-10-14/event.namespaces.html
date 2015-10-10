@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+	<title>
+
+    </title>
+<script src="../../jquery/jquery-1.10.js"></script>
+<style>
+	div{
+		width: 200px;
+		height:200px;
+		background:red;
+		float:left;
+		margin-right:10px;
+	}
+</style>
+</head>
+<body>
+
+<button id="open">open all</button>
+<button id="close">close all</button>
+
+<div>a</div>
+<div>b</div>
+<div>c</div>
+<div>d</div>
+
+<script>
+	$(function(){
+		$(document).on('click.a.b','div:even',function(){alert(1);});
+		$(document).on('click.odd','div:odd',function(){alert(2);});
+
+		$('#open').click(function(){
+			// 命名空间可以米有，但是事件类型必须有
+			$('div').trigger('click.a');	
+		});
+	});
+</script>
+
+</body>
+</html>

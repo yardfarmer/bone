@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<title>absolute replaced by margin</title>
+<style>
+
+div {
+	border: 1px solid red;
+}
+
+#container{
+	height: 200px;
+	border-color: blue;
+	position:absolute;
+}
+
+#a{
+	height: 100px;
+	border-color:green;
+}
+
+#b{
+	margin-top:-10px;
+}
+
+</style>
+</head>
+<body>
+<div id='container'>
+<div id='a'>in a</div>
+<div id='b'>this is b</div>
+</div>
+</body>
+</html>

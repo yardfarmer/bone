@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<script>
+
+    // \b是正则表达式规定的一个特殊代码
+    // 某些人叫它元字符，metacharacter）
+    // 代表着单词的开头或结尾，也就是单词的分界处
+
+    var str = 'abcdefg';
+
+
+    // 正常情况下返回位置,没有返回-1
+    // console.log(str.search('ae'));
+
+    // console.log(str.substring(2,5));
+
+    // console.log(str.charAt(2));
+
+    // console.log(str.split(""));
+
+    str = '1 2 2 12 234 sf Ab 3  5 =';
+    // 找到一个后接着找
+    // console.log(str.match(/\d+/g));
+
+    var re = new RegExp('ab','i');
+
+    // console.log(str.search(re));
+
+    // console.log(str.match(re));
+    // console.log(str.match(re).length);
+
+    // g找到全部
+    re = /\d+/g;
+    // console.log(str.match(re));
+
+    // console.log(str.replace(re,'a'));
+
+    // text2.value = text1.value.replace(re, '****');
+    // g替换全部,不是找到一个就完事
+    re = /baidu|tengxun/g;
+    str = "beijing baidu tengxun  soho wangyi";
+    //console.log(str.replace(re,"***"));
+
+    //str = 'raddbc  Rbbc  cbc dbc ebc';
+    // re = /(?:r|R)[abc]bc/gi;
+    // re = /[abc].*bc/gi;
+
+    str = " abaabab aaabab ";
+
+    // 贪婪匹配 默认的
+    re = /a.*b/;
+
+    // 非贪婪匹配
+    // 从左往右找到第一个
+    // 有小的用小的
+    re = /a.*?b/;
+
+    console.log(str.match(re),'2014-06-06');
+
+
+    // \w [0-9a-zA-Z_]
+    // \s  空白字符
+
+    window.onload = function () {
+
+       var oText1 = document.getElementById('text1'),
+           oText2 = document.getElementById('text2'),
+           oBtn  = document.getElementById('btn1');
+
+        oBtn.onclick = function () {
+
+            // 正则天生贪婪,尽量匹配多的字符
+            var re = /<[^<>]+>/g;
+            oText2.value = oText1.value.replace(re, '');
+        };
+
+    };
+
+
+</script>
+
+<textarea id="text1" rows="10" cols="40" ></textarea>
+
+<input id="btn1" type="button" value="zhuanhuan"/>
+
+<textarea id="text2" rows="10" cols="40" ></textarea>
+
+
+<input type="text" value="mail" id="mailtext"/>
+<input type="button" value="btnnn1" id="btn2" />
+
+</body>
+</html>

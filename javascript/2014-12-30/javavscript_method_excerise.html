@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+<body>
+<script>
+// array.concat
+var a = ['a','b','c']
+var b = ['x', 'y']
+var c = a.concat(b,1,2,3);
+//=> ["a", "b", "c", "x", "y", 1, 2, 3]
+
+// array.join
+var a = ['a','b','c'];
+a.push('d');
+var c = a.join('');
+// console.log(c);
+
+var a = ['a','b','c'];
+var c = a.pop();
+console.log(c); // 'c';
+
+function pop () {
+	return this.splice(this.length-1, 1)[0];
+}
+
+// array.splice(start, deleteCount, item...)
+// start: 从数组中移除元素的开始位置.
+// deleteCount: 要移除的元素个数
+// item: 移除的元素用这些元素补上
+var a = ['a','b','c'];
+var r = a.splice(1,1,'abc','def');
+
+
+
+
+
+
+	
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title> quick run !</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<script>
+// otherWindow.postMessage(message, targetOrigin, [transfer]);
+top.postMessage("The user is 'bob' and the password is 'secret'",
+                  "*");
+</script>
+</body>
+</html>

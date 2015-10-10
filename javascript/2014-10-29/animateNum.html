@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style>
+		.progress-money {
+			padding-top: 10px;
+			font-size: 14px;
+			position: relative;
+		}
+	</style>
+</head>
+<body>
+	<p class="progress-money">
+		<span class="size40 red font-bold font-en animateNum" data-animateTarget="100">
+			1
+		</span>
+		<span class="red">元</span>
+		<span class="grey">已筹集</span>
+	</p>	
+	<p class="progress-money">
+		<span class="size40 red font-bold font-en animateNum" data-animateTarget="200">
+			0
+		</span>
+		<span class="red">元</span>
+		<span class="grey">已筹集</span>
+	</p>	
+	<p class="progress-money">
+		<span class="size40 red font-bold font-en animateNum" data-animateTarget="300">
+			6
+		</span>
+		<span class="red">元</span>
+		<span class="grey">已筹集</span>
+	</p>	
+	<script src="../../jquery/jquery-1.10.js"></script>
+	<script src="plugin.js"></script>
+	<script>
+	 (function () {
+        var $animateNum = $(".animateNum");
+        checkAnimateNum();
+        $(window).bind("scroll", function () {
+            checkAnimateNum();
+        });
+        function checkAnimateNum() {
+            var winRange = {top: $(window).scrollTop(), bottom: $(window).scrollTop() + $(window).height()};
+            $animateNum.each(function () {
+                var targetNum = $(this).attr("data-animateTarget");
+                if (winRange.top <= ($(this).offset().top + $(this).height()) && winRange.bottom >= $(this).offset().top && !$(this).data("start")) {
+                    $(this).data("start", true);
+                    new AnimateNum({
+                        obj: $(this),
+                        target: targetNum,
+                        totalTime: 1000
+                    })
+                }
+            })
+        }
+    })();
+	</script>
+</body>
+</html>

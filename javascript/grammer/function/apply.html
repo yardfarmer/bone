@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>apply</title>
+</head>
+<body>
+	<script>
+
+		function log(msg) {
+		
+			/*
+
+			!function(){ 
+				var nativeLogFun = console.log;
+				nativeLogFun.apply(console,arguments);
+			}("\(app\)"+msg);
+
+			*/
+
+
+			var slice = Array.prototype.slice,
+				args  = slice.apply(arguments);
+
+			args.unshift("(app)");
+
+			var nativeLogFun = console.log;
+			nativeLogFun.apply(console,args);
+
+		}
+	
+		log('my msg');
+	
+	</script>
+</body>
+</html>

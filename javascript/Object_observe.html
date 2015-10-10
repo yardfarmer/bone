@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+    <script>
+        var obj = {};
+
+		// Object.observe(监听对象,变化处理回调,[指定事件的种类]);
+        Object.observe(obj, function(changes) {
+			console.log(changes);
+			changes.forEach(function(change){
+
+				console.log(change.name,
+							change.oldValue, 
+							change.type,
+							change.object);
+			});
+        });
+		obj.a = 1;
+		obj.a = 2;
+		obj.c = 1;
+		obj.d = 1;
+
+    </script>
+</body>
+
+</html>

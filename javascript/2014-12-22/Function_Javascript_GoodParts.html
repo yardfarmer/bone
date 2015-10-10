@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Function</title>
+</head>
+
+<body>
+    <script>
+        // 创建一个使用其他原型对象作为其自身原型的新对象.
+        if (typeof Object.beget !== "function") {
+            Object.beget = function(o) {
+                var F = function() {};
+                F.prototype = o;
+                return new F();
+            }
+        }
+
+
+        var root = {
+            a: 1,
+            b: 2
+        }
+
+        var an = Object.beget(root);
+
+        an.c = 3;
+        console.log(an, an.a);
+
+        for (var v in an) {
+            if (an.hasOwnProperty(v)) {
+                console.log('self own: ' + v);
+            }
+        }
+    </script>
+
+    <script>
+        // 给所有的构造函数增加`静态`方法
+        Function.prototype.method = function(name, func) {
+            this.prototype[name] = func;
+            return this;
+        }
+
+        Number.method('integer', function() {
+            return Math[this < 0 ? 'ceil' : 'floor'](this);
+        });
+
+        document.writeln((-10 / 3).integer());
+
+        String.method('trim', function() {
+            return this.replace(/^\s+|\s+$/g, "");
+        });
+
+
+        // document.writeln(" a  b  c ".trim());
+        console.log("           x     d   ".trim());
+        console.log("a d   ".trim());
+    </script>
+
+    <script>
+        // new 的本质
+        Function.method('new', function() {
+            // 创建一个新的对象,它继承自构造函数的原型
+            var that = Object.beget(this.prototype);
+
+            // 调用构造函数,绑定 this 到新对象上
+            var other = this.apply(that, arguments);
+
+            // 如果它的返回值不是一个对象,就返回该对象
+            return (typeof other === 'object' && other) || that;
+        });
+
+        // Mammal : 哺乳动物
+        var Mammal = function(name) {
+            this.name = name;
+        }
+        Mammal.prototype.get_name = function() {
+            return this.name;
+        }
+
+        var Cat = function(name) {
+            this.name = name;
+            this.saying = 'meow';
+        }
+
+        Cat.prototype = new Mammal();
+
+        Cat.prototype.purr = function() {
+            return "abc"
+        }
+    </script>
+
+    <script>
+        // 实现继承
+        Function.method('inherits', function(Parent) {
+            this.prototype = new Parent();
+            return this;
+        });
+
+        // 展现连式操作的魅力
+        var Dog = function(name) {
+                this.name = name;
+                this.saying = 'wangwang';
+            }
+            .inherits(Mammal)
+            .method('sayHi', function() {
+                console.log('hello everybody');
+            })
+            .method('someOther', function() {
+                console.log('cool');
+            });
+
+        var dog = new Dog();
+
+        // done!
+    </script>
+
+</body>
+
+</html>

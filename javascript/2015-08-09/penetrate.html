@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>penetrate 事件穿透</title>
+    <style>
+        .one{
+            height: 300px;
+            width: 300px;
+            background-color: #7effab;
+        }
+
+        .foo {
+            height: 100px;
+            width: 100px;
+            position: absolute;
+            z-index: 1000;
+            background-color: #ff518a;
+        }
+    </style>
+    <script src="//cdn.bootcss.com/jquery/2.1.4/jquery.js"></script>
+</head>
+<body>
+
+<div class="one">
+    <div id="foo" class="foo">foo</div>
+</div>
+
+<script>
+    //    $(function () {
+    //
+    //        // gist:
+    //        // $("ul li") 返回的是 jQuery 对象
+    //        // 而 $("ul li").get() (retrieve) 返回的是数组
+    //        // 且可以用下标读取数组
+    //
+    //        var jqObj = $("ul li");
+    //        var domElementList = jqObj.get();
+    //        // var a = $("ul li");
+    //        console.log(jqObj, domElementList);
+    //
+    //        // get(index) 返回的原生的 DomElement 对象,
+    //        // jQuery.eq(position) 返回的是 jQuery 对象集合中的一个 jQuery 对象
+    //        var b = $("ul li").get(1);
+    //        console.log("get(index)", b);
+    //
+    //    });
+
+
+    //    $("li", ".two").click(function (event) {
+    //        event.stopPropagation();
+    //        var domelement = $(this).get(0);
+    //        console.log($(this).get());
+    //        $("span:first").text("Clicked on - " + domelement.nodeName);
+    //    });
+
+    //    jQ(document).on(onEvent, '.coupons-item', function (e) {
+    //        var data = jQ(this).css('backgroundColor', 'red').data();
+
+    //    $(function(){
+    $(document).on('click', '.foo', function clickHandler() {
+        console.log($(this).get());
+    });
+    //    });
+
+
+    //    setTimeout();
+
+</script>
+
+</body>
+</html>

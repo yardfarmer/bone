@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<script src="../../jquery/jquery-1.10.js"></script>
+</head>
+<body>
+	<button id="myBtn">bit me</button>
+	<script>
+		$("#myBtn").click(function(){
+			alert(1);
+		})	
+
+		document.getElementById("myBtn").removeEventListener("click");
+
+		// 这样是不行的,单击事件同样被触发
+		document.getElementById("myBtn").onclick = null;
+		document.onclick = null;
+		document.body.onclick=null;
+		function clk() {
+			alert(2);
+		}
+	</script>
+</body>
+</html>

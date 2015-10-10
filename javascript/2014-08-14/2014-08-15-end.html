@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+	<title>
+
+    </title>
+<script src="../../jquery/jquery-1.10.js"></script>
+
+</head>
+<body>
+
+<ul class="first">
+  <li class="foo">list item 1</li>
+  <li>list item 2</li>
+  <li class="bar">list item 3</li>
+</ul>
+<ul class="second">
+  <li class="foo">list item 1</li>
+  <li>list item 2</li>
+  <li class="bar">list item 3</li>
+</ul>
+
+
+<script>
+	$(function(){
+		// insert you code 
+		// 把最后一次查询前一次的集合，作为最终结果集.
+	    $("ul.first")
+			.find(".foo")
+				.css("background-color","green")
+			.end() // 这里的 jQuery 对象变为".foo" 之前的"ul.first"
+			.find(".bar")
+			    .css("background-color","red");
+	});
+</script>
+
+</body>
+</html>

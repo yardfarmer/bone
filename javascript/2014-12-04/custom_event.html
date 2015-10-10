@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+<body>
+<script>
+	var exports = this;
+	exports.Event = {
+		on: function(ev, callback){
+
+			var evs = ev.split(" ");
+			var calls = this._callbacks || (this._callbacks = {});
+
+			for(var i = 0; i < evs.length; i++ ){
+				(this._callbacks[evs[i]] || (this._callbacks[evs[i]] = [])).push(callback);
+			}
+			return this;
+		},
+
+		trigger: function() {
+			var args = [].slice.call(arguments); 
+			var ev   = args.shift();
+			
+			var list, calls, i, l;
+			if (!(calls = this._callbacks)) return this;
+			if (!(list  = this._callbacks[ev])) return this;
+
+			for (var i = 0; i < list.length; i++) {
+				if (list[i].apply(this,args) === false) // prevent bubble
+					return false;
+			}
+			return this;
+		}
+	}
+
+	Event.on("a",function(){
+		console.log("abcdef");
+	});
+
+	Event.on("b",function(){
+		console.log("b");
+	});
+
+
+	Event.trigger("b");
+</script>
+</body>
+</html>

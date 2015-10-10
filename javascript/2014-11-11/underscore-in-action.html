@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+	<title>
+
+    </title>
+<script src="../../underscore/underscore-reading.js"></script>
+
+</head>
+<body>
+
+<script>
+	var demo_reduce = _.reduce([1,2,3], 
+			function(lastMemory,curNum){
+				console.log("memo:"+lastMemory+", num:"+curNum);
+				return lastMemory + curNum; }, 0);
+	console.log("demo_reduce:" + demo_reduce);
+
+	var demo_reduceRight = _.reduceRight([1,2,3],
+			function(lastMemory, curNum){ 
+				console.log("memo:"+lastMemory+", num:"+curNum);
+				return lastMemory + curNum; }, 0);
+	console.log("demo_reduce:" + demo_reduce);
+
+	var demo_shuffle = _.shuffle([1,2,3,4,5,6,7]);
+	console.log("demo_shuffle:" + demo_shuffle);
+
+	var demo_invoke = _.invoke([[1,5,3,4,2,6,7],[5,1]],'sort');
+	console.log("demo_invoke:" + demo_invoke);
+	
+	var person = [{name: 'John', age: 40}, {name: 'larry', age: 50}, {name: 'curly', age: 60}];
+	var demo_indexBy = _.indexBy(person, 'age');
+	console.log( demo_indexBy);
+
+	var listOfPlays = 
+	[
+		{title: "Cine", author: "Shakespeare", year: 1611},
+		{title: "eline", author: "Shakespeare", year: 1611},
+		{title: "Cymbeline", author: "shakespeare", year: 1611},
+	]
+	// where: 根据对象进行过滤
+	// var demo_where = _.where(listOfPlays, {author: "Shakespeare", year: 1611});
+	var demo_where = _.where(listOfPlays, {year: 1611});
+	console.log(demo_where);
+	
+	var txt = "<h2><%= word %></h2>";
+	var demo_template = _.template(txt, {word : "Hello World"})
+	console.log("demo_template:"+ txt)
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+	<title>
+
+    </title>
+<script src="../../jquery/jquery-1.10.js"></script>
+
+</head>
+<body>
+ <p> hello world </p>
+<script>
+	$(function(){
+		// insert you code 
+		
+		var $p = $("p");
+		// jQuery 对象复制
+		var $cp = $($p);
+		$p = null;
+		$cp.css("background-color","green");
+		
+		//var a = $("<p>这里不能有内容的，只能空标签</p>",{
+		//		"id"    : "pid",
+		//		"class" : "pclass"
+		//	});
+
+		// 第一个参数必须是完整标签
+		var a = $("<p>",
+			{
+				"id": "pid",
+				"class": "class",
+				text: "内容放在这里",
+				click: function () { alert("ok")}
+			});
+
+		a.appendTo("body");
+		
+		console.log(a);
+		
+	});
+</script>
+
+</body>
+</html>

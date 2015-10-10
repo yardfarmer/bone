@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+    <style>
+
+        /*p 必须紧跟在同胞标签h1后面*/
+        /*
+        h1 + p {
+            color: red;
+        }
+        */
+
+        /*p 必须跟在(不必紧跟)同胞标签h1后面*/
+        /*h1 ~ p {*/
+        /*color: #ff0000;*/
+        /*}*/
+
+        /*p * {*/
+        /*color: red;*/
+        /*}*/
+
+        p.mm {
+            border: 1px solid goldenrod !important;
+        }
+
+        .s2 {
+            color: green !important;
+        }
+
+        .s1 {
+            color: red;
+        }
+
+        .s1.s2{
+            line-height: 2em;
+            border: 1px solid olivedrab;
+        }
+
+
+        #placeholder {
+            height: 1000px;
+            border: 1px solid darkolivegreen;
+        }
+
+        img[alt] {
+            border: 10px solid gainsboro;
+            border-radius: 100px;
+        }
+
+        img:hover{
+            border: 10px solid chartreuse;
+            border-radius: 100px;
+        }
+
+        *:focus{
+            border: solid 10px  salmon;
+        }
+
+        #mm:target{
+            background: #eee;
+        }
+
+
+    </style>
+</head>
+<body>
+
+
+<p>p1</p>
+
+<p class="mm">p2</p>
+
+<h1  id="mm">h1</h1>
+
+<!--class 样式与这里的先后顺序无关,与样式表中先后顺序有关-->
+<pre class="s1 s2">p3</pre>
+
+<p alt="this is p4">p4</p>
+
+<div class="mm"> abc</div>
+
+
+<input type="file" />
+
+<input type="text" />
+
+
+<img  src="https://www.google.com/images/srpr/logo11w.png" title="hello world" alt="sasdfasdf"/>
+
+
+<div id="placeholder"></div>
+
+<a id="btm" href="#mm">got to mm</a>
+
+<!--#直接回到顶部-->
+<a id="btm" href="#">go to top</a>
+</body>
+</html>

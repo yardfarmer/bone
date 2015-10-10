@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script>
+
+    //    var foo = false;
+    //    var bar = false;
+    //
+    //    var myFunction = function (foo, bar) {
+    //        arguments[0] = true;
+    //        bar = true;
+    //    };
+    //
+    //    var cody = {
+    //        living: true,
+    //        age: 23,
+    //        getGender: function () {
+    //            return  this.living;
+    //        }
+    //    }
+    //
+    //    cody.getGender();
+
+    //    function create() {
+    //        return function( n ) {
+    //            if(n <= 1){
+    //                return 1;
+    //            }
+    //            return n * arguments.callee(n-1);
+    //        }
+    //    }
+    //
+    //    console.log(create()(3));
+
+
+    var foo = 'foo';
+    var myObject = { foo: 'I am myObject.foo' };
+
+    var sayFoo = function () {
+        console.log(this['foo']);
+    };
+
+
+    myObject.sayFooo = sayFoo;
+
+    myObject.sayFooo();
+
+    sayFoo();
+
+
+</script>
+</body>
+</html>

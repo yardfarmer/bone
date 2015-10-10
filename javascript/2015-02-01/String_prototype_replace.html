@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>string.prototype.replace</title>
+</head>
+<body>
+<script>
+
+/*
+*
+*  match: 匹配的字串
+*  p1: 分组匹配 $1,
+*  p2: 分组匹配 $2,
+*  p3: 分组匹配 $3
+*  ... 
+*  自定义参数pn, 表示 n 个分组匹配所得参数
+*/
+
+
+// str.replace(regexp|substr, function[,   flags]);
+
+function replacer(match, p1, p2, p3, /*  ..  pn */ offset, wholeStr){
+	//console.log(match, p1, p2, p3, offset, wholeStr);
+	var str = [p1,p2,p3].join('-');
+	console.log(str);
+	//console.log(str);
+	return str;
+}
+
+var newString = "abcd1234!@#$%ghjk678%^&*".replace(/([^\d]+)([\d]+)([^\w]+)/g, replacer);
+
+console.log(newString);
+console.log('=======');
+
+
+
+
+
+// str.replace(regexp|substr, string[,   flags]);
+
+var replacer = "{matched string: $&}-{gropup match1: $1}-{group match2: $2}"; 
+
+/*
+*	$` (esc 下面)表示当前匹配字符串之前的字符串
+*	$'           表示当前匹配字符串之后的字符串
+*/
+var replacer = "{matched string: $&}-{$`}-{$'}"; 
+
+
+var newString = "abcd1234!@#$%ghjk678%^&*".replace(/([^\d]+)([\d]+)([^\w]+)/g, replacer);
+console.log(newString);
+
+
+
+
+
+</script>
+</body>
+</html>

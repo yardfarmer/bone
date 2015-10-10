@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+  /*
+  优点：
+  1. 同时支持块级元素和内联元素
+  2. 支持非文本内容
+  3. 支持所有浏览器
+
+  特点：
+	容器不能固定高度
+
+  */
+</script>
+  <style>
+
+
+	div{
+		width: 200px;
+		border: 1px dotted;
+
+		padding-top: 100px;
+		padding-bottom: 100px;
+	}
+  </style>
+</head>
+<body>
+	<div>
+		<span>Hello World</span>
+		<span>Hello World</span>
+		<span>Hello World</span> 
+		<!-- 过多的部分会被 hidden -->
+		<span>Hello World</span>
+	</div>
+</body>
+</html>

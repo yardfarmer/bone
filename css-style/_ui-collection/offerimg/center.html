@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="gbk">
+    <title></title>
+</head>
+<body>
+
+
+<style>
+
+    /*
+        见 pitya
+        pitaya.justkit.im
+    */
+
+    .h-img-text .vertical-img {
+        position: relative;
+        width: 9.875rem;
+        height: 9.875rem;
+        /* border: 1px solid #ccc; */
+        box-shadow: 0 0 0 1px #ccc;
+    }
+
+
+    .vertical-img {
+        display: table;
+        text-align: center;
+        overflow: hidden;
+        font-size: 0;
+        table-layout: fixed;
+    }
+
+    .h-img-text .box-img {
+        border: 1px solid #ccc;
+        width: 9.875rem;
+        height: 9.875rem;
+    }
+
+    .vertical-img .box-img {
+        /*垂直居中处理*/
+        display: table-cell;
+        vertical-align: middle;
+
+        overflow: hidden;
+    }
+
+    .h-img-text .img-50 {
+        max-width: 9.875rem;
+        max-height: 9.875rem;
+    }
+
+    .vertical-img img {
+        vertical-align: middle;
+    }
+
+</style>
+
+<dl class="h-img-text">
+    <dt class="vertical-img">
+        <span class="box-img">
+            <img class="img-50"
+                 data-origimg="http://img.china.alibaba.com:80/img/ibank/2015/086/590/2268095680_1360860654.142x142.jpg"
+                 src="http://img.china.alibaba.com:80/img/ibank/2015/086/590/2268095680_1360860654.220x220.jpg">
+        </span>
+        <span class="cover-text">2015-06-27 上新</span>
+    </dt>
+    <dd class="topic">大牌爆款，早秋连衣裙，个性项链装饰，两色三码</dd>
+    <dd class="price"><span class="fd-cny">?</span><em class="value">210.00</em></dd>
+</dl>
+
+</body>
+</html>

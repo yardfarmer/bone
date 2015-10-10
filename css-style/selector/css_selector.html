@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>taobao</title>
+<style>
+</style>
+</head>
+
+
+<body>
+
+1.
+<style>
+.section1 p {
+	font-style: normal;
+}
+/* 首相排除法 */
+.section1 p + p  {
+	font-style: italic;	
+}
+</style>
+
+<div class="section1">
+	<p>section 1</p>
+	<p>section 2</p>
+	<p>section 3</p>
+	<p>section 4</p>
+</div>
+
+2.
+<style>
+#section2 p {
+	font-weight: bold;
+}
+#section2 p[class] {
+	color: green;
+}
+</style>
+<section id="section2">
+	<p> hello </p>
+	<p class="paragraph"> world </p>
+</section>
+
+3.
+<style>
+/* #section3:first-child  { */
+/* 上面的是常见错误,没有选到孩子身上 */
+#section3 p:first-child  {
+	font: italic 18px/1.8 serif;
+}
+</style>
+<section id="section3">
+	<p> hello </p>
+	<p class="paragraph"> world </p>
+</section>
+
+
+4.
+<blockquote>
+	Lorem ipsum dolor sit .....
+</blockquote>
+
+5.
+
+css2
+选取空格分隔的值中的某一个,最适合作为类选择器
+valueA 仿佛 多个类中的一个
+E[attr ~="valueA" ]  
+
+
+css3
+E[attr^="name"]  以 name 开头的 <br>
+
+E[attr$="name"]  以 name 结束的 <br>
+
+E[attr*="name"]  包含 name 字符串的 <br>
+
+E[attr|="name"]  attr="name" 或 attr="name-xxx" 类型的 <br>
+
+
+
+
+<style>
+/* $("input[name!='newsletter']")，选中所有不包含'newsletter'属性的<input>元素 */
+/* css3里不支持'！' , 非选择符 */
+/* #section5 p[class |="paragraph"]  { */
+#section5 p[class ~="paragraph"]  {
+	color: red;
+}
+
+#section5 p[class |="paragraph"] {
+	color: blue;
+} 
+
+</style>
+<section id="section5">
+	<p> hello </p>
+	<p class="paragraph another"> world </p>
+	<p class="paragraph-ak"> world </p>
+	<p class="paragraph33"> world </p>
+	<p class="paragraph"> world </p>
+</section>
+
+
+6. nth-child
+<!-- #section6 p:nth-child(2) -->
+<!-- #section6 p:nth-child(odd) -->
+<!-- #section6 p:nth-child(even) -->
+
+<style>
+	#section6 p:nth-child(even) {
+
+		border: 2px solid green;
+		margin: 5px;
+	}
+</style>
+<div id="section6">
+	<p class="item1">item is 1</p>
+	<p class="item2">item is 2</p>
+	<p class="item3">item is 3</p>
+	<p class="item4">item is 4</p>
+	<p class="item5">item is 5</p>
+</div>
+
+<!-- amazing !!!!!  -->
+<!-- (div#menu$>ul>li*5>a)*2 -->
+
+
+7.target 
+
+<style>
+ #theTarget:target {
+	 border:1px dashed red;
+}
+</style>
+<a href="#theTarget"> find the target </a>
+<div id="theTarget">
+	the target
+</div>
+</body>
+</html>
+
+
+
+8. div p:not(.secondParagraph){font-style:italic}
+
+<style>
+#section8 div:not([name='hi']) {
+	height:10px;
+	border:3px solid green;
+	margin:10px;
+}
+</style>
+<div id="section8">
+	<div class="parp parp1">1</div>
+	<div class="parp2">2</div>
+	<div class="parp" name='hi'>3</div>
+	<div class="parp">4</div>
+	<div class="parp">5</div>
+</div>
+
+

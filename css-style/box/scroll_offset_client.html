@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>动画模拟</title>
+	<style>
+		.wrapper {
+			border: 1px solid red;
+			height: 200px;
+			width: 200px;
+			overflow: scroll;
+		}
+
+		.inner {
+			border: 1px solid green;	
+			height: 600px;
+			width: 600px;
+		}
+
+	</style>
+
+</head>
+<body>
+<div class="wrapper">
+	<div class="inner">
+	</div>
+</div>
+
+<script>
+	var wrapper = document.getElementsByClassName('wrapper')[0];
+	var inner   = document.getElementsByClassName('inner')[0];
+	var wpClientWidth =  wrapper.clientWidth;
+	var wpScrollWidth =  wrapper.scrollWidth;
+	var wpOffsetWidth =  wrapper.offsetWidth;
+
+	console.log('clientWidth', wpClientWidth, 'scrollWidth', wpScrollWidth,'offsetWidth', wpOffsetWidth);
+
+	var inClientWidth =  inner.clientWidth;
+	var inScrollWidth =  inner.scrollWidth;
+	var inOffsetWidth =  inner.offsetWidth;
+
+	console.log('clientWidth', inClientWidth, 'scrollWidth', inScrollWidth,'offsetWidth', inOffsetWidth);
+
+
+</script>
+</body>
+</html>

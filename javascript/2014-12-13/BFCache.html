@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+<body>
+<script>
+(function(){
+    var i = 0;
+
+    window.addEventListener('pageshow', function(){
+        alert(i++);
+        alert('I am loaded');
+    })
+
+    window.addEventListener('load', function(){
+        alert('I am loaded');
+    })
+}());
+</script>
+</body>
+</html>

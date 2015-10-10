@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<title>transform-translate</title>
+	<style type="text/css">
+		div {
+			width: 500px;
+			height: 300px;
+			margin: 30px auto;
+			position: relative;
+			background: url(images/bg-grid.jpg) no-repeat center center;
+			background-size: 100% 100%;
+		}
+
+		div img {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin-left: -71px;
+			margin-top: -100px;
+
+            /*
+             * 虽然元素的变形原点通过transform-origin 可以改变,
+             * 但是 translate 的起点还是元素的中心
+             */
+            transform-origin: top right;
+
+		}
+		div img:nth-child(1){
+			opacity: .5;
+			z-index: 1;
+			transform: translate(-71px, -100px);
+		}
+		div img:nth-child(2){
+			opacity: .6;
+			z-index: 2;
+			transform: translate(71px, 100px);
+		}
+
+	</style>
+</head>
+<body>
+	<div>
+		<img src="images/cardKingClub.png" alt="" width="142" height="200" />
+		<img src="images/cardKingClub.png" alt="" width="142" height="200" />
+	</div>
+</body>
+</html>

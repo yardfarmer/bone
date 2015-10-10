@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Array Demo</title>
+</head>
+<body>
+<script>
+
+    var c = console;
+
+    c.log(1, 'concat' in [], '数组方法判定');
+
+    if ('every' in []) {
+        [1, 2, 3, 4, 5].every(function (v, i) {
+            c.log(2 + '.' + i, v + '/' + i, 'every: 测试断言函数是否对数组的每个元素都为真');
+            return true;
+        });
+    }
+
+    c.log(3, [1, 2, 3, 4, 5].join('@'), '将数组所有元素转为字符串');
+
+    c.log(4, [1, 2, 3, 4, 5].map(function (v, i) {
+
+        return v + '+' + i;
+
+    }), '生成新的数组');
+
+    c.log(5, [1, 3, 5].some(function (v, i) {
+
+        return (v % 2 === 0) ? true : false;
+
+    }), '至少一项为真则结果为真');
+
+    var a = [1, 2, 3, 4, 5],
+        b;
+
+    b = a.slice(); // 可以用于数组克隆
+
+    a.shift(); // 移除数组第一个元素
+
+    console.log(6,a.length === b.length, a.length, b.length ,'slice 截取部分构成新的数组');
+
+
+
+
+</script>
+</body>
+</html>

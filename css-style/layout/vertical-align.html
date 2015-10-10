@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="gbk">
+    <title></title>
+</head>
+<body>
+
+<!--
+    vertical-align:
+    for inline or table-cell box
+-->
+
+<style>
+    #tablecellexamples table,
+    #tablecellexamples div {
+        height: 4em;
+    }
+
+    #tablecellexamples td,
+    #tablecellexamples div {
+        border: 1px solid black;
+        width: 20em;
+        padding: 0 0.5em;
+        line-height: 97%;
+        font-size: 90%;
+        background-color: #ffe;
+    }
+
+    code {
+        font-size: 100%;
+        font-family: Courier, 'Courier New', monospace;
+        color: #060;
+    }
+</style>
+
+<div id="tablecellexamples">
+    <table>
+        <tbody>
+        <tr>
+            <td valign="middle"><code>&lt;td&gt;</code> using <code>valign="middle"</code></td>
+            <td valign="bottom"><code>&lt;td&gt;</code> using <code>valign="bottom"</code></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <tbody>
+        <tr>
+            <td style="vertical-align:middle"><code>&lt;td&gt;</code> using <code>vertical-align:middle</code></td>
+            <td style="vertical-align:bottom"><code>&lt;td&gt;</code> using <code>vertical-align:bottom</code></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div style="display:table-row">
+    <!--<div>-->
+        <div style="display:table-cell; vertical-align:middle">
+            <code>&lt;div&gt;</code> using
+            <code>display:table-cell; vertical-align:middle
+            </code>
+        </div>
+        <div style="display:table-cell; vertical-align:bottom"><code>&lt;div&gt;</code> using <code>display:table-cell;
+            vertical-align:bottom</code></div>
+    </div>
+</div>
+
+
+<!--
+    vertical-align 即由 valign 演化而来
+    关于图片的 vertical-align:
+    img 自身是 inline 形式, 存在 vertical-align 属性
+
+    除 img 外, 能使用 vertical-align 的还有 inline-block 属性
+-->
+<div style="border: 1px solid;">
+    <img style="width:30px;height:30px;vertical-align: middle">
+
+    <!--必须声明为 inline-block-->
+    <span style="vertical-align:middle; display: inline-block;">it's work.</span>
+</div>
+
+
+<br/>
+
+
+<!--父元素高度不确定的文本、图片、块级元素的垂直居中-->
+<!--通过给父容器设置相同上下边距实现的，即设置padding-top和padding-bottom。 -->
+
+
+<div style="border:1px saddlebrown solid;">
+    <p style="padding: 50px 0;">Lorem ipsum dolor.</p>
+</div>
+
+</body>
+</html>

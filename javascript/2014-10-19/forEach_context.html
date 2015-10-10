@@ -1,0 +1,23 @@
+<script>
+console.log(window.breakFlag);
+
+// forEach(
+// 		callback
+// 		[, thisArg]
+// 		)
+// 如果没有指定回调的上下文，那么默认为 global
+
+[1, 2, 3].forEach( function(v) {
+    if (this.breakFlag === true) {
+        return false;
+    }
+
+    if (v === 2) {
+        this.breakFlag = true
+    }
+    console.log(v) //只输出1,2
+// });  // 回调的 contenxt 认为 global，则执行后会污染全局变量
+},{});  // 设置空对象为 回调的上下文, 安全无污染
+
+console.log(window.breakFlag);
+</script>

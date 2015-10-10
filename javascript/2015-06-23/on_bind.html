@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="gbk">
+    <title></title>
+    <script src="//cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+<div class="container">a</div>
+
+<script>
+
+
+    $(".container").on("click", function() {
+        console.log("launched~!")
+
+        $.ajax({
+            dataType: "json",
+            url: "https://1688.com/aasdfj/adsfa.json",
+            success: function(data) {
+                console.log(data);
+            }
+        });
+    });
+
+    $(".container").bind("click", function() {
+        console.log("launched~bind!")
+    });
+
+
+    // 事件代理
+    $(".container").on("click", "button", function() {
+        console.log("launched!")
+    });
+
+
+    $(".container2").on("click", function() {
+        console.log("launched c2!")
+    });
+
+
+    $(".container2").delegate("click", function() {
+        console.log("launched c2de!")
+    });
+
+    $(".container").append("<button>Click me!</button>")
+            .append('<button class="container2">c2</button>');
+</script>
+</body>
+</html>

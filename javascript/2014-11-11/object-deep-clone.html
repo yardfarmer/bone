@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+	<title>
+		对象拷贝
+    </title>
+
+</head>
+<body>
+<h2>对象的拷贝</h2>
+<ul>
+	<ol>确保对象拷贝后，与源对象拥有相同的 prototype</ol>
+	<ol>确保对象拷贝后，与源对象拥有相同的 ownProperty</ol>
+</ul>
+
+<section>
+	<header>核心 api</header>
+	<ul>
+		<li>Object.create</li>
+		<li>Object.getPrototypeOf</li>
+		<li>Object.getOwnPropertyNames</li>
+		<li>Object.getOwnPropertyDescriptor</li>
+		<li>Object.defineProperty</li>
+	</ul>
+</section>
+
+
+<script>
+	function copyObject(orig) {
+		var copy = Object.create(Object.getPrototypeOf(orig));
+		copyOwnPropertiesFrom(copy,orig);
+		return copy;
+	}
+	function copyOwnPropertiesFrom(target, source) {
+		Object.getOwnPropertyNames(source) 
+			.forEach(function(propKey) { 
+				var desc = Object.getOwnPropertyDescriptor(source, propKey);
+				Object.defineProperty(target, propKey, desc);
+		});
+		return target;
+	};
+</script>
+
+
+	<!-- <li>Object.create</li> -->
+<script>
+	var empty  = {};
+	// really empty ?  no, 它挂载了继承的方法
+	// 创建真正空对象的方法是：
+	var realEmpty = Object.create(null);
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+﻿<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>CSS3制作旋转icon</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            padding: 100px;
+        }
+
+        ul:before,
+        ul:after {
+            display: table;
+            content: "";
+        }
+
+        ul:after {
+            clear: both;
+            overflow: hidden;
+        }
+
+        ul {
+            zoom: 1;
+            list-style: none outside none;
+            margin-bottom: 30px;
+        }
+
+        ul li {
+            float: left;
+            margin: 10px;
+        }
+
+        ul a {
+            display: block;
+            float: left;
+            text-decoration: none;
+        }
+
+        ul img {
+            border: 0;
+        }
+
+        h1 {
+            margin: 2em 0;
+        }
+
+        /*
+         *  过渡
+         *  transition：<single-transition>[,<single-transition>]*
+         *  <single-transition> =
+                 [ none | <single-transition-property> ] ||      // 参与过渡的属性
+                 <ransition-duration> ||                         // 执行过渡效果的持续时间
+                 <single-transition-timing-function> ||          // 过渡的动画类型
+                 <transition-delay>                              // 延迟执行过渡效果的时间
+             demo:
+
+                 transition:
+                    border-color .5s ease-in .1s,
+                    background-color .5s ease-in .1s,
+                    color .5s ease-in .1s;
+         */
+
+        #socialicons img,
+        #socialicons2 img {
+            transition: all 100s ease-in-out 0s;
+        }
+
+        /*
+         *  使改变形态
+         *  transform：none | <transform-function>+
+         *
+         */
+
+        #socialicons img:hover {
+            transform: rotate(360deg) scale(1.5);
+        }
+
+        #socialicons2 img:hover {
+            transform: rotate(-360deg) scale(.7);
+        }
+
+    </style>
+</head>
+<body>
+<h1>顺时针旋转360度放大1.2倍</h1>
+<ul id="socialicons">
+    <li><a href="#"><img src="images/rss.png" alt=""/></a></li>
+    <li><a href="#"><img src="images/delicious.png" alt=""/></a></li>
+    <li><a href="#"><img src="images/facebook.png" alt=""/></a></li>
+    <li><a href="#"><img src="images/twitter.png" alt=""/></a></li>
+    <li><a href="#"><img src="images/yahoo.png" alt=""/></a></li>
+</ul>
+<h1>逆时针旋转360度缩小0.7倍</h1>
+<ul id="socialicons2">
+    <li><a href="#"><img src="images/rss.png" alt=""/></a></li>
+    <li><a href="#"><img src="images/delicious.png" alt=""/></a></li>
+    <li><a href="#"><img src="images/facebook.png" alt=""/></a></li>
+    <li><a href="#"><img src="images/twitter.png" alt=""/></a></li>
+    <li><a href="#"><img src="images/yahoo.png" alt=""/></a></li>
+</ul>
+</body>
+</html>

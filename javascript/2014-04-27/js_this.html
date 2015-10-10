@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script>
+
+    var foo = {x: 10};
+
+    var bar = {
+
+        x: 20,
+
+        test: function () {
+            console.log(this === bar);
+            console.log(this.x);
+
+            //this = foo; 不能改变this的值
+        }
+    };
+
+
+    // eval 它有一个概念： 调用上下文(calling context)
+    // eval函数调用的时候产生的上下文
+    eval('var x = 10');
+
+    console.log("x =:" + this.x);
+
+    (function () {
+
+        console.log("x2 =:" + this.x);
+
+        eval('var y = 20');
+
+        console.log("y1 =" + y);
+    })();
+
+    console.log("y2 =" + this.y);
+
+
+</script>
+</body>
+</html>

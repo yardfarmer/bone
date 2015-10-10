@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script>
+
+
+    var foo = function () {
+
+        !function() {
+            this.ping = 8;
+        }();
+
+    };
+
+    foo();
+
+    console.log(window.ping);
+
+</script>
+</body>
+</html>

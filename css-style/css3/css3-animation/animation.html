@@ -1,0 +1,84 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>animation-style的使用</title>
+    <style type="text/css">
+        .wrap {
+            width: 500px;
+            height: 300px;
+            margin: 30px auto;
+            position: relative;
+            background: url(images/bg-grid.jpg) no-repeat center center;
+            background-size: 100% 100%;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotateY(0deg)
+            }
+
+            50% {
+                transform: rotateY(180deg)
+            }
+
+            100% {
+                transform: rotateY(360deg);
+            }
+        }
+
+        .spin {
+            width: 142px;
+            height: 200px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-left: -72px;
+            margin-top: -101px;
+            border: 1px dashed red;
+            cursor: pointer;
+            -webkit-transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
+            -ms-transform-style: preserve-3d;
+            -o-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+        }
+
+        .spin  {
+            animation: spin 5s linear infinite;
+
+            /* 像钟摆一样 循环  toggle */
+            /*animation-direction: alternate;*/
+
+            /* 最后一贞的状态 */
+            /*animation-fill-mode: backwards;*/
+        }
+
+
+
+        .rotate img {
+            border: 1px solid green;
+            -webkit-transform: rotateX(15deg) translateZ(10px);
+            -moz-transform: rotateX(15deg) translateZ(10px);
+            -ms-transform: rotateX(15deg) translateZ(10px);
+            -o-transform: rotateX(15deg) translateZ(10px);
+            transform: rotateX(15deg) translateZ(10px);
+            -webkit-transform-origin: 0 0 40px;
+            -moz-transform-origin: 0 0 40px;
+            -ms-transform-origin: 0 0 40px;
+            -o-transform-origin: 0 0 40px;
+            transform-origin: 0 0 40px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="spin">
+        <div class="rotate">
+            <img src="images/cardKingClub.png" alt="" width="142" height="200"/>
+        </div>
+    </div>
+</div>
+</body>
+</html>

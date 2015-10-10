@@ -1,0 +1,20 @@
+
+'时序图
+
+@startuml
+'comment
+'comment
+'-实线
+'--虚线
+
+actor act
+boundary boundary #ff0000
+control ctrl    #00ff00
+entity entity #0000ff
+database db #fff000
+
+act -> ctrl:request
+act -> db
+db -->  act: comment
+
+@enduml

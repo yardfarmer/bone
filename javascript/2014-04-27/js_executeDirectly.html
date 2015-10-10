@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>立即调用的函数表达式</title>
+</head>
+<body>
+    <script>
+        function makeCounter(){
+
+            var i = 0;
+
+            return function(){
+                console.log(++i);
+            };
+        }
+
+        var counter = makeCounter();
+        counter();
+        counter();
+
+        var counter2 = makeCounter();
+        counter2();
+        counter2();
+
+
+        var foo = function () {};
+
+        /*
+         *   function(){}(); // function name expected
+         *
+         *   因为在解析器解析全局的function或者function内部function关键字的时候，
+         *   默认是认为function声明，而不是function表达式，
+         *   如果你不显示告诉编译器，它默认会声明成一个缺少名字的function，
+         *   并且抛出一个语法错误信息，因为function声明需要一个名字。
+         *
+         */
+
+        ( function(){} ) ();
+
+    </script>
+</body>
+</html>

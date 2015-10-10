@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="gbk">
+    <title></title>
+    <script src="//cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+    <script scr=""></script>
+</head>
+<body>
+
+<button class="btn">A</button>
+<script>
+
+    $('.btn').click(function() {
+        $.ajax({
+            url: 'http://baidu.com/hello.json',
+            dataType: 'json'
+        }).done(function(data, status, jqXHR){
+            $('<pre>').text(JSON.stringify(data, null, 4))
+                    .appendTo('body')
+        })
+    });
+
+
+//    http://member.1688.com/member/rename/rename_cookie_sync.do?memberId=b2b-693603151agvjt
+
+//    $.ajax({
+//        url: 'http://member.1688.com/member/rename/rename_cookie_sync.do?memberId=b2b-693603151agvjt',
+//        dataType: 'jsonp'
+//    }).done(function(data, status, jqXHR){
+//        $('<pre>').text(JSON.stringify(data, null, 2))
+//                .appendTo('body')
+//    })
+</script>
+</body>
+</html>

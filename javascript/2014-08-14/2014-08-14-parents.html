@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+	<title>
+
+    </title>
+<script src="../../jquery/jquery-1.10.js"></script>
+
+</head>
+<body>
+
+<ul class="level-1">
+  <li class="item-i">I</li>
+  <li class="item-ii">II
+    <ul class="level-2">
+      <li class="item-a">A</li>
+      <li class="item-b">B
+        <ul class="level-3">
+          <li class="item-1">1</li>
+          <li class="item-2">2</li>
+          <li class="item-3">3</li>
+        </ul>
+      </li>
+      <li class="item-c">C</li>
+    </ul>
+  </li>
+  <li class="item-iii">III</li>
+</ul>
+
+
+<div><p>Hello</p></div>
+<div class="selected"><p>Hello Again</p></div>
+
+<script>
+	// gist 
+	// 1. jQ 对象很灵活，其中前几个以数字做 key 的属性是选择到的元素。
+	// 2. context 选中元素的环境上下文
+	// 3. length 表示选中元素的个数。
+	// 4. prevObject 通过对象跳转过来的。也就是说已经得到了一个 jQuery 对象，但是并不是想要的，通过一些列跳转方法，
+	//    比如parent(),next(),children(),find() 或者 过滤方法，eq(),filter(),not() 来得到最终想要的 jQuery 对象。
+
+	$(function(){
+		// insert you code 
+		// var a = $("li.item-a").parents(); // 选择上面所有的，意为"祖先"，而不是直接的“父母”
+		var a = $("li.item-a").parents('.level-2'); //针对祖先进行选择
+		var b = a.css("background-color","green");
+		console.log(a);
+	    
+		var c = $("li");
+		console.log(c);
+
+
+		// 不带参数选择所有满足条件的 parent ,带条件会同 parent 结果中根据选择器进行过滤。
+		
+		var d = $( "p" ).parent( ".selected" );
+		var e = d.css( "background", "yellow" );
+		console.log(d,e);
+
+	});
+</script>
+
+</body>
+</html>

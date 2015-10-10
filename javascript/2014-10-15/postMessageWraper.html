@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title> quick run !</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+	
+  </script>
+</head>
+<body>
+	<iframe src='postMessagInner.html'></iframe>
+	<script>
+	window.addEventListener('message',receiveMessage, false);
+	function receiveMessage(event) {
+		// if(event.orgin)
+		console.log('received data from iframe:'+event.data);
+	}
+	</script>
+</body>
+</html>

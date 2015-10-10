@@ -1,0 +1,97 @@
+<script type="text/dcms-param">
+@param({
+    "content":{
+        "subject":{
+        "name":"标题内容",
+        "value":"标题内容"
+      },
+      "bgColor": {
+        "name":"背景颜色",
+        "value":"#000"
+      },
+      "textColor": {
+        "name":"文案字体颜色",
+        "value":"#fff"
+      },
+      "numberColor": {
+        "name":"数字颜色",
+        "value":"#fff"
+      },
+      "timeUnitColor": {
+        "name":"时间单位颜色",
+        "value":"#fff"
+      },
+
+      "onActive": {
+        "name":"倒计时完成后显示的文案颜色",
+        "value":"#fff"
+      },
+
+      "timer":{
+        "name":"倒计时",
+        "isShow":true,
+        "brief":"活动开始前显示toBegin中的文案，活动结束后显示toEnd中的文案, 倒计时完成后显示endText文案",
+        "value":{
+          "toBegin":"距活动开始:",
+          "toEnd":"距活动结束:",
+          "endText": "倒计时结束,活动进行中!",
+          "date":"2015-11-11 00:00:00"
+        }
+      },
+        "repeat":{
+            "name":"设置循环时间（单位：小时）",
+        "brief":"不填此值，就不会进行循环",
+            "value":""
+        }
+    }
+});
+</script>
+
+<style type="text/less">
+    .mod-title-timer-20150821 {
+        height: 80px;
+        width: 1190px;
+        margin: 0 auto;
+        color: #fff;
+        background-color: $bgColor.value;
+        font-weight: bold;
+    }
+    .mod-title-timer-20150821 .subject {
+        margin-right: 20px;
+        color: $textColor.value;
+    }
+
+    .mod-title-timer-20150821{
+        text-align: center;
+        font: bold  30px 'Microsoft YaHei';
+    }
+
+    .mod-title-timer-20150821 i {
+        font-style: normal;
+    }
+
+    .mod-title-timer-20150821 .number {
+        font-size: 60px;
+        font-weight: bold;
+        margin-right: 5px;
+        margin-left: -4px;
+        color: $numberColor.value;
+    }
+    .mod-title-timer-20150821 .over {
+        line-height: 80px;
+        color: $onActive.value;
+    }
+    .mod-title-timer-20150821 .unit {
+        color: $timeUnitColor.value;
+    }
+</style>
+    <p class="mod-title-timer-20150821 timer ms-yh">
+        <span class="subject">$subject.value</span>
+        <label data-to-begin="$timer.value.toBegin" data-to-end="$timer.value.toEnd" data-end-text="$timer.value.endText" class="label"></label>
+        <span class="txt-timer" data-timerdate="$timer.value.date" data-timerrepeat="$repeat.value">
+            <span class="day number"><i>0</i><i>0</i></span><span class="unit">天</span>
+            <span class="hour number"><i>0</i><i>0</i></span><span class="unit">时</span>
+            <span class="minute number"><i>0</i><i>0</i></span><span class="unit">分</span>
+        </span>
+    </p>
+<script type="text/javascript" data-sc-pos="footer" src="http://style.c.aliimg.com/app/tempo/js/box/channel/home/timer.js"></script>

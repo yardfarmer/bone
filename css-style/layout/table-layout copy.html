@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title> if element has width/height</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+
+  div {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	/* 本质就是两遍 margin 相等 */
+	margin: auto;
+	height: 240px;
+	width: 70%;
+	border: 1px solid;
+  }
+	span {
+		border: 1px solid;
+	}
+
+  </style>
+</head>
+<body>
+	<div>
+		<span>A</span>
+	</div>
+</body>
+</html>

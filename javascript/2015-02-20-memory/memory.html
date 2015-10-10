@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<body>
+    <script>
+        var n = 123; // 给数值变量分配内存
+        var s = "azerty"; // 给字符型 
+
+        var o = {
+            a: 1,
+            b: null
+        }; // 为对象及其包含变量分配内存
+
+        var a = [1, null, "abra"]; // 为数组及其包含变量分配内存（就像对象）
+        function f(a) {
+                return a + 2;
+            } // 为函数（可调用的对象）分配内存
+
+        // 函数表达式也能分配一个对象
+        someElement.addEventListener('click', function() {
+            someElement.style.backgroundColor = 'blue';
+        }, false);
+
+
+
+
+
+/// section 2
+        function f() {
+            var o = {};
+            var o2 = {};
+            o.a = o2; // o 引用 o2
+            o2.a = o; // o2 引用 o
+
+            return "azerty";
+        }
+
+        f();
+
+        // 两个对象被创建，并互相引用，形成了一个循环
+        // 他们被调用之后不会离开函数作用域
+        // 所以他们已经没有用了，可以被回收了
+        // 然而，引用计数算法考虑到他们互相都有至少一次引用，所以他们不会被回收。
+
+        // 这个算法假定设置一个叫做根的对象（在Javascript里，根是全局对象）。
+		// 定期的，垃圾回收器将从根开始，找所有从根开始引用的对象，然后找这些对象引用的对象……从根开始，
+		// 垃圾回收器将找到所有可以获得的对象和所有不能获得的对象。
+    </script>
+</body>
+
+</html>

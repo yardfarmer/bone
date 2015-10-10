@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+<body>
+	<script>
+		Array.prototype.duplicator = function(){
+			var pre = this,
+				lth = this.length,
+				i = 0;
+			while( i< lth) {
+				this.push(this[i++]);
+			}
+			return this;
+		}
+		var arr = [1,2];
+		var brr = arr.duplicator();
+
+		console.log(brr);
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title> PubSub pattern</title>
+		<script src="../../jquery/jquery-1.10.js"></script>
+</head>
+	<body>
+
+<script>
+var promise = $.Deferred();
+
+// 居然可以这样,先 promise，后声明 done 函数。
+promise.resolve([1,2,3,4,5]);
+
+promise.done(function(args){
+		console.log(args);
+});
+
+
+// maybe is ...
+func();
+function func() {
+	console.log('hoisting')
+};
+
+
+</script>
+
+</body>
+</html>

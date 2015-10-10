@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title> quick run !</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+	#a { 
+		text-indent: 15px;
+	}
+	#b {
+		text-indent: -6px;
+		text-transform: uppercase;
+	}
+	#c {
+		text-indent: 0.5em;
+	}
+
+	#a:first-letter {
+		font-size: 25px;
+		color: #b23aee;
+		float: left;
+	}
+	#b:first-letter {
+		font-size: 30px;
+		color: red;
+	}
+	#c:first-letter {
+		font-size: 25px;
+		color: #b34d32;
+	}
+	p.uppercase:first-letter{
+		text-transform: uppercase;
+	}
+
+	::selection {
+		color: green;
+		background: #a9a9a9;
+	}
+
+	::-moz-selection {
+		color: red;
+		background: yellow;
+	}
+
+  </style>
+
+</head>
+<body>
+	<p id = 'a' class='uppercase'>cXXDDLKJLKJK  HKLKJLK shuo bu yi yang </p>	
+	<p id = 'b'>abcdefg shuo bu yi yang </p>	
+	<p id = 'c'>abcdefg shuo bu yi yang </p>	
+</body>
+</html>

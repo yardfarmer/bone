@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>haslayOut</title>
+</head>
+
+<body>
+
+<style>
+    #nofloatbox {
+        border: 1px solid #ff0000;
+        background: #ccc;
+        zoom: 1; /* 触发 hayLayout ie 的属性 */
+        overflow: hidden;
+    }
+
+    #floatbox {
+        float: left;
+        width: 100px;
+        height: 100px;
+        border: 1px solid #0000ff;
+        background: #00ff00;
+    }
+</style>
+
+<div id='nofloatbox'>
+    <div id="floatbox">
+    </div>
+    a
+</div>
+
+
+<!-- demo2 -->
+<style>
+    span {
+        width: 100px;
+        height: 50px;
+        background: red;
+        /* span 是内联元素，zoom:1 可以用触发 haslayout 的办法使内联元素
+         呈现出 block 元素的效果, 但这个是对 ie 单独有用的 */
+        /* zoom:1;  */
+        /*
+           ie6/7 不识别 inline-block 属性, 但是会因为设置
+        inline-block 而触发元素 haslayout, 所以通过
+        display: inline-block 实现了在现代浏览器的设置目的，
+        而且同时可以触发 ie 的 hasLayout，获得意外收获。
+
+        "   在IE6、IE7中不识别display:inline-block属性，
+            但使用 inline-block 属性在IE下会触发 layout，
+            从而使内联元素拥有了display:inline-block属性的表症。
+            可以理解为对内敛元素'歪打正着'有效果，对块级元素无效
+        "
+        */
+        display: inline-block;
+    }
+</style>
+<!-- <p>天朗气清<span>惠风</span>和畅<p> -->
+<p>天朗气清<span>惠风</span>和畅
+
+<p>
+
+
+    <!-- demo3 -->
+    <style>
+        #inlineBlockContainer {
+            background: yellow;
+        }
+
+        .inlineblockItem {
+            /* ie 6/7 的块级元素是不支持 inline-block 的 */
+            display: inline-block; /* 现代浏览器下是有作用的 */
+            *display: inline; /*   `*` 是在 ie 下才生效的，属于 hack 部分  */
+            zoom: 1; /* zoom:1 无害的方式触发 ie hasLayout，使之表现出 block 属性 */
+        }
+    </style>
+<div id='inlineBlockContainer'>
+    <div class="inlineblockItem">a</div>
+    <div class="inlineblockItem">b</div>
+    <div class="inlineblockItem">c</div>
+</div>
+</body>
+</html>
+
+<!-- 
+是什么是 hasLayout？ hasLayout是 IE 特有属性。
+hasLayout 设计的初衷是用于 ***辅助*** 块级 元素的盒子模型的，它是用于块级元素的。
+很多 ie 的css bug 都与它息息相关。
+在 ie 中一个元素可以自己对自身设置大小和表现情况,也可以依赖父元素进行设置。
+当过一个元素的 hasLayout 为 true 时，它负责对自己和可能的子孙元素进行尺寸和定位设置。
+hasLayout 不能手动设定，需要去触发。只能通过一些特定的属性来触发并改变 hasLayout 的值。
+
+
+
+触发 hasLayout 的方法
+property    Value 
+display     inline-block 
+height      any value 
+float       left or right 
+position    absolute 
+width       any value 
+zoom        any value
+
+
+IE 6-7 下块级元素实现 display:inline-block 的效果？
+inline +  hasLayout
+
+ie8 以后 没有 hasLayout 属性了。
+^^^
+|||
+
+-->
+

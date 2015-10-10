@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>两栏布局</title>
+    <!--通过浮动技术实现布局-->
+
+    <style>
+        body {
+            width: 960px;
+
+            /*顶部和底部没有外边距的,两边浏览器自行决定,整个页面居中显示*/
+            margin: 0 auto;
+        }
+
+        header {
+            width: 100%;
+            height: 50px;
+            margin-top: 3px;
+            margin-bottom: 3px;
+            background: blue;
+        }
+
+        nav {
+            width: 100%;
+            height: 50px;
+            margin-bottom: 3px;
+            background: #47f275;
+        }
+
+        section {
+            /*width: 800px;*/
+            height: 450px;
+            margin-bottom: 3px;
+            float: left;
+        }
+
+        article {
+            width: 400px;
+            height: 450px;
+            background: orange;
+            float: left;
+        }
+
+        aside {
+            width: 316px;
+            height: 450px;
+            background: yellow;
+            float: right;
+        }
+
+        .left {
+            width: 200px;
+            float: left;
+        }
+
+        .right {
+            width: 350px;
+        }
+
+        footer {
+            width: 100%;
+            height: 50px;
+            background: gray;
+            clear: both;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<header id="header"></header>
+
+<nav id="nav"></nav>
+
+<section>
+
+    <aside class="left"></aside>
+    <article></article>
+
+</section>
+
+<aside class="right">
+
+</aside>
+
+
+<footer id="footer">
+
+</footer>
+
+
+</body>
+</html>

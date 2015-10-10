@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+
+<script type="text/javascript">
+
+    onload = function () {
+
+        var worker = new Worker('worker.js');
+
+        worker.addEventListener('message', function (event) {
+
+            var timer2 = (new Date()).valueOf();
+            console.log('结果:'+event.data, 'time:' + timer, 'cost:' + timer2 - timer);
+
+        }, false);
+
+        var timer = (new Date()).valueOf();
+
+        console.log('start:' + timer);
+
+        worker.postMessage(38);
+
+        setInterval(function (){
+            console.log(new Date(),"heart beat");
+        },1000);
+
+    }
+
+</script>
+
+<body>
+
+</body>
+</html>

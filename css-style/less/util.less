@@ -1,0 +1,24 @@
+
+.px2rem(...) {
+  @key: ~`(function () {var t = "@{arguments}";return t = t.substr(1).split(":")[0]})()`;
+  @value: ~`(
+    function () {
+        var t = "@{arguments}", r = (/;['"]$/.test(t)) ? 2 : 1;
+        var params=t.substring(1, t.length - r).split(":");
+        var value = params.slice(1).join();
+        value = value.replace(/(\d)px/g, function(match, p1) {
+          return arguments[1]/32 + 'rem'
+         });
+         return value;
+    })()`;
+  @{key}: @value;
+}
+
+
+a {
+  .px2rem('margin: 100px auto');
+}
+
+b {
+  .px2rem('border-top: 3px solid red;')
+}

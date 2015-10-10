@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<title>media query example</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" type="text/css" media="screen and (max-device-width: 400px)"
+	  href="tinyScreen.css" />
+
+<style>
+
+@media screen and (max-device-width: 800px) {
+	.container {
+		width: 100%;
+	}
+	img {
+		max-width:100%;
+	}
+}
+
+@media screen and (max-device-width: 1920px) {
+	.container{
+		width:100%;
+	}
+	img{
+		max-width:100%;
+	}
+}
+</style>
+</head>
+<body>
+<div class ='container'>
+	<img src='img.jpg'alt="hello"/>
+</div>
+</body>
+</html>

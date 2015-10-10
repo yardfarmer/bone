@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+<body>
+	<script>
+		alert("pageXOffset:"+window.pageXOffset);
+		alert("innerHeight:"+window.innerHeight);
+		alert("clientHeiht:"+window.clientHeight);
+
+		var d = window.document;
+		if (document.compatMode == "CSS1Compat") {
+			alert("documentEle-scrollHeight:"+document.documentElement.scrollHeight);
+			alert("documentEle-scrollTop:"+document.documentElement.scrollTop);
+		} else {
+			alert("body.scrollHeight:"+d.scrollHeight);
+			alert("body.scrollTop:"+d.scrollTop);
+		}
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+进入和发出消息
+
+@startuml
+[-> A:DoWork
+
+activate A
+A -> A: 内部调用
+
+activate A
+
+A ->]: new request
+A <--]: request created
+
+deactivate A
+
+[<- A: done
+
+deactivate A
+
+@enduml

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<title>media query example</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script>
+// 怎样才能形成Block Formatting Context ?
+//
+// 当一个HTML元素满足下面条件的任何一点，都可以产生Block Formatting Context
+//
+//		float的值不为none。
+//		overflow的值不为visible。
+//		display的值为table-cell, table-caption, inline-block中的任何一个。
+//		position的值不为relative和static(default).
+
+
+</script>
+<style>
+.container {
+	border: 1px solid red;
+	width: 200px;
+	height: 200px;
+}
+.container .inner {
+	float:left;
+	border:1px solid green;
+	height:100px;
+	width: 10px;
+	margin:10px;
+}
+</style>
+</head>
+<body>
+<div class ='container'>
+	<!-- Block Formatting Context 可以阻止边距折叠（margin collapsing）。 -->
+	<!-- 我们知道在一般情况下，两个上下相邻的盒子会折叠它们垂直方向接触到的边距，这种情况只会发生在同一个 Block Formatting Context 中。  -->
+	<!-- 也就是说：在同一个布局环境(Block formatting Context)是折叠边距的必要条件。 -->
+	<!-- 这也是为什么浮动的元素和绝对定位元素不会发生边距折叠。 -->
+    <!--  -->
+	<!-- 在这里的情况就是 每个 inner 都是 float，所以各自产生了布局环境，互不干扰。 -->
+	<div class='inner'></div>
+	<div class='inner'></div>
+</div>
+</body>
+</html>

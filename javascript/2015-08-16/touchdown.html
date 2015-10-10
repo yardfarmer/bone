@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="gbk">
+    <title></title>
+    <script src="//cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+    <script src="./touchdown.js"></script>
+</head>
+<body>
+
+<style>
+    .touchdown-list {display: none;}
+    .touchdown {display: block;}
+
+    @media only screen and (min-width: 768px) {
+        .touchdown-list {display: block;}
+        .touchdown {display: none;}
+    }
+</style>
+
+<ul id="social-networks">
+    <li><a href="https://plus.google.com/113158264847735001631/posts">Google+</a></li>
+    <li><a href="http://twitter.com/samuelcotterall/">Twitter</a></li>
+    <li><a href="http://samuelcotterall.tumblr.com/">Tumblr</a></li>
+    <li><a href="http://www.last.fm/user/samuelcotterall/">last.fm</a></li>
+</ul>
+
+<ul id="powered-by">
+    <li><a href="http://jquery.com">jQuery</a></li>
+    <li><a href="http://html5boilerplate.com//">HTML5 Boilerplate</a></li>
+</ul>
+
+
+<script>
+    $(document).ready(function(){
+        $('#social-networks, #powered-by').Touchdown();
+    });
+</script>
+</body>
+</html>

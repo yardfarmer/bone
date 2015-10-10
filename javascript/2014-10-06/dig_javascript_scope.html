@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+	<title>
+		dig into javascript scope 
+    </title>
+
+</head>
+<body>
+
+<script>
+
+/*
+ *
+ *	javascript 的作用域基于词法作用域，也就是根据函数定义时的作用域，而不是
+ *  调用时后的作用域。
+ *
+ */
+
+	var wuhan = {
+		province : 'hubei',
+		travel: function() {
+			console.log("i'm in."+ this.province);
+		}
+	}
+	
+	var hangzhou = {
+		travel: function() {
+			console.log("i'm in. "+this.province || province);
+		}
+	}
+
+	!function(){
+		var province = 'zhejiang';
+		+function(){
+			console.log("i'm in.. "+province);
+		}();
+		wuhan.travel();
+		hangzhou.travel();
+
+	}();
+
+	
+</script>
+
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+	<title>
+    </title>
+</head>
+<body>
+
+<h1 id='number'>1</h1>
+<a id='forward' href='?'num=2>Go forward</a>
+
+<script>
+var link = document.getElementById('forward');
+var num = document.getElementById('number');
+
+link.addEventListener('click',function(e){
+		e.preventDefault();
+		var myNum = parseInt(num.innerHTML,10);
+		num.innerHTML = ++myNum;
+		
+		/*
+		*	pushState (
+		*		一个代表状态的对象，
+		*		一个标题，
+		*		一个 url
+		*	);
+		*/
+		history.pushState({count:myNum}, null, '?num='+ myNum);
+		document.title = "NUmber" + myNum;
+},false);
+
+addEventListener('popstate',function(e) {
+
+		if( e.state && e.state.count ) {
+			number.innerHTML = e.state.count;
+			document.title = "Number" + e.state.count;
+		} else {
+			 setNumberFromUrl();
+		}
+	
+}, false);
+
+function setNumberFromUrl() {
+	if (location.search) {
+		var match = location.search.match(/num=([0-9]+)/);
+		if(match) {
+			document.getElementById('number').innerHTML = match[1];
+			document.title = 'Number' + match[1];
+		} else {
+			document.getElementById('number').innerHTML = 1;
+			document.title = 'Number1'; 
+		}
+	}
+}
+</script>
+
+</body>
+</html>

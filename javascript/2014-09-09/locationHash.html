@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <script src="../../jquery/jquery-1.10.js"><script>
+	<script>
+		console.log(window.location.hash);
+		function handlerA() {
+			window.location.hash = new Date().getTime(); 
+		}
+
+		$('.btn').on('click',handlerA);
+		
+		$(window).on('hashchange',function(){
+			alert('hashchanged~');
+		});
+	</script>
+</head>
+<body>
+	hello world:>
+	<button class='btn'>A</button> 
+	<button class='btn'>B</button> 
+	<script>
+	</script>
+</body>
+</html>

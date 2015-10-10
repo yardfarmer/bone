@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+	<title>
+filter & find
+    </title>
+<script src="../../jquery/jquery-1.10.js"></script>
+
+</head>
+<body>
+<ul>
+  <li>list item 1</li>
+  <li>list item 2</li>
+  <li>list item 3</li>
+  <li>list item 4</li>
+  <li>list item 5</li>
+  <li>list item 6</li>
+</ul>
+<script>
+	$(function(){
+		// insert you code 
+
+		// gist
+		// 通过选择器或过滤函数，
+		// 缩减匹配元素的范围
+		
+		var a = $("ul > li");
+		var b = a.filter(":even");
+		var c = b.css("background-color","green");
+		console.log(a,b,c);
+	
+	});
+</script>
+
+</body>
+</html>

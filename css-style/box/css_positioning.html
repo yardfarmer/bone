@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+    <style>
+
+
+        /* Positioning */
+
+         /*
+            css 的 position 属性是用来设置元素的位置的,它还能设置一个元素出现在另一个元素的下层
+            元素能用 top,bottom,left 和 right 属性设置位置, 但是在默认情况下是不管用的,除非先设置了position属性
+
+            HTML 元素的位置默认是设置为静态(static)的, 位置设置为静态的元素的位置通常是根据正常的页面流向(flow)设置的
+            位置为静态的元素是不能被 top,bottom,left,right 影响的
+
+            共有四个不同的position设置方法
+
+            1.fixed      采用fixed position 的元素位置的设置相对于浏览器窗口
+                         An element with fixed position is positioned relative to the browser window.
+                         窗口滚动它也不会移动
+                         It will not move even if the window is scrolled:
+
+
+            2.relative  相对位置指的是相对于它自己正常的位置
+
+            3.absolute  相对于第一个(紧包着的,最里层的)父元素
+                        An absolute position element is positioned relative to
+                        the first parent element that has a position other than static.
+                        If no such element is found, the containing block is <html>:
+
+            4.overlapping  通过设置 position 和 z-index
+
+
+
+         */
+
+        * {
+            margin: 0px;
+            /*padding: 0px;*/
+        }
+
+        .pos_fixed {
+            position: relative; /*A relative positioned element is positioned relative to its normal position.*/
+            left: 10px;
+            top:10px;
+            width: 100px;
+            height: 100px;
+            border: 1px solid seagreen;
+        }
+
+        h2.pos_left {
+            position: relative;
+            left: -20px;
+            border: 1px solid crimson;
+        }
+
+        h2.pos_right {
+            position: relative;
+            left: 20px;
+            border: 1px solid crimson;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="pos_fixed">
+    hello everyone.
+</div>
+
+
+<h2>This is a heading with no position</h2>
+
+<h2 class="pos_left">This heading is moved left according to its normal position</h2>
+
+<h2 class="pos_right">This heading is moved right according to its normal position</h2>
+
+<p>Relative positioning moves an element RELATIVE to its original position.</p>
+
+
+<!--<progress>progress</progress>-->
+
+</body>
+</html>

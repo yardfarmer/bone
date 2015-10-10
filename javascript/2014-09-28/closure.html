@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang='en'>
+	<head>
+		<meta charset='utf-8'>
+		<title> jQ forEach array useage </title>
+		<script src='../../jquery/jquery-1.10.js'></script>
+	</head>
+	<body>
+		<li>aaaaaa</li>
+		<li>bbbbbb</li>
+		<script>
+			var lis = document.getElementsByTagName('li');
+
+			// 这样写点击的永远是2
+			/*
+			   for(var i = 0; i < lis.length; i++ ){
+					lis[i].addEventListener('click',function(){
+								console.log('li'+i+' be clicked');
+							},false);
+				}	
+			*/
+			
+			function clickHandler(index) {
+				console.log('li '+index+' be clicked');
+			}
+
+			// 下面这样也不行
+			/*
+			   for(var i = 0; i < lis.length; i++ ){
+					lis[i].addEventListener('click',function(){
+								clickHandler(i);
+							},false);
+				}	
+			*/ 
+			
+			// 这样可以，利用闭包,把状态之缓存
+			   for(var i = 0; i < lis.length; i++ ){
+					(function(i){
+						lis[i].addEventListener('click',
+							function(){
+								clickHandler(i)
+							}
+							,false);
+					})(i);
+				}	
+			
+		</script>
+	</body>
+</html>

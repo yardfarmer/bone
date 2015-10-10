@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title> if element has width/height</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body{
+		/* 下面用%，所以这里是必须的 */
+		height: 800px; 
+	}
+	#wrapper {
+		width: 20%;
+		height: 20%;
+		display: table;
+		border: 1px solid;
+	}
+	#cell {
+		/* 
+		   如果这里使用了 table-cell, 
+		   那么的它的外层包裹必须用 display:table 
+		*/
+		display: table-cell;
+		vertical-align: middle;
+	}
+
+	.content {
+		border:  1px solid red;
+	}
+  </style>
+</head>
+<body>
+	<div id='wrapper'>
+		<div id='cell'>
+			<div class='content'>
+				hello vertical algin
+			</div>
+		</div>
+	</div>
+</body>
+</html>
+
+
+
+

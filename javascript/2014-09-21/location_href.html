@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>location.hash</title>
+ <script src=""></script>
+</head>
+<body>
+ <a href='#a'>A</a>
+ <a href='#b'>B</a>
+ <p>
+ Descript: location.hash 用于return url 中的'#id'
+ 通设定 #id 标示 可使浏览器的前进后退管用,配合 location.hash 可读取 id 值。
+ </p>
+ <script>
+	var links = document.getElementsByTagName('a');
+	function getHash(){
+		setTimeout(function(){
+				alert('location.hash is :' + window.location.hash);
+				}
+		,1);
+	}
+	for( var i=0, lth = links.length; i < lth; i++ ) {
+		addEventListener('click',getHash,false);
+	}
+ </script>
+</body>
+</html>

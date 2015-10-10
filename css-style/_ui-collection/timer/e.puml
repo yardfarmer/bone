@@ -1,0 +1,8 @@
+@startuml
+!define DOUBLE(x) x -> x
+
+
+bob -> y : DOUBLE(hello)
+bob -> x : ok
+
+@enduml

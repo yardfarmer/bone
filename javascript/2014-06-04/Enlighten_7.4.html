@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script>
+
+
+    var outterFoo = 3;
+
+    var foo = function () {
+
+        outterFoo = 2;
+
+        !function() {
+            this.ping = 8;
+        }();
+
+    };
+
+    foo();
+
+    console.log(window.ping);
+    console.log(outterFoo);
+
+</script>
+</body>
+</html>

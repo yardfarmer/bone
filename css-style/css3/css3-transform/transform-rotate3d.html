@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title>transform-origin改变元素原点前后rotate3d()旋转图像效果</title>
+    <style type="text/css">
+        div {
+            width: 500px;
+            height: 300px;
+            margin: 30px auto;
+            position: relative;
+            background: url(images/bg-grid.jpg) no-repeat center center;
+            background-size: 100% 100%;
+        }
+
+        div img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-left: -71px;
+            margin-top: -100px;
+            /*-webkit-backface-visibility: visible;*/
+            /*-moz-backface-visibility: visible;*/
+            /*-o-backface-visibility: visible;*/
+            /*-ms-backface-visibility: visible;*/
+            backface-visibility: visible;
+        }
+
+        div img:nth-child(1) {
+            opacity: .5;
+            z-index: 1;
+
+            /*
+             *  指定对象的3D旋转角度，
+             *  其中前3个参数分别表示旋转的方向x,y,z，第4个参数表示旋转的角度，
+             *  参数不允许省略
+             *
+             *  rotate3d(<number>,<number>,<number>,<angle>)
+             *
+             *  如果坐标周分别用 x, y, z 表示
+             *  如果沿着该轴转动那就将该轴的值设置为1，否则为0；
+             *  然后在后面的angle中设置旋转的角度，需要注意的是，angle只有一个角度值。
+             *
+             *  转动方式: 垂直于坐标轴转动
+             */
+
+            transform: rotate3d(1, 0, 0, 10deg);
+        }
+    </style>
+</head>
+<body>
+<div>
+    <img src="images/cardKingClub.png" alt="" width="142" height="200"/>
+</div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang='en'>
+	<head>
+		<meta charset='utf-8'>
+		<title> change live with on </title>
+		<script src='../../jquery/jquery-1.7.1.js'></script>
+	</head>
+	<body>
+    
+		<script>
+		/*
+		    live: function( types, data, fn ) {
+				jQuery( this.context ).on( types, this.selector, data, fn );
+				return this;
+			}
+		*/
+			$(function(){
+					
+					// old method
+					// $('button').live('click', function(){alert();});
+
+					
+					$(document).on('click', 'body button',function(){alert();});
+					$('body').append('<button>')
+
+			});
+		</script>
+	</body>
+</html>

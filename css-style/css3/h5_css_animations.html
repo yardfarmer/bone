@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<title>-webkit-animation</title>
+<style>
+
+
+
+@-webkit-keyframes move_a{
+	from {
+		right: 0;
+		width: 60%;
+		background:lightgreen;
+	}
+
+	to {
+		border: 1px solid red;
+		left:0;
+		width:1%;
+		background:lightgreen;
+	}
+}
+
+@-webkit-keyframes move_b{
+	from {
+		right: 0;
+		width: 1%;
+		background: #998080;
+	}
+
+	to {
+		border: 1px solid red;
+		left:0;
+		width:60%;
+		background: #998080;
+	}
+}
+.a,.b {
+	height: 150px;
+	position: relative;
+	-webkit-animation-duration: 0.3141592653s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: ease-in-out;
+	-webkit-animation-direction: alternate;
+}
+
+.a {
+	-webkit-animation-name: move_a;
+}
+
+.b {
+	-webkit-animation-name: move_b;
+}
+
+</style>
+</head>
+<body>
+<div id='container'>
+	<div class='a'></div>
+	<div class='b'></div>
+	<div class='a'></div>
+	<div class='b'></div>
+</div>
+</body>
+</html>

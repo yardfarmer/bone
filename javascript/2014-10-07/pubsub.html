@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<meta charset="UTF-8">
+		<title> PubSub pattern</title>
+		<script src="../../jquery/jquery-1.10.js"></script>
+</head>
+	<body>
+
+<script>
+
+	// single eventHander 
+	// link.onclick = clickHandler;
+
+
+	// Drawback: it brings the click handler too fat. all in able.
+
+	// double eventHandler
+	// link.onclick = function () {
+	// 	clickHanler1.apply(this, arguments);
+	// 	clickHander2.apply(this, arguments);
+	// }
+
+
+	var PubSub = {
+		handlers : {}
+	};
+	
+	PubSub.on = function(eventType, handler) {
+		if(!( eventType in this.handlers )) {
+			this.handlers[eventType] = [];
+		}
+
+		this.handlers[eventType].push(handler);
+		return this;
+	}
+
+	PubSub.emit = function(eventType) {
+
+		// change arguments to real array
+		var handlerArgs = Array.prototype.slice.call(arguments);  
+		for (var i = 0; i < this.handlers[eventType].length; i++ ) {
+			this.handlers[eventType][i].apply(this, handlerArgs);
+		}
+		return this;
+	}
+	
+</script>
+
+</body>
+</html>

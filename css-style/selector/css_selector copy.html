@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+
+        /*
+           前方元素 + 目标元素{ 样式声明 }
+           它只会匹配紧跟其前方元素的同胞元素
+           该选择器使用加号“+”来链接前后两个选择器。
+           选择器中的元素有同一个父亲，而且第二个必须紧紧的跟着第一个。
+        */
+
+        li + li {
+            color: red;
+        }
+
+        img, span {
+            display: block;
+        }
+
+        img + span.caption {
+            font-style: italic;
+            color: red;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<ul>
+    <li>one</li>
+    <li>one</li>
+    <li>two</li>
+    <li>three</li>
+
+</ul>
+<span class="caption">Before the  photo</span>
+<img src="http://ww2.sinaimg.cn/thumbnail/7d5bc9b3tw1eeb1qnq1vej21kw11x7t8.jpg"/>
+<span class="caption">After first photo 1</span>
+<span class="caption">After first photo 2</span>
+
+<img src="http://ww2.sinaimg.cn/thumbnail/7d5bc9b3tw1eeb1qnq1vej21kw11x7t8.jpg"/>
+<span class="caption">After The second photo</span>
+
+
+</body>
+</html>

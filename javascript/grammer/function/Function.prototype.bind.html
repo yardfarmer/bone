@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>apply</title>
+</head>
+
+<body>
+    <script>
+        // fun.bind(thisArg[, arg1[, arg2[, ...]]])
+        function log() {
+            //	bind(context, [],)
+            //  第一个参数为执行上下文，
+            //  其余为参数
+            console.log.bind(console, "(app)")(arguments);
+        }
+
+        log('abc');
+    </script>
+
+
+	// polyfill
+    <script>
+        if (!Function.prototype.bind) {
+            Function.prototype.bind = function(oThis) {
+                if (typeof this !== "function") {
+                    // closest thing possible to the ECMAScript 5 internal IsCallable function
+                    throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+                }
+
+                var aArgs = Array.prototype.slice.call(arguments, 1),
+                    fToBind = this,
+                    fNOP = function() {},
+                    fBound = function() {
+                        return fToBind.apply(this instanceof fNOP && oThis ? this : oThis,
+                            aArgs.concat(Array.prototype.slice.call(arguments)));
+                    };
+
+                fNOP.prototype = this.prototype;
+                fBound.prototype = new fNOP();
+
+                return fBound;
+            };
+        }
+    </script>
+</body>
+
+</html>

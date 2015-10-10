@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+	<title>
+
+    </title>
+	<style>
+		#content,
+		#content.fullScreen
+		{
+						/* Adding a width and margin:0 auto to center the container */
+			width: 960px;
+			margin: 0 auto;
+
+			/* Increasing the font size for legibility*/
+			font: 17px serif;
+			padding: 45px 45px 10px;
+			background: #fff;
+		}
+	</style>
+<script src="../../jquery/jquery-1.10.js"></script>
+<script src="jquery.fullscreen.js"></script>
+
+</head>
+<body>
+
+<table id='content'>
+	<tr>
+		<th>Property</th>
+		<th>Value</th>
+		<th>Meaning</th>
+	</tr>
+    <tr>
+        <td>background</td>
+        <td>a color hash</td>
+        <td>This is the color that will be used for the background.</td>
+    </tr>
+    <tr>
+        <td>callback</td>
+        <td>a function</td>
+        <td>The callback function will be called on a full screen change event. It has one argument - a boolean indicating whether we are in full screen or not.</td>
+    </tr>
+    <tr>
+    	<td>fullscreenClass</td>
+    	<td>a string</td>
+    	<td>This is the CSS class that will be added to elements in fullscreen mode. The default class is "fullScreen".</td>
+    </tr>
+</table>
+
+<button id="fullScreen">go</button>
+
+
+<script>
+	$(function(){
+		// insert you code 
+	// The plugin sets the $.support.fullscreen flag:
+	if($.support.fullscreen){
+
+		// ...
+		// Show your full screen button here
+		// ...
+
+		$('#fullScreen').click(function(e){
+
+			$('#content').fullScreen();
+			e.preventDefault();
+
+			// You can also pass a hash with properties:
+			// $('#content').fullScreen({
+			//    'background'    : '#111',
+			//    'callback'        : function(isFullScreen){
+			//        // ...
+			//        // Do some cleaning up here
+			//        // ...
+			//    }
+			// });
+		});
+	}
+
+	})
+</script>
+
+</body>
+</html>

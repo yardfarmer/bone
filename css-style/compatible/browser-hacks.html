@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<title>all kind of size</title>
+<style>
+/* http://browserhacks.com/ */
+.selector:not(*:root) {
+
+}
+#container:not(*:root) {
+	background:red;
+}
+#container{
+	*background:green;
+}
+body{
+	height: 1000px;
+}
+div {
+	border-top: 3px solid red;
+	border-right: 4px solid red;
+	border-bottom: 5px solid red;
+	border-left: 6px solid red;
+	height: 500px;
+    width: 200px;
+	overflow:auto;
+	margin:22px;
+}
+body:last-child p {
+	border: 1px solid green;
+	margin-bottom:100px;
+	line-height:600px;
+}
+
+p\ {
+	color: yellow;
+}
+p{
+	font-size:36px\9;
+}
+@supports (-webkit-appearance:none) {
+    background: blue;
+}
+
+/* supports 的用法， */
+/* 下面是专用于火狐的 */
+@supports (-moz-appearance:meterbar) {
+	section {
+		background: pink;
+	}
+}
+</style>
+</head>
+<body>
+<div id='container'>
+	<p>1</p> 
+</div>
+
+<section class='sec'>
+    <em>hello</em>	
+</section>
+
+<script>
+var ieVersion = /*@cc_on (function() {switch(@_jscript_version) {case 1.0: return 3; case 3.0: return 4; case 5.0: return 5; case 5.1: return 5; case 5.5: return 5.5; case 5.6: return 6; case 5.7: return 7; case 5.8: return 8; case 9: return 9; case 10: return 10;}})() || @*/ 0;
+var isIE = document.all && document.compatMode;
+alert(isIE);
+// offset 补偿，抵消
+var elem = document.querySelector("#container");
+console.log(elem,elem.style);
+document.write("clientTop(borderTopSize):"+elem.clientTop+"\n");
+document.write("clientLeft(borderLeftSize):"+elem.clientLeft+"\n");
+// 需要注意的是，没有 clientRight，和 clientBottom
+
+// scrollHeight: contentHeight + 2*border + marginTop+marginBottom (整个高度)
+// scrollTop: 滚动条从最上边开始已经滚动的高度
+
+// offsetHeight: border+contentHeight 补偿，抵消
+
+// offsetTop: 偏移
+
+
+</script>
+</body>
+</html>

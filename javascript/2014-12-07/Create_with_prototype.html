@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+<body>
+	<script>
+		// function TopFunction() {
+		// 	this.tA = "hi,ta"
+		// }
+        //
+		// function SuperFunction() {
+		// 	this.sA = "hi,sa"
+		// }
+        //
+		// SuperFunction.prototype = new TopFunction();
+        //
+		// var s = new SuperFunction();
+        //
+		// console.log(s);
+        //
+		// var x = Object.create(s);
+		// var y = Object.create(SuperFunction.prototype);
+        //
+		// console.log(x,y);
+
+	// 类工厂
+	var Class = function(parent) {
+		var klass = function() {
+			// 'this' 构造函数内部新生成的对象
+			this.init.apply(this, arguments); // 调用原型方法 init
+		};
+		klass.prototype.init = function() {};
+		klass.fn = klass.prototype;
+
+		// 实例方法与静态方法同时赋值
+		klass.fn.proxy = klass.proxy = function(func) {
+			var self = this;
+			return (function(){
+				return func.apply(self,arguments);
+			});
+		}
+		return klass;
+	}
+
+	// 生产一个 Button 类
+	var Button = new Class();
+
+	// 构造 Button 实例
+	var btn = new Button();
+
+
+
+
+	</script>
+</body>
+</html>

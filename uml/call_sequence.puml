@@ -1,0 +1,35 @@
+进入和发出消息
+
+@startuml
+title 打电话
+
+activate 小张
+小张 -> 电话: 拿起电话
+activate 电话
+电话 --> 小张: 提示正常音
+deactivate 电话
+
+
+小张 -> 电话: 拨小王号码
+activate 电话
+小张 <- 电话: 提示通话音
+deactivate 电话
+
+
+小张 -> 小王: 交谈
+activate 小王
+deactivate 小王
+
+小张 -> 电话: 挂断电话
+activate 电话
+电话 -> 小王: 忙音
+deactivate 电话
+
+activate 小王
+小王 -> 小王: 挂断电话
+note right: 自身消息
+deactivate 小王
+
+
+
+@enduml

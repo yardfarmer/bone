@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<style>
+.container {
+	width:100px;
+	height: 100px;
+	border: 1px solid red;
+	margin-left: 100px;
+}
+.abs{
+	position:absolute;
+	left: 10px;
+	top: 10px;
+	border: 1px solid green;
+	width:50px;
+	height:50px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- 固定定位元素 -->
+<!-- 如果元素是固定定位 ("position:fixed") 元素，那么它的包含块(containing block)是当前可视窗口 。 -->
+<!--  -->
+<!-- 绝对定位元素 -->
+<!-- 绝对定位（"position: absolute"）元素的包含块由离它最近的 'position' 属性为 'absolute'、'relative' 或者 'fixed' 的祖先元素创建。（只要不是static） -->
+
+<!-- 如果父元素position 为 static，也就是使用默认值， -->
+<!-- 那么内部的 position:absolute; 元素将脱离 父元素的包裹。 -->
+<!--  -->
+<!-- 绝对定位（"position: absolute"）元素的包含块由离它 -->
+<!-- 最近的 'position' 属性为 'absolute'、'relative' 或者 'fixed' 的祖先元素创建。 -->
+<!-- （只要不是static） -->
+<div class='container'>
+	<!-- .abs 的 containing block 不是 div，而是 body -->
+	<div class='abs'>
+	</div>
+</div>
+
+
+
+
+
+ <div>
+  <p>This is a paragraph.</p>
+ </div>
+
+<!-- p元素的包含块是div，因为作为块级元素、表单元格或行内块元素，这是最近的祖先元素（本例中是一个块元素框）。 -->
+<!-- 类似第，div的包含块是body。 -->
+<!-- 因此，p的布局依赖于div的布局，div的布局则依赖body布局。 -->
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script>
+
+    // 原型链
+    function Foo(){
+        this.value = 42;
+    }
+
+    Foo.prototype = {
+        method:function () {}
+    }
+
+    function Bar() {}
+
+    Bar.prototype = new Foo();
+    Bar.prototype.foo = "Hello World";
+
+    // 修正Bar.prototype.constructor 为 Bar 本身
+    Bar.prototype.constructor = Bar;
+
+    var test = new Bar();
+
+
+
+
+
+</script>
+</body>
+</html>

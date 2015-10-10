@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>detach demo</title>
+  <style>
+  p {
+    background: yellow;
+    margin: 6px 0;
+  }
+  p.off {
+    background: black;
+  }
+  </style>
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+<body>
+ 
+<p>Hello</p>
+how are
+<p>you?</p>
+<button>Attach/detach paragraphs</button>
+ 
+<script>
+$( "p" ).click(function() {
+  $( this ).toggleClass( "off" );
+});
+
+
+var p;
+$( "button" ).click(function() {
+  if ( p ) {
+    p.appendTo( "body" );
+    p = null;
+  } else {
+   // p = $( "p" ).detach();
+   // remove 和 detach 还是有区别的
+   // 虽然用 remove 和 detach 都会返回 jQuery 对象
+   // 但是，remove 会删除 jQuery 对象上绑定的事件
+   // 然是 detch 不会
+   // p = $("p").remove(); 
+   p = $("p").detach();
+
+   
+  }
+});
+</script>
+ 
+</body>
+</html>

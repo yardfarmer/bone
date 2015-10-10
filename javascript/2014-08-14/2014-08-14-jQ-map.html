@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<title>jquery map</title>
+<script src="../../jquery/jquery-1.10.js"></script>
+
+</head>
+<body>
+
+<form method="post" action="">
+  <fieldset>
+    <div>
+      <label for="two">2</label>
+      <input type="checkbox" value="2" id="two" name="number[]">
+    </div>
+    <div>
+      <label for="four">4</label>
+      <input type="checkbox" value="4" id="four" name="number[]">
+    </div>
+    <div>
+      <label for="six">6</label>
+      <input type="checkbox" value="6" id="six" name="number[]">
+    </div>
+    <div>
+      <label for="eight">8</label>
+      <input type="checkbox" value="8" id="eight" name="number[]">
+    </div>
+  </fieldset>
+</form>
+<script>
+	$(function(){
+		// what is jquery.map ?
+		// pass each element in the current matched set 
+		// through a function, producing a new jQuery object containing the return values.
+
+		// 用匹配的集合,每个元素走一遍定好的函数。用函数的返回值最终构造一个新的 jQ 对象。
+		// 回调函数返回什么，最终就构造出什么样的 jQ 对象（不是数组）.
+			
+		var a = $(":checkbox").map(function(){
+//			return this.id;
+			return this;
+			});//.get().join();
+		var b = a.get();  // 由 jQ 对象转成数组
+		var c = b.join(); // 数组转化成字符串
+	    console.log(a,b,c);
+	})
+</script>
+
+</body>
+</html>

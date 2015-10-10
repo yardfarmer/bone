@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <script src="EventManager.js"></script>
+</head>
+<body>
+  <script>
+	var obj = {};
+	obj.eventA = new EventManager();
+	obj.eventB = new EventManager();
+	
+	var target = {};
+	target.eventAListener = function() {
+		console.log(1,"eventAlistenerInnerMathod");	
+	};
+
+	target.eventBListener = function() {
+		console.log(2,"eventBlistenerInnerMathod");	
+	};
+
+	obj.eventA.add(target, target.eventAListener);
+	obj.eventA.add(target, target.eventAListener);
+	// obj.eventB.add(target, target.eventBListener);
+	
+	var target = {};
+	target.eventAListener = function() {
+		console.log(1,"eventAlistenerInnerMathod");	
+	};
+
+	obj.eventA.add(target, target.eventAListener);
+
+
+	obj.eventA.fire();
+	// obj.eventB.fire();
+
+  </script>
+</body>
+</html>

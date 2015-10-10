@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+<body>
+	<script>
+		function F() {
+		}
+
+		F.prototype.fc = function(){
+			console.log('protype method')
+		}
+
+		F.func = function() {
+			console.log('abc');
+		}
+		var D = {};
+		D.func = F.func;
+
+		F.func();
+		D.func();
+
+		function SubF(){
+
+		}
+		SubF.prototype = new F();
+
+		var sf = new SubF();
+		console.dir(sf);
+		console.log(sf.fc());
+
+	</script>
+</body>
+</html>

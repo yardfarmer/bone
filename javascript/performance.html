@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<script src="../jquery/jquery-2.1.1.js"></script>
+</head>
+<body>
+
+<div id="main">
+	<table></table>
+</div>
+
+<script>
+	console.time('one append, one dom cost')
+	for (var i = 0; i < 10000; i++) {
+		$("#main table").append("<tr><td>append to row: </td><td>" + i + "</td></tr>");
+	}
+	console.timeEnd('one append, one dom cost');
+
+
+	console.time('accumulate and append cost');
+	var tableRows = "";
+	for ( var i = 0; i < 10000; i++ ) {
+		tableRows += "<tr><td>accumulate and append, now is at :</td><td>"+ i +"</td></tr>";
+	}
+    $("#main table").append(tableRows);
+	console.timeEnd('accumulate and append cost');
+</script>
+</body>
+</html>

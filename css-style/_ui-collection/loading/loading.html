@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>loading</title>
+
+	<style>
+		#loading {
+			border: 1px solid green;
+			width: 300px;
+			height: 300px;
+		}	
+
+		.loading_bar {
+			width: 108px;
+			height: 108px;
+			border: 6px gray solid;
+			background-color: red;
+			border-radius: 100px;
+			background-color: rgba(0,0,0,0);
+			clip:rect(0px,72px,140px,0);
+			-webkit-animation: loading 1.2s linear infinite;
+			-webkit-mask: -webkit-gradient( linear,0% 0%,100% 100%, from(rgba(255,255,255,1)), to(rgba(255,255,2555,0)));
+		}
+
+		@-webkit-keyframes loading {
+			0% {-webkit-transform:rotate(0deg)}
+			100%{-webkit-transform:rotate(360deg)}
+	   }
+	   @-moz-keyframes loading{
+		   0%{-moz-transform:rotate(0deg)}
+		   100%{-moz-transform:rotate(360deg)}}
+	   @-o-keyframes loading{0%{-o-transform:rotate(0deg)}100%{-o-transform:rotate(360deg)}}
+	   @-ms-keyframes loading{0%{-ms-transform:rotate(0deg)}100%{-ms-transform:rotate(360deg)}}
+	   @keyframes loading{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+
+		
+	</style>
+</head>
+<body>
+	<div id="loading">
+		<div class="loading_clip">
+			<div class="loading_bar"></div>
+		</div>
+	</div>
+</body>
+</html>
+

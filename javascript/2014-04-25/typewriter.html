@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TypeWriter</title>
+        <style type="text/css">
+            .example{
+                width: 150px;
+                height:80px;
+            }
+        </style>
+        <script type="text/javascript" src="../../jquery/jquery-1.10.js"></script>
+
+        <script>
+
+            (function($) {
+                $.fn.typewriter = function() {
+                    this.each(function() {
+                        var $ele = $(this), str = $ele.html(), progress = 0;
+                        $ele.html('');
+                        var timer = setInterval(function() {
+                            var current = str.substr(progress, 1);
+                            if (current == '<') {
+                                progress = str.indexOf('>', progress) + 1;
+                            } else {
+                                progress++;
+                            }
+                            progress++;
+                            var lan = str.substring(0, progress) + (progress & 1 ? '_' : ''); //闪烁效果
+                            $ele.html(lan);
+                            if (progress >= str.length) {
+                                clearInterval(timer);
+                            }
+                        }, 75);
+                    });
+                    return this;
+                };
+            })(jQuery);
+
+            $(function(){
+
+                var $code = $("#code");
+
+                $code.typewriter();
+
+            });
+
+
+
+        </script>
+
+    </head>
+    <body>
+        <div class="example example1"></div>
+
+        <div id="code">
+
+                 hello , every body.ads水电费大师傅撒旦法是打发士大夫
+        </div>
+
+    </body>
+</html>

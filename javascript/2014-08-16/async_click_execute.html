@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+	<title>
+
+    </title>
+<script src="../../jquery/jquery-1.10.js"></script>
+
+</head>
+<body>
+
+<button class="btn">A</button>
+<button class="btn">B</button>
+
+<p></p>
+
+<script>
+    // 单击一个已附加有单击事件处理器的DOM（Document Object Model，文档对象模型）
+	// 元素时，会有一个单击事件排入队列。
+	// 但是，该单击事件处理器要等到当前所有正在运行的代码均
+	// 已结束后（可能还要等其他此前已排队的事件也依次结束）才会执行。
+	// 因此，使用JavaScript 的那些网页一不小心就会变得毫无反应
+
+	$(function(){
+		// insert you code 
+	
+	    $(".btn").on("click",function(){
+			$("p").text($(this).text());
+		});
+
+       // 延迟执行一会儿，否可可能看到的只是一片空白
+       setTimeout( function() {
+		// for(var i = 0; i < 122900; i++) {
+		 while(true){
+			console.log("running ");
+		 }
+	   }, 10000);
+		
+	});
+</script>
+
+</body>
+</html>

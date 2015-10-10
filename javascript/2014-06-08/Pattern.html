@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<script>
+    var CaffeineBeverage = function () {
+
+
+        console.log("CaffeineBeverage Constructor",this);
+
+    };
+    CaffeineBeverage.prototype.prepareRecipe = function () {
+
+        console.log("CaffeineBeverage prototype ....");
+
+        this.boilWater();
+        this.brew();
+        this.pourOnCup();
+        if (this.customerWantsCondiments()) {
+            // 如果可以想加小料，就加上
+            this.addCondiments();
+        }
+    };
+    CaffeineBeverage.prototype.boilWater = function () {
+        console.log("将水烧开!",this);
+    };
+    CaffeineBeverage.prototype.pourOnCup = function () {
+        console.log("将饮料到再杯子里!",this);
+    };
+    CaffeineBeverage.prototype.brew = function () {
+        throw new Error("该方法必须重写!",this);
+    };
+    CaffeineBeverage.prototype.addCondiments = function () {
+        throw new Error("该方法必须重写!");
+    };
+    // 默认加上小料
+    CaffeineBeverage.prototype.customerWantsCondiments = function () {
+        return true;
+    };
+
+    // 冲咖啡
+    var Coffee = function () {
+        // 谁调指向谁,这样做类似java里的super();
+        // 这里的目的是让父类的prototype里方法里的this指向Coffee
+        CaffeineBeverage.apply(this);
+    };
+    Coffee.prototype = new CaffeineBeverage();
+    Coffee.prototype.brew = function () {
+        console.log("从咖啡机想咖啡倒进去!");
+    };
+    Coffee.prototype.addCondiments = function () {
+        console.log("添加糖和牛奶");
+    };
+    Coffee.prototype.customerWantsCondiments = function () {
+        return confirm("你想添加糖和牛奶吗？");
+    };
+
+    var cf = new Coffee();
+    cf.brew();
+    cf.boilWater();
+
+
+</script>
+
+</body>
+</html>

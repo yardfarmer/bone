@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>全面理解model模式</title>
+</head>
+<body>
+
+<script>
+
+//    var Calculator = function () {
+//
+//        var a = "1";
+//
+//        return {
+//            add:function(){
+//                console.log(new Date());
+//            }
+//        };
+//    }
+//
+//    var cal = new Calculator();
+//    cal.add();
+
+    // 典型的闭包
+    (function(){
+
+        // 所有的变量和function都在这里声明,并且作用域也只能在这个匿名闭包里
+        // 但是这里的代码依然可以访问外部全局对象
+        //
+
+    }());
+
+    //等价于 var temp = (1);
+
+
+    //var global = {a: 1, b: 2};
+
+    var blogModule = (function(){ //function(){ <- 函数表达式
+
+        var equal = this === window;
+        var self  = this; //this == window; 函数表达式,执行环境为全局环境
+
+        var my = {},
+            privateName = "cnBlogs";
+
+
+        function privateAddTopic(){
+            console.log(arguments[0]);
+            console.log(self === window,equal); // true
+        }
+
+        my.Name = privateName;
+        my.AddTopic = function(data){
+            privateAddTopic(data);
+        };
+
+        return my;
+
+    } ());
+
+    blogModule.AddTopic("hello");
+
+
+    // 扩展
+
+    var blogModule = (function(my){
+
+        my.AddPhoto = function(){
+          console.log("add photo");
+        };
+
+        return my;
+
+    }(blogModule));
+
+
+    blogModule.AddPhoto();
+
+
+    // 问题: 上面的代码虽然能执行,但是比必须先声明blogModule,然后再执行上面的扩展函数
+    // 想到解决方案如下
+    var cnblogs = cnblogs || {};//存在的时候直接用,不存在时赋值{}
+
+
+    // 松耦合扩展
+    var blogModule = (function(my){
+
+        //添加功能
+        my.AddArticle = function(){
+            console.log("add article");
+        };
+
+        return my;
+
+    }(blogModule || {}));
+
+
+    // 紧耦合扩展(现在加载顺序)
+    var blogModule = (function(my){
+        //重载方法
+        var oldAddPhoto = my.AddPhoto;
+
+        my.AddPhoto = function(){
+            oldAddPhoto(); // super();
+            // 重载内容
+        };
+
+    }(blogModule));
+
+
+    //克隆与继承
+    var blogModule = (function(old){
+
+        var my = {},
+             key;
+
+        // clone
+        for (key in old){
+            if(old.hasOwnProperty(key)){
+                my[key] = old[key];
+            }
+        }
+
+        var oldAddPhotoMethod = old.AddPhoto;
+        my.AddPhoto = function () {
+            // 克隆以后,进行了重写,当然也可以继续调用oldAddPhoto方法
+
+        };
+
+        return my;
+
+    }(blogModule));
+
+
+</script>
+
+hi;
+
+</body>
+</html>

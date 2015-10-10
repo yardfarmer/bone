@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<script src="../../jquery/jquery-1.10.js"></script></head>
+<body>
+	<script>
+		var Model = {
+			inherited: function() {},
+			created: function() {},
+
+			prototype: {
+				init: function() {}
+			},
+
+			create: function() {
+				var object = Object.create(this);
+				object.parent = this;
+				object.prototype = object.fn = Object.create(this.prototype);
+
+				object.created();
+				this.inherited(object);
+				return object;
+			},
+
+			init: function() {
+				var instance = Object.create(this.prototype);
+				instance.parent = this;
+				instance.init.apply(instance, arguments);
+				return instance;
+			}
+		};
+
+		console.log(Model);
+		var foo = Model.create();
+		console.log(foo);
+
+
+
+		// $.extend(Model, {date: new Date().getYear()},{a:13})
+		// console.log(Model);
+
+	</script>
+</body>
+</html>
