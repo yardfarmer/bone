@@ -2,8 +2,10 @@ var fs = require('fs');
 var http = require('http');
 http.createServer(function(request, response) {
 	var newFile = fs.createWriteStream("readme_copy.md");
-	request.pipe(newFile);
-	request.on('end', function() {
+
+    request.pipe(newFile);
+
+    request.on('end', function() {
 		fs.open('write.log','a',function(err,fd){
 			var writeBuffer = new Buffer('Write the string'),
 			bufferOffset = 0,

@@ -16,7 +16,7 @@ function *simple() {
     return;
 }
 
-var iterartor = simple(); // 返回一个迭代器函数
+var iterartor = simple();
 var a;
 
 a = iterartor.next();

@@ -15,7 +15,7 @@ var db = new Connection();
 describe('hooks', function() {
 
     // 设置最大超时时间
-    this.timeout(1000);
+    this.timeout(5000);
 
     beforeEach('use some description', function(done){
         //console.log('beforeEach');
