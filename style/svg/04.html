@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="gbk">
+    <title></title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<!--what is svg-->
+<!--scalable vector graphics: 可缩放矢量图形-->
+
+<!--Rectangle rect 矩形-->
+<!--Circle circle 圆形-->
+<!--Ellipse  ellipse 椭圆-->
+<!--Line line  线-->
+<!--Polyline polyline 多线,交叉线-->
+<!--Polygon polygon 多边形-->
+<!--Path path-->
+
+
+<!--stroke 笔画-->
+<svg width="1000" height="1000">
+    <circle cx="50" r="50" stroke="black" stroke-width="3" fill="red" ></circle>
+
+    <ellipse cx="200" cy="80" rx="100" ry="50"
+             style="fill:yellow;stroke:purple;stroke-width:2" />
+
+    <ellipse cx="240" cy="100" rx="220" ry="30" style="fill:purple" />
+    <ellipse cx="220" cy="70" rx="190" ry="20" style="fill:lime" />
+    <ellipse cx="210" cy="45" rx="170" ry="15" style="fill:yellow" />
+
+    <line x1="100" y1="100" x2="200" y2="200" style="stroke:rgb(255,0,0);stroke-width:2" />
+
+    <polygon points="200,10 250,190 160,210,800 300" style="fill:lime;stroke:purple;stroke-width:1" />
+
+    <polyline points="20,20 40,25 60,40 80,120 120,140 200,180"
+              style="fill:none;stroke:black;stroke-width:3" />
+</svg>
+
+
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="gbk">
+    <title></title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<!--what is svg-->
+<!--scalable vector graphics: 可缩放矢量图形-->
+
+<!--Path path-->
+<!--the following commands are available for path data:-->
+
+<!--M = moveto-->
+<!--L = lineto-->
+<!--H = horizontal lineto-->
+<!--V = vertical lineto-->
+<!--C = curveto-->
+<!--S = smooth curveto-->
+<!--Q = quadratic Bézier curve-->
+<!--T = smooth quadratic Bézier curveto-->
+<!--A = elliptical Arc-->
+<!--Z = closepath-->
+
+<!--stroke 笔画-->
+<svg width="1000" height="1000">
+
+    <!--1. Move to (150, 0)-->
+    <!--2. (150, 0) 连线到 (75, 200)-->
+    <!--3. (150, 0) 连线到 (225, 200)-->
+    <!--4. close path, 连线闭合-->
+    <path d="M150 0 L75 200 L225 200 Z" />
+</svg>
+</body>
+</html>
