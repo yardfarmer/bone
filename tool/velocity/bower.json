@@ -1,0 +1,25 @@
+{
+  "name": "wave",
+  "version": "0.0.0",
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "keywords": [
+    "animation"
+  ],
+  "authors": [
+    "yakun.cyk"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "velocity": "~1.2.3"
+  }
+}

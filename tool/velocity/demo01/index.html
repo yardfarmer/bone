@@ -1,0 +1,232 @@
+<script src="../bower_components/jquery/dist/jquery.min.js"></script>
+<script src="../bower_components/velocity/velocity.min.js"></script>
+<script src="../bower_components/velocity/velocity.ui.min.js"></script>
+<style>
+    .mod-one {
+        border: 1px solid;
+        position: relative;
+    }
+</style>
+<div class="mod-one">
+
+</div>
+<!-- /.mod-one -->
+<script>
+    $element = $('.mod-one');
+</script>
+
+
+<script>
+
+    /**
+     * 1. 参数
+     */
+        // Velocity takes a map of CSS properties
+        // and values as its first argument.
+        // An options object can optionally be passed in as a second argument:-
+
+        //  1. 第一组参数是 css 属性,
+        //  2. 第二个参数是 velocity 属性
+
+    $element.velocity({
+        width: "300px",
+        height: "100px",
+        border: "1px solid"
+    }, {
+        /* Velocity's default options */
+        duration: 400,
+        easing: "swing",
+        queue: "",
+        begin: undefined,
+        progress: undefined,
+        complete: undefined,
+        display: undefined,
+        visibility: undefined,
+        loop: false,
+        delay: false,
+        mobileHA: true
+    });
+
+
+    /**
+     *  single param
+     */
+        // Velocity also supports a single-argument syntax.
+        // Simply pass in a single object with
+        // properties (or p) and options (or o) members:
+
+        // 也支持单个参数, 如
+
+        //    $element.velocity({
+        //        properties: {opacity: 1},
+        //        options: {duration: 500}
+        //    });
+
+        // 或者是
+
+    $element.velocity({
+        p: {opacity: 1},
+        o: {duration: 500}
+    });
+
+
+    /**
+     *  逗号分隔参数
+     */
+
+        // 除了这些, velocity 也支持向 jquery 那样的以逗号分隔的参数
+        // 但是仅限于
+        // but only for the
+        // duration, easing, and complete properties:
+        // $element.velocity(propertyMap [, duration] [, easing] [, complete]).
+
+    $element.velocity({top: 50}, 100);
+    $element.velocity({top: 50}, 100, "swing");
+    $element.velocity({top: 50}, "swing");
+    $element.velocity({top: 50}, 100, function callback() {
+        // do something
+    });
+
+
+    /**
+     * 2. 属性 map
+     */
+        // 属性值支持数值型, 一个属性一个单数值
+        // { paddingLeft: 1} 如 But you cannot pass in { padding: "1 1 1 1" }
+
+        // 单位: Velocity supports the px, em, rem, %, deg, and vw/vh units.
+
+    $element.velocity({
+        top: 20, // Defaults to the px unit type
+        left: "50%",
+        width: "+=5rem", // Add 5rem to the current rem value
+        height: "*=2" // Double the current height
+    });
+
+
+    /**
+     * 链式执行, 如上面的例子所示,
+     * 当一个元素身上调用多次 velocity 方法时, 按照队列来, 前边的完事后边的才开始
+     *
+     * When multiple Velocity calls are stacked onto an element
+     * (or a series of elements),
+     * they automatically queue onto one another —
+     * with each one firing once its prior animation has completed:
+     */
+
+
+    $element
+        /* Animate the width property. */
+            .velocity({width: 75})
+        /* Then, when finished, animate the height property. */
+            .velocity({height: 0});
+
+
+    // durations 支持毫秒级
+    $element.velocity({width: "*=2", height: 100}, {duration: 1000});
+
+    /**
+     *  css 的支持见: http://julian.com/research/velocity/#cssSupport
+     */
+
+    /* Use one of the jQuery UI easings. */
+    $element.velocity({width: 50}, "easeInSine");
+
+    /* Use a custom bezier curve. */
+    $element.velocity({width: 100}, [0.17, 0.67, 0.83, 0.67]);
+
+    /* Use spring physics. */
+    /**
+     * Spring physics:
+     * Pass a two-item array in the form of [ tension, friction ].
+     * tension: 速度,活泼, A higher tension (default: 500) increases total speed and bounciness.
+     * friction: 结束时的速度, 摩擦力大结束时的速度就大 A lower friction (default: 20) increases ending vibration speed.
+     */
+    $element.velocity({width: 250, height: 300}, [800, 10]);
+
+
+    /**
+     * Per-Property Easing
+     */
+    $element.velocity({
+        borderBottomWidth: ["20px", "spring"], // Uses "spring"
+        width: ["100px", [250, 15]], // Uses custom spring physics
+        height: "100px" // Defaults to easeInSine, the call's default easing
+    }, {
+        easing: "easeInSine" // Default easing
+    });
+
+
+    $element.velocity({
+        opacity: 0
+    }, {
+        /* Log all the animated divs. */
+        begin: function (elements) {
+            console.log('begin', elements);
+        },
+        complete: function (elements) {
+            console.log('complete', elements);
+        }
+    });
+
+
+    $element.velocity({
+        opacity: 1,
+        borderBottomWidth: 1,
+        tween: 1000 // Optional
+    }, {
+        /**
+         * @param elements
+         * @param complete   The call's completion percentage (as a decimal value).
+         * @param remaining  How much time remains until the call completes (in ms).
+         * @param start      The absolute time at which the call began (in Unix time).
+         * @param tweenValue The current value of the dummy tween animation property
+         */
+        progress: function (elements, complete, remaining, start, tweenValue) {
+            console.log((complete * 100) + "%");
+            console.log(remaining + "ms remaining!");
+            console.log("The current tween value is " + tweenValue)
+        }
+    });
+
+    /**
+     * Loop
+     */
+    $element.velocity(
+            {
+                scale: 1.5
+            },
+            {
+                // Loop one time
+                // (animate scale to 1.5 then back to its original value).
+                loop: 2,
+
+                duration: 500,
+
+                // Specify the delay option in milliseconds
+                // to insert a pause before an animation begins.
+                delay: 1000
+            });
+
+
+    /**
+     * stop
+     * To immediately stop all current Velocity calls (including parallel animations called via queue: false) on an element, pass in "stop" as Velocity's first argument.
+     * The next Velocity call in the element's animation queue immediately starts.
+     */
+    $element
+        // .velocity("stop")
+        /* Animate opacity back to 1. */
+            .velocity("reverse");
+
+
+
+    /**
+     * http://julian.com/research/velocity/#beginAndComplete
+     * hook
+     */
+
+    /**
+     * promise
+     */
+</script>
