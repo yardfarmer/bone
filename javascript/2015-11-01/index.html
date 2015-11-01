@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="gbk">
+    <title></title>
+</head>
+<body>
+
+<div></div>
+
+<script>
+    var img = new Image();
+
+    img.src = 'pic.png'
+
+    var div = document.querySelector('div');
+    console.log('0');
+    img.onload = function () {
+        console.log('1', '图片真正加载结束');
+        div.appendChild(img);
+    };
+    console.log('2')
+</script>
+
+</body>
+</html>

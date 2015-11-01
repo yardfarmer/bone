@@ -19,6 +19,12 @@
 <script>
 
     /**
+     * 调试时放慢运行速度
+     */
+//    $.Velocity.mock = 1;
+
+
+    /**
      * 1. 参数
      */
         // Velocity takes a map of CSS properties
@@ -220,13 +226,26 @@
             .velocity("reverse");
 
 
-
     /**
      * http://julian.com/research/velocity/#beginAndComplete
-     * hook
+     * hook, 提供了一个类似 $.css() 的方法,第一个参数事 dom 节点,
+     * 后面是设置的属性和相应的值
      */
+//    $.Velocity.hook($element, "translateX", "-500px"); // Must provide unit type
+    $.Velocity.hook($element, "textShadowBlur", "10px"); // Must provide unit type
+
 
     /**
      * promise
      */
+
+    $.Velocity.animate($element, {opacity: 0.5})
+            .then(function (elements) {
+                console.log("Resolved.");
+            })
+            .catch(function (error) {
+                console.log("Rejected.");
+            });
+
+
 </script>

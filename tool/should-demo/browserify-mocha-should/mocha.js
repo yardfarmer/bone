@@ -3722,7 +3722,7 @@ NyanCat.prototype.drawNyanCat = function() {
  * @api private
  */
 
-NyanCat.prototype.face = function() {
+NyanCat.prototype.unit = function() {
   var stats = this.stats;
   if (stats.failures) {
     return '( x .x)';

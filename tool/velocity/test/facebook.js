@@ -6,12 +6,12 @@ var s,
     portraitsGrid = {
 
         settings: {
-            face: $('.face'),
+            unit: $('.unit'),
             steps: $('.steps'),
             btn: $('.btn'),
             transitionGridIn: "fadeIn",
-            transitionTitlesIn: "transition.flipYIn",
             transitionGridOut: "fadeOut",
+            transitionTitlesIn: "transition.flipYIn",
             transitionTitlesOut: "transition.flipYOut"
         },
 
@@ -25,13 +25,13 @@ var s,
         },
 
         loadPortraits: function() {
-            var genero = ["men", "women"];
-            s.face.find('img').each(function(i) {
+            var genero = ["fff000", "34d3a3", "971a3c", "8a7a8d"];
+            s.unit.find('img').each(function(i) {
                 // nice
                 var rand = genero[Math.floor(Math.random() * genero.length)];
-                $(this).attr('src', 'http://api.randomuser.me/portraits/' + rand + '/' + i + '.jpg'); //http://randomuser.me
+                $(this).attr('src', '//dummyimage.com/200x100/'+ rand +'&text=' + Math.floor(Math.random()*100));
             });
-            s.face.last().find('img').one('load', function() {
+            s.unit.last().find('img').one('load', function() {
                 portraitsGrid.sequenceInOut(
                     500,
                     s.transitionGridIn,
@@ -57,16 +57,17 @@ var s,
          *
          * @param delaygrid
          * @param easegrid
-         * @param backgrid
+         * @param backgrid: Set the backwards option to true to animate starting with the last element in a set.
          * @param durationgrid
          * @param delaytext
          * @param easetext
          * @param durationtext
          */
         sequenceInOut: function(delaygrid, easegrid, backgrid, durationgrid, delaytext, easetext, durationtext) {
-            s.face.delay(delaygrid).velocity(easegrid, {
+            s.unit.delay(delaygrid).velocity(easegrid, {
                 stagger: 55,
                 duration: durationgrid,
+                //动画顺序,正着来还是倒着来
                 backwards: backgrid,
                 drag: true
             });
@@ -81,8 +82,7 @@ var s,
 
 $(function() {
     portraitsGrid.init({
-        //more http://julian.com/research/velocity/
-        transitionGridIn: "transition.bounceIn",
+        transitionGridIn: "transition.flipYIn",
         transitionGridOut: "transition.flipYOut"
     });
 });
