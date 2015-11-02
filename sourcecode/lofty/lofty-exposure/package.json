@@ -1,0 +1,25 @@
+{
+  "name": "lofty-exposure",
+  "version": "1.0.0",
+  "description": "非常强大的曝光组件~",
+  "author": "chuanpeng.qchp <chuanpeng.qchp@alibaba-inc.com>",
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.alibaba-inc.com:lofty-packages/lofty-exposure.git"
+  },
+  "keywords": [
+    "lofty",
+    "package"
+  ],
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "dependencies": {},
+  "spm": {
+    "type": "lofty",
+    "main": "index.js",
+    "dependencies": {
+      "lofty-class": "~1.0.0",
+      "lofty-base": "~1.0.0"
+    }
+  }
+}

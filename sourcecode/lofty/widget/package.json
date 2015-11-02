@@ -1,0 +1,25 @@
+{
+  "name": "lofty-widget",
+  "version": "1.0.0",
+  "description": "所有lofty ui类组件的基类~",
+  "author": "terence.wangt <terence.wangt@alibaba-inc.com>",
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.alibaba-inc.com:lofty-packages/lofty-widget.git"
+  },
+  "keywords": [
+    "lofty",
+    "package"
+  ],
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "dependencies": {},
+  "spm": {
+    "type": "lofty",
+    "main": "index.js",
+    "dependencies": {
+      "lofty-class": "~1.0.0",
+      "lofty-base": "~1.0.0"
+    }
+  }
+}
