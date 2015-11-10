@@ -4,8 +4,37 @@
     <title></title>
     <script src="//cdn.bootcss.com/jquery/2.1.4/jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
+
+        function getPixelColor(context, canvasX, canvasY) {
+            // 获取该点像素的数据
+            var imageData = context.getImageData(canvasX, canvasY, 1, 1);
+            // 获取该点像素数据
+            var pixel = imageData.data;
+            return pixel;
+        }
+
+        function displayPixelColor(pixel) {
+            var color = "#";
+            for(var i = 0; i<3; i++) {
+                color +=pixel[i].toString(16);
+            }
+            var pixelColor = "rgba(" + pixel[0] + "," + pixel[1] + "," + pixel[2] + "," + pixel[3] + ")";
+
+            $("body").css("backgroundColor", pixelColor);
+            pixelColor = pixelColor + "<em style='color:"+color+";'>"+color+"</em>";
+            $("#currentColor").html("当前背景颜色为:" + pixelColor);
+        }
+
+        function bindEvent(canvas, context) {
+            canvas.click(function (e) {
+                var canvasOffset = canvas.offset();
+                var canvasX = Math.floor(e.pageX - canvasOffset.left);
+                var canvasY = Math.floor(e.pageY - canvasOffset.top);
+                var pixelColor = getPixelColor(context, canvasX, canvasY);
+                displayPixelColor(pixelColor);
+            });
+        }
         function draw(img) {
-            var _self = this;
             var canvas = document.getElementById("canvas");
             var context = canvas.getContext("2d");
             context.shadowBlur = 20;
@@ -17,18 +46,10 @@
                 console.log(i+":rgb("+pixel[i]+","+pixel[i+1]+","+pixel[i+2]+")");
             }
             canvas = $("#canvas");
-            canvas.click(function (e) {
-                var canvasOffset = canvas.offset();
-                var canvasX = Math.floor(e.pageX - canvasOffset.left);
-                var canvasY = Math.floor(e.pageY - canvasOffset.top);
-                // 获取该点像素的数据
-                var imageData = context.getImageData(canvasX, canvasY, 1, 1);
-                // 获取该点像素数据
-                var pixel = imageData.data;
-                var pixelColor = "rgba(" + pixel[0] + "," + pixel[1] + "," + pixel[2] + "," + pixel[3] + ")";
-                $("body").css("backgroundColor", pixelColor);
-                $("#currentColor").html("当前背景颜色为:"+pixelColor);
-            });
+
+            displayPixelColor(getPixelColor(context,399,399));
+
+            bindEvent(canvas, context);
         }
         $(document).ready(function () {
             var img = new Image();
@@ -43,10 +64,7 @@
     </style>
 </head>
 <body>
-<center >
     <canvas id="canvas" width="400px" height="400px"></canvas>
-    <hr />
     <div class="info" id="currentColor"></div>
-</center>
 </body>
 </html>
