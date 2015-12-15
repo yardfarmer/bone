@@ -1,0 +1,864 @@
+[[svgess-CHP-13]]
+
+== Serving SVG Files
+
+In most of the preceding chapters, we have presented a general view of SVG and have tried to be application-agnostic. The techniques you’ve seen can be applied to diagrams destined for print, for conversion of legacy data to a more transportable format, and, of course, for web graphics. In this chapter, we will consider the problem of accessing data in XML format, transforming it to SVG, and then sending it to a client on the Web.
+
+[[svgess-CHP-13-SECT-1]]
+
+=== Serving Web Files -- +++<?lb?>+++ The Task at Hand
+
+We will present a list of airports on a web page, and let the users select one whose weather report they wish to see. The request will be sent to a Java servlet, which will retrieve the information in Weather Observation Markup Format (OMF) and send back a web page containing a graphic presentation of the data. Though SVG is the most compact representation — and this is a book about SVG, after all — some users may not have an SVG plugin for their browsers. Thus, we will offer them a choice of receiving the graphic in SVG or in one of two rasterized formats: PNG (Portable Network Graphics) or JPG. We offer JPG for users with older browsers that don’t support PNG. The web page is shown in <<svgess-CHP-13-FIG-1>>.
+
+This example uses a servlet without explaining the servlet mechanism in any great detail. You can find that information in Java Servlet Programming by Jason Hunter and William Crawford, published by O’Reilly & Associates.
+
+[[svgess-CHP-13-FIG-1]]
+
+.Screenshot of web page
+image::images/web/svge.1301.png[]
+
+The resulting graphic will be a modified form of the graphic presented in <<svgess-CHP-12>>, in <<svgess-CHP-12-SECT-3>>, showing the city name, time, temperature, wind speed and direction, and visibility. The most important modification is that the graphic will show the local time, rather than Greenwich Mean Time, which is the format for the original data. <<svgess-CHP-13-FIG-2>> shows one such result.
+
+[[svgess-CHP-13-FIG-2]]
+
+.Screenshot of resulting graphic
+image::images/web/svge.1302.png[]
+
+[[svgess-CHP-13-SECT-2]]
+
+=== Partitioning the Task
+
+Our task can be broken down into three major subtasks: creating the web page, writing the servlet itself, and constructing the XSLT file that the servlet will use.
+
+[[svgess-CHP-13-SECT-2.1]]
+
+==== The Request Web Page
+
+<<svgess-CHP-13-EX-1>> is a listing of the HTML for the web page. The +value+ of each select menu option consists of the four-letter station ID, city name, and time zone, separated by vertical bars. The time zone is chosen from the list provided by Java’s +java.util.TimeZone.getAvailableIDs()+ function. The +action+ attribute points to the servlet running on +localhost+; you will change this depending on the server, server software, and servlet container you’re using.
+
+[[svgess-CHP-13-EX-1]]
+.HTML form for requesting OMF information
+
+====
+[listing]
+....
+<html>
+<head><title>OMF to SVG</title></head>
+
+<body>
+<h2>OMF Graphic Display</h2>
+<form method="get"
+ action="http://localhost:8080/omf_j/servlet/Weather">
+<p>
+See weather for:
+
+<select name="call_id">
+<option value="----|-----|----">Choose an airport</option>
+<option value="SABE|Buenos Aires, Argentina|America/Buenos_Aires">
+    Buenos Aires, Argentina
+</option>
+<option value="KORD|Chicago/O'Hare|America/Chicago">
+    Chicago/O'Hare
+</option>
+<!-- etc. -->
+</option>
+<option value="KSJC|San Jose|America/Los_Angeles">
+    San Jose, California
+</option>
+<option value="RKSS|Seoul/Kimp'o|Asia/Seoul">
+    Seoul/Kimp'o
+</option>
+<option value="YSSY|Sydney, Australia|Australia/Sydney">
+    Sydney, Australia
+</option>
+</select>
+</p>
+<p>
+Format:
+<input type="radio" name="imgtype" value="SVG"
+    checked="checked" /> SVG
+<input type="radio" name="imgtype" value="JPG" /> JPG
+<input type="radio" name="imgtype" value="PNG" /> PNG
+<input type="submit" value="Show Weather Graphic" />
+</p>
+</form>
+</body>
+</html>
+....
+
+====
+
+[[svgess-CHP-13-SECT-2.2]]
+
+==== The Weather Servlet
+
+Let us now turn our attention to the Java servlet, +Weather+, that creates the web page on which the image will appear. This servlet merely creates HTML; it doesn’t create the image itself. Instead, it will create an +<embed>+ tag (or +<img>+ tag) whose +src+ attribute will be a reference to the +Transform+ servlet that does the actual transformation. There are two reasons to do this: First, most applications create a web page with an image rather than returning an image alone. Second, returning only an image causes caching problems with some browsers; returning a web page doesn’t. The source code for the servlet is listed in <<svgess-CHP-13-EX-2>>.
+
+
+[[svgess-CHP-13-EX-2]]
+.Weather.java, a servlet for creating a web page
+import java.io.*;
+import java.text.*;
+import java.util.*;
+
+import java.net.URLEncoder;     <co id="co_13_one" linkends="co_13_one-co"/>
+import javax.servlet.*;
+import javax.servlet.http.*;
+
+public class Weather extends HttpServlet {
+
+    ResourceBundle rb =     <co id="co_13_two" linkends="co_13_two-co"/>
+        ResourceBundle.getBundle("TransformFileStrings");
+
+    public void doPost(HttpServletRequest request,
+        HttpServletResponse response)
+        throws ServletException, IOException
+    {
+
+        PrintWriter out = response.getWriter();
+
+        try
+        {
+            response.setContentType("text/html");     <co id="co_13_three" linkends="co_13_three-co"/>
+            response.setHeader("Cache-Control",
+                "no-cache, no-store, must-revalidate");
+            response.setHeader("Cache-Control",
+                "post-check=0, pre-check=0");
+            String agent =
+                request.getHeader("User-Agent").toLowerCase();
+
+            // netscape chokes on Pragma no-cache so only
+            // send it to explorer
+            if (agent.indexOf("explorer") > -1){
+              response.setHeader("Pragma", "no-cache");
+            }
+            response.setHeader("Expires",
+                "Thu, 01 Dec 1994 16:00:00 GMT");
+
+            String params = request.getParameter( "call_id" );     <co id="co_13_four" linkends="co_13_four-co"/>
+            String referer = request.getHeader( "Referer" );
+
+            /* if no airport chosen, return to caller */
+            if ( params.startsWith("----") && (referer != null) )
+            {
+                response.setStatus( response.SC_MOVED_TEMPORARILY );
+                response.setHeader( "Location", referer );
+                return;
+            }
+
+            StringTokenizer info = new StringTokenizer( params, "|" );      <co id="co_13_five" linkends="co_13_five-co"/>
+            info.nextToken();   /* we don't need the station ID */
+            String cityName = info.nextToken();
+
+            String imgType = request.getParameter( "imgtype" );
+
+            String transformURL = rb.getString( "transformURL" );
+
+            out.println("<html><head><title>" +
+                cityName + "</title></head>");
+            out.println("<body>");
+
+            if (referer != null)        <co id="co_13_six" linkends="co_13_six-co"/>
+            {
+                out.println("<p><a href=\"" +
+                    request.getHeader("Referer") +
+                    "\">Back</a></p>");
+            }
+
+            /*
+             * Construct parameters to pass to Transform servlet.
+             * The servlet request.getParameter function decoded
+             * the information, so we must re-encode it.
+            */
+            params = "call_id=" + java.net.URLEncoder.encode(params) +
+                "&imgtype=" + imgType;
+
+            if (imgType.equals("SVG"))      <co id="co_13_seven" linkends="co_13_seven-co"/>
+            {
+                out.println("<p><embed width=\"350\" height=\"200\" " +
+                    "type=\"image/svg+xml\" ");
+                out.println(
+                    "src=\"" + transformURL +
+                    "?" + params +
+                    "\" /></p>");
+            }
+            else
+            {
+                out.println("<p><img width=\"350\" height=\"200\" ");
+                out.println(
+                    "src=\"" + transformURL +
+                    "?" + params +
+                    "\" /></p>");
+            }
+            out.println("</body></html>");
+        }
+        catch (Exception e)
+        {
+            out.println("<html><head><title>Error</title></head>");
+            out.println("<body>");
+            out.println("<p>Unable to extract information.</p>");
+            out.println("</body></html>");
+        }
+    }
+
+    public void doGet(HttpServletRequest request,     <co id="co_13_eight" linkends="co_13_eight-co"/>
+                      HttpServletResponse response)
+        throws IOException, ServletException
+    {
+        doPost( request, response );
+    }
+ }
+ <calloutlist>
+    <callout arearefs="co_13_one" id="co_13_one-co">
+        <para>Include all the connectivity and servlet routines.</para>
+    </callout>
+    <callout arearefs="co_13_two" id="co_13_two-co">
+        <para>For ease of modification, all the file names and URL names for both servlets are stored in a resource file, which looks like this:</para>
+        pathName=file:///home/httpd/html/omf_j/
+
+#
+#   for Weather servlet
+#
+transformURL=http://localhost:8080/omf_j/servlet/Transform
+
+#
+#   for Transform servlet
+#
+xslFileName=omf.xsl
+svgErrFile=/home/httpd/html/omf_j/err.svg
+imgErrFile=/home/httpd/html/omf_j/err.jpg
+omfSource=http://<replaceable>url.of.omf.org</replaceable>/get-obs"
+    </callout>
+    <callout arearefs="co_13_three" id="co_13_three-co">
+        <para>The servlet sets the content type for a web page (+text/html+) and emits an inordinate amount of information to make sure the page doesn’t get cached.</para>
+    </callout>
+    <callout arearefs="co_13_four" id="co_13_four-co">
+        <para>Retrieve the weather station call letters (+call_id+) and the URL of the web page from which we were called (the +referer+). The referrer, whose keyword was misspelled when the API was created, will be null if the user typed the URL in the browser’s location bar rather than calling the servlet from an actual web page.</para>
+    </callout>
+    <callout arearefs="co_13_five" id="co_13_five-co">
+        <para>Split out the city name from the +call_id+ parameter for use in the +<title>+ element.</para>
+    </callout>
+    <callout arearefs="co_13_six" id="co_13_six-co">
+        <para>If there was a referring page, create a link back to that page.</para>
+    </callout>
+    <callout arearefs="co_13_seven" id="co_13_seven-co">
+        <para>Create the appropriate +<object>+ or +<img>+ tag. Note that the +src+ attribute is a URL that will call the +Transform+ servlet, passing on to it all the parameters that we received in this servlet.</para>
+    </callout>
+    <callout arearefs="co_13_eight" id="co_13_eight-co">
+        <para>If this servlet is called from a +GET+ request, handle it exactly the same as a +POST+ request.</para>
+    </callout>
+ </calloutlist>
+
+
+[[svgess-CHP-13-SECT-2.3]]
+==== The Transform Servlet
+
+When the +Weather+ servlet is invoked, it will create a web page, one of whose tags will in turn invoke the +Transform+ servlet. This servlet has to retrieve the XML, transform it to SVG, possibly convert it to JPG or PNG format, and send it to the client, as shown in <<svgess-CHP-13-FIG-3>>. We want a cross-platform, open source solution, so we will use Apache’s Xalan processor for XSLT, and the Apache Batik project’s transcoder.
+
+[[svgess-CHP-13-FIG-3]]
+
+.Information flow of Transform servlet
+image::images/web/svge.1303.png[]
+
+The servlet begins by importing a significant number of classes:
+
+
+----
+import java.io.*;
+import java.text.*;
+import java.util.*;
+
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.net.URLDecoder;
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import javax.xml.transform.*;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.batik.transcoder.image.JPEGTranscoder;
+import org.apache.batik.transcoder.image.PNGTranscoder;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+
+import org.xml.sax.helpers.XMLReaderFactory;
+
+import org.apache.xalan.templates.OutputProperties;
+----
+
+The init function will read the XSL transformation file, compile it, and store the result in the class variable +xslTemplate+. This function is called only once, and the variable will persist throughout the servlet’s lifetime. This means we don’t have to re-parse the XSL file every time the servlet is called.
+
+
+----
+public class Transform extends HttpServlet {
+
+    ResourceBundle rb =
+        ResourceBundle.getBundle("TransformFileStrings");
+
+    private Templates xslTemplate;
+
+    public void init(ServletConfig config) throws ServletException
+    {
+        String path;
+        String title;
+
+        path = rb.getString("pathName");
+        title = rb.getString( "xslFileName" );
+        super.init(config);
+        try
+        {
+            //for storing a compiled and resuseable style sheet
+            TransformerFactory factory =
+                TransformerFactory.newInstance();
+            xslTemplate =
+                factory.newTemplates(new StreamSource(path + title));
+        }
+        catch (Exception ex)
+        {
+            xslTemplate = null;
+        }
+    }
+----
+
+This is followed by the main routine, doPost. Of particular interest is the code in boldface, which passes the time zone string as a parameter to the XSLT file.
+
+
+
+public void doPost(HttpServletRequest request,
+    HttpServletResponse response)
+    throws ServletException, IOException
+{
+    StreamSource    xmlInput;
+    StreamResult    svgOutput;
+    StringWriter    svgWriter;
+    String          svgString;
+    String          stationID = "";
+    String          cityName = "";
+    String          timeZoneString ="";
+    String          retrievedXML = "";
+
+    /* If init failed, exit immediately */
+    if (xslTemplate == null)
+    {
+        errorExit( request, response, "No template" );
+        return;
+    }
+
+    try
+    {
+        /* Split out information from the parameter */
+        String temp;
+        temp = request.getParameter( "call_id" );
+        StringTokenizer info = new StringTokenizer( temp, "|" );
+        stationID = info.nextToken();
+        cityName = info.nextToken();
+        timeZoneString = info.nextToken();
+    }
+    catch (Exception e)
+    {
+        errorExit( request, response, "Can't split parameters" );
+    }
+
+    /*
+     * The OMF source that we are using returns
+     * an SVG document beginning with a <!DOCTYPE if there
+     * is no error, or an HTML form document if it got
+     * invalid input.
+     */
+    retrievedXML = getOMFReports( request, cityName, stationID );
+    if (retrievedXML != null &&
+     retrievedXML.startsWith("<!DOC"))
+    {
+        try
+        {
+            xmlInput = new StreamSource(
+                new StringReader( retrievedXML )
+            );
+
+            /*
+             * Create an XSLT Transformer based on our template,
+             * make it output UTF, and pass it the time zone
+             */
+            Transformer transformer = xslTemplate.newTransformer();
+            transformer.setOutputProperty("encoding", "UTF-8");
+            transformer.setParameter("timeZone", timeZoneString);
+
+            /*
+             * Transform the XML to SVG as one long
+             * string.
+             */
+            svgWriter = new StringWriter( 2048 );
+            svgOutput = new StreamResult( svgWriter );
+            transformer.transform(
+                xmlInput,
+                svgOutput
+            );
+
+            svgString = svgWriter.toString();
+
+            /*
+             * Send back the appropriate output given the
+             * image type that the user requested.
+             */
+            if ( request.getParameter("imgtype").equals("JPG") )
+            {
+                emitJPG( request, response, svgString );
+            }
+            else if (request.getParameter("imgtype").equals("PNG"))
+            {
+                emitPNG( request, response, svgString );
+            }
+            else
+            {
+                emitSVG( request, response, svgString );
+            }
+        }
+        catch (Exception e)
+        {
+            errorExit( request, response, e.getMessage() );
+        }
+    }
+    else
+    {
+        errorExit( request, response, retrievedXML );
+    }
+}
+
+/*
+ * Treat get and post equivalently.
+ */
+public void doGet(HttpServletRequest request,
+                  HttpServletResponse response)
+    throws IOException, ServletException
+{
+    doPost( request, response );
+}
+
+
+Here’s the routine that accesses the OMF source. The particular source we’re using will only accept +POST+ requests; this code shows you how to do them. The OMF source we used while developing this chapter returns an XML file starting with a +<!DOCTYPE ...         >+ if the input data is valid; otherwise it returns an HTML page with an error message.
+
+
+----
+private String getOMFReports( HttpServletRequest request,
+    String cityName, String stationID )
+{
+    URL url;
+    URLConnection urlConn;
+
+    DataOutputStream output;
+    DataInputStream input;
+
+    String  retrievedReport = null;
+
+    try
+    {
+        /*
+         * Open a URL connection to the OMF source URL
+         */
+        url = new URL( rb.getString("omfSource") );
+        urlConn = url.openConnection();
+
+        /*
+         * We need to both send (output)
+         * and receive (input) data
+         * with this connection
+         */
+        urlConn.setDoOutput (true);
+        urlConn.setDoInput (true);
+
+        // Don't use any cached values
+        urlConn.setUseCaches (false);
+
+        // Specify the content type.
+        urlConn.setRequestProperty("Content-Type",
+            "application/x-www-form-urlencoded");
+
+        /*
+         * No user interaction such as authentication
+         * dialogs is needed here.
+         */
+        urlConn.setAllowUserInteraction(false);
+
+        /*
+         * Write the POST data; this OMF source
+         * is ordinarily called from an HTML form;
+         * we are filling in the call_id field and
+         * faking the "Retrieve" submit button
+         */
+        output = new DataOutputStream (urlConn.getOutputStream ());
+        String content = "do-retrieve=Retrieve&call_id=" +
+            URLEncoder.encode( stationID );
+        output.writeBytes (content);
+        output.flush ();
+        output.close ();
+
+        /*
+         * Get response data, appending it to a
+         * string buffer.
+         */
+        input = new DataInputStream(urlConn.getInputStream ());
+
+        StringBuffer strBuf = new StringBuffer(2048);
+        String str;
+        while (null != ((str = input.readLine())))
+        {
+            strBuf.append(str);
+            strBuf.append("\n");
+        }
+
+        /*
+         *  If the result begins with <!DOCTYPE, it's good;
+         *  otherwise, it's not.
+         */
+        retrievedReport = strBuf.toString();
+        if (!retrievedReport.startsWith("<!DOCTYPE"))
+        {
+            retrievedReport = "No reports available for " +
+                cityName + ".";
+        }
+        input.close( );
+    }
+    catch (Exception e)
+    {
+        /*
+         * We can get an exception when the connection
+         * hits end of file; this test makes sure we
+         * only report true errors.
+         */
+        if (e.getMessage() != null)
+        {
+            retrievedReport = null;
+        }
+    }
+    return retrievedReport;
+}
+----
+
+The following routine is a utility routine for sending header information back to the caller.
+
+
+----
+/*
+ * Send back a header of the given contentType;
+ * add lots of checks to avoid caching.
+ */
+public void headerInfo( HttpServletRequest request,
+    HttpServletResponse response, String contentType)
+{
+    response.setContentType( contentType );
+    response.setHeader("Cache-Control",
+        "no-cache, no-store, must-revalidate");
+    response.setHeader("Cache-Control",
+        "post-check=0, pre-check=0");
+
+    /*
+     * Netscape has problems with Pragma: no-cache,
+     * so only send it to Explorer.
+     */
+    String agent = request.getHeader("User-Agent").toLowerCase();
+    if (agent.indexOf("explorer") > -1){
+        response.setHeader("Pragma", "no-cache");
+    }
+    response.setHeader("Expires", "Thu, 01 Dec 1994 16:00:00 GMT");
+}
+----
+
+Sending the SVG is trivial; it’s already ready and waiting in a string.
+
+
+----
+public void emitSVG (  HttpServletRequest request,
+    HttpServletResponse response, String svgString )
+{
+    headerInfo( request, response, "image/svg+xml");
+    try {
+
+        response.getWriter().write( svgString );
+        response.getWriter().flush();
+    }
+    catch (Exception e)
+    {
+        e.printStackTrace();
+    }
+}
+----
+
+Sending back the JPG and PNG requires one extra step: invoking the appropriate Batik transcoder to convert the SVG into an array of bytes, which we send directly to the response’s output stream. +response.getWriter()+ is used for text; +response.getOutputStream()+ is used for binary data.
+
+
+----
+public void emitJPG( HttpServletRequest request,
+    HttpServletResponse response, String svgString )
+{
+    headerInfo( request, response, "image/jpeg");
+
+    JPEGTranscoder t = new JPEGTranscoder();
+    t.addTranscodingHint(JPEGTranscoder.KEY_QUALITY,
+                         new Float(.8));
+
+    TranscoderInput input =
+        new TranscoderInput( new StringReader(svgString) );
+    try {
+        TranscoderOutput output =
+            new TranscoderOutput(response.getOutputStream());
+        t.transcode(input, output);
+        response.getOutputStream().close();
+    }
+    catch (Exception e)
+    {
+        e.printStackTrace();
+    }
+}
+
+public void emitPNG ( HttpServletRequest request,
+    HttpServletResponse response, String svgString )
+{
+    headerInfo( request, response, "image/png");
+
+    PNGTranscoder t = new PNGTranscoder();
+
+    TranscoderInput input =
+        new TranscoderInput( new StringReader(svgString) );
+    try {
+        TranscoderOutput output =
+            new TranscoderOutput(response.getOutputStream());
+        t.transcode(input, output);
+        response.getOutputStream().close();
+    }
+    catch (Exception e)
+    {
+        e.printStackTrace();
+    }
+}
+----
+
+We are now left with one interesting problem — handling errors. In the +Weather+ servlet, we were creating an HTML page, so the error trapping simply generated a different HTML page with the error message on it. In this case, though, the servlet is expecting image data, and sending back HTML text won’t do. The client wants image data, so that’s what we’ll give it. If the user requested an SVG graphic, we’ll send back the following “error image” from a text file:
+
+
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN"
+    "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg viewBox="0 0 350 200" height="200" width="350">
+    <rect x="1" y="1" width="348" height="198"
+        style="fill: none; stroke: black;"/>
+    <text x="175" y="112"
+        style="font-size: 18pt; text-anchor: middle;">
+    Unable to retrieve data.
+    </text>
+</svg>
+----
+
+If the user requested a JPG or PNG image, we’ll send back a JPG version of the error image, shown at half size in <<svgess-CHP-13-FIG-4>>. We send back a JPG image because that format is supported by even the oldest browsers.
+
+[[svgess-CHP-13-FIG-4]]
+
+.Screenshot of error image
+image::images/web/svge.1304.png[]
+
+Here’s the code. Again, the SVG, being text, is sent to +response.getWriter()+, and the JPG, being binary, is sent to +response.getOutputStream()+. If there’s any error during _this_ process, we log the error and let the bits fall where they may.
+
+
+----
+public void errorExit( HttpServletRequest request,
+    HttpServletResponse response, String msg )
+{
+    try {
+        if (request.getParameter( "imgtype" ).equals( "SVG" ))
+        {
+            response.setContentType("image/svg+xml");
+            String title = rb.getString( "svgErrFile" );
+            BufferedReader input =
+                new BufferedReader(new FileReader(title));
+            String str;
+            while (null != ((str = input.readLine())))
+            {
+                response.getWriter().write( str );
+            }
+            input.close();
+            response.getWriter().close();
+        }
+        else
+        {
+            response.setContentType("image/jpeg");
+            String title = rb.getString( "imgErrFile" );
+            byte [] buffer = new byte[8192];
+
+            FileInputStream input =
+                new FileInputStream( title );
+            while (input.read( buffer ) >= 0)
+            {
+                response.getOutputStream().write( buffer );
+            }
+            input.close();
+            response.getOutputStream().close();
+        }
+    }
+    catch (Exception e)
+    {
+        if (e.getMessage() != null)
+        {
+            log( "Cannot output error image" );
+            log( e.getMessage() );
+        }
+    }
+}
+----
+
+[[svgess-CHP-13-SECT-2.4]]
+
+==== The XSLT File
+
+The XSLT file used to transform the OMF records to SVG has one major enhancement; it must receive the parameter that was passed to it in the doPost method. Note that we give a default value of +UTC+ so that the result will show up in Greenwich Mean Time if no parameter is passed to the XSLT file.
+
+
+----
+<xsl:param name="timeZone" select="UTC"/>
+----
+
+The XSLT extensions we wrote in <<svgess-CHP-12>> in <<svgess-CHP-12-SECT-3.4>> must also be modified to use the time zone parameter when returning the date and time. These extensions are in the _XSLTUtils.java_ file, which will be compiled and stored in a file named _XSLTUtils.jar_ (rather than _TimeUtils.class_ as in the original example).
+
+
+----
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+import java.text.DateFormat;
+
+public class XSLTUtils
+{
+
+    public static String getDate(String timeStampString,
+        String timeZoneString)
+    {
+        DateFormat d = DateFormat.getDateInstance();
+        d.setTimeZone( TimeZone.getTimeZone( timeZoneString ));
+        long milliseconds = Long.parseLong( timeStampString ) * 1000;
+        return
+            d.format(new Date(milliseconds));
+    }
+
+    public static Double getHour(String timeStampString,
+        String timeZoneString)
+    {
+        long milliseconds = Long.parseLong( timeStampString ) * 1000;
+        Calendar c = Calendar.getInstance(
+            TimeZone.getTimeZone( timeZoneString ));
+        c.setTime( new Date( milliseconds ) );
+        return new Double( c.get( Calendar.HOUR_OF_DAY ) );
+    }
+
+    public static Double getMinute(String timeStampString,
+        String timeZoneString)
+    {
+        long milliseconds = Long.parseLong( timeStampString ) * 1000;
+        Calendar c = Calendar.getInstance(
+            TimeZone.getTimeZone( timeZoneString ));
+        c.setTime( new Date( milliseconds ) );
+        return new Double( c.get( Calendar.MINUTE ) );
+    }
+
+}
+----
+
+The XSLT can then call upon these functions when drawing the clock and date.
+
+
+----
+<text font-size="10pt" x="345" y="20" text-anchor="end">
+    <xsl:value-of select="java:XSLTUtils.getDate( $tstamp, $timeZone )"/>
+</text>
+
+<xsl:call-template name="draw-time-and-clock">
+    <xsl:with-param name="hour"
+        select="java:XSLTUtils.getHour( $tstamp, $timeZone )"/>
+    <xsl:with-param name="minute"
+        select="java:XSLTUtils.getMinute( $tstamp, $timeZone )"/>
+</xsl:call-template>
+----
+
+[[svgess-CHP-13-SECT-3]]
+
+=== Setting up the Server
+
+We chose the Tomcat servlet container implementation from the Apache Software Foundation, found at link:$$http://jakarta.apache.org/index.html$$[], to run these servlets. As with all the other software mentioned in this appendix, it is cross-platform and open source. It can run as a standalone server, serving web pages, servlets, and JavaServer Pages. It can also be used in conjunction with the Apache web server, Microsoft’s Internet Information Server (IIS), Microsoft’s Personal Web Server, or Netscape’s Netscape Enterprise Server.footnote:[This isn’t the only choice available. You can also use a Java-based delivery framework such as Cocoon, available from the Apache Software Foundation at link:$$http://xml.apache.org/cocoon/$$[], or the Perl-based AxKit system, available at link:$$http://217.158.50.178$$[].]
+
+We did our testing with Tomcat running in standalone mode on a Linux system. We changed the _tomcat.sh_ shell script as follows:
+
+
+* We explicitly set the +JAVA_HOME+ and +TOMCAT_HOME+ variables:
+
+----
+JAVA_HOME=/usr/local/j2sdk1.3.0
+TOMCAT_HOME=/usr/local/jakarta-tomcat
+----
+
+* To run our servlets, Tomcat’s classpath needs access to Xalan and Xerces for the XSLT transformations, and it also needs access to the Batik .jar files. The normal Tomcat classpath setup is also in _conf/tomcat.sh_. It saves your current +CLASSPATH+, creates a new one with the paths that it wants, and then re-appends the classpath that you had specified. We modified that code to create a new classpath and entirely ignore the old one, which had some duplications and many unnecessary paths. Our changes are shown in boldface.
+
+
+oldCP=$CLASSPATH
+unset CLASSPATH
+
+#
+# The latest versions of Xalan and Xerces which we
+# want to use must come first!
+#
+CLASSPATH=/usr/local/xmljar/xalan.jar:/usr/local/xmljar/xerces.jar
+CLASSPATH=${CLASSPATH}:/usr/local/xmljar/bsf.jar
+CLASSPATH=${CLASSPATH}:/usr/local/xmljar/XSLTUtils.jar
+<userinput moreinfo="none"/>
+#
+# Add all the .jar files in the Batik library
+# to the classpath
+#
+for i in /usr/local/batik/lib/* ; do
+  CLASSPATH=${CLASSPATH}:$i
+done
+
+#
+# Add all the .jar files in Tomcat's library directory
+# to the classpath. The "else" branch will never be
+# taken, but it's needed in Tomcat's code, so we decided
+# to leave it intact here
+#
+for i in ${TOMCAT_HOME}/lib/* ; do
+  if [ "$CLASSPATH" != "" ]; then
+    CLASSPATH=${CLASSPATH}:$i
+  else
+    CLASSPATH=$i
+  fi
+done
+
+if [ -f ${JAVA_HOME}/lib/tools.jar ] ; then
+   # We are probably in a JDK1.2 environment
+   CLASSPATH=${CLASSPATH}:${JAVA_HOME}/lib/tools.jar
+fi
+
+# Backdoor classpath setting for development purposes when all classes
+# are compiled into a /classes dir and are not yet jarred.
+if [ -d ${TOMCAT_HOME}/classes ]; then
+    CLASSPATH=${TOMCAT_HOME}/classes:${CLASSPATH}
+fi
+
+
+#  Ignore old classpath altogether
+#
+#if [ "$oldCP" != "" ]; then
+#    CLASSPATH=${CLASSPATH}:${oldCP}
+#fi
+
+
+* We added a new context to the _conf/server.xml_ so we could put our files in a directory other than the _webapps/examples_ directory. We set +reloadable+ to +true+ because we were doing a lot of recompiling and testing. In a production environment you would probably want to set this to +false+ to avoid the overhead of checking for updates every time a request comes to the server.
+
+----
+<Context path="/omf_j"
+         docBase="/home/httpd/html/omf_j"
+         crossContext="false"
+         debug="0"
+         reloadable="true" >
+</Context>
+----
+

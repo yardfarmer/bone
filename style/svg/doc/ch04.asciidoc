@@ -1,0 +1,831 @@
+[[basic-shapes-chapter]]
+
+== Basic Shapes
+
+Once a coordinate system is established in the +<svg>+ tag, you are ready to begin drawing.((("shapes", "basic", id="ix_shapesbasic", range="startofrange"))) This chapter describes the basic shapes you can use to create the major elements of most drawings: lines, rectangles, polygons, circles, and ellipses.
+
+[[lines-section]]
+
+=== Lines
+
+SVG lets you draw a straight line with the +<line>+ element. ((("shapes", "basic", "lines", id="ix_shapesline", range="startofrange")))((("line element")))Just specify the _x_- and _y_-coordinates of the line’s endpoints.((("coordinates", "specifying for lines"))) Coordinates may be specified without units, in which case they are considered to be user coordinates, or with units such as +em+, +in+, etc. (as described in <<coordinates-chapter>>, in <<viewport-section>>). 
+
+[subs="specialcharacters,quotes"]
+----
+<line x1="_start-x_" y1="_start-y_"
+  x2="_end-x_" y2="_end-y_" />
+----
+
+The SVG in <<basic-lines-example>> draws several lines; the reference grid [offline_only]#in <<basic-lines-figure>># is not part of the SVG you see in the example.
+
+[[basic-lines-example]]
+.Basic lines
+
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/basic-lines.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <!-- horizontal line -->
+  <line x1="40" y1="20" x2="80" y2="20" style="stroke: black;"/>
+  <!-- vertical line -->
+  <line x1="0.7cm" y1="1cm" x2="0.7cm" y2="2.0cm"
+    style="stroke: black;"/>
+   <!-- diagonal line -->
+   <line x1="30" y1="30" x2="85" y2="85" style="stroke: black;"/>
+</svg>
+----
+====
+
+[[basic-lines-figure]]
+[role="offline_only"]
+.Basic lines
+image::images/sve2_0401.png[]
+
+
+[[stroke-characteristics-section]]
+
+=== Stroke Characteristics
+
+Lines are considered to be strokes of a pen that draws on the canvas.((("line element", "stroke characteristics", id="ix_linestroke", range="startofrange"))) The size, color, and style of the pen stroke are part of the line’s presentation.((("stroke-width style"))) Thus, these characteristics will go into the +style+ attribute.
+
+[[stroke-width-section]]
+
+==== stroke-width
+
+As mentioned in <<coordinates-chapter>>, the canvas grid lines are infinitely thin. Where, then, does a line or stroke fall in relation to the grid line? The answer is that the grid line falls in the center of a stroke. <<stroke-width-example>> draws some lines where the stroke width has been set to 10 user coordinates to make the effect obvious. The [offline_only]#result, in <<stroke-width-figure>>,# [online_only]#result# has the grid lines drawn in so you can see the effect clearly.
+
+[[stroke-width-example]]
+.Demonstration of stroke-width
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/stroke-width.html[width="100%", height="450px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <!-- horizontal line -->
+  <line x1="30" y1="10" x2="80" y2="10"
+    style="stroke-width: 10; stroke: black;"/>
+  <!-- vertical line -->
+  <line x1="10" y1="30" x2="10" y2="80"
+    style="stroke-width: 10; stroke: black;"/>
+  <!-- diagonal line -->
+  <line x1="25" y1="25" x2="75" y2="75"
+    style="stroke-width: 10; stroke: black;"/>
+</svg>
+----
+
+====
+
+[[stroke-width-figure]]
+[role="offline_only"]
+.Demonstration of stroke-width
+image::images/sve2_0402.png[]
+
+[NOTE]
+====
+The SVG coordinate grid may be infinitely thin, but your computer screen is made of fixed-size pixels.  A diagonal line can look jagged as the computer translates it to the nearest pixel blocks; this is known as _aliasing_.((("aliasing", seealso="anti-aliasing")))((("anti-aliasing")))  Alternatively, the computer can use _anti-aliasing_ to soften the edges, blurring the line across all pixels it partially overlaps.  
+
+Most SVG viewers use anti-aliasing by default, and this can sometimes make a 1-pixel black line look like a 2-pixel gray line, because it is centered on the space between two pixels.  You can control the use of anti-aliasing with the CSS +shape-rendering+ style property.((("shape-rendering style")))  Setting this property to +crispEdges+ (on an element or the SVG as a whole) will turn off anti-aliasing, resulting in clear (if sometimes jagged) lines.  A value of +geometricPrecision+ will emphasize smooth (if sometimes blurry) edges.
+====
+
+[[stroke-color-section]]
+
+==== Stroke Color
+
+You can specify the((("stroke style", "specifying color")))((("colors", "stroke color")))((("color"))) stroke color in a variety of ways:
+
+
+* One of the basic color keyword names: +aqua+, +black+, +blue+, +fuchsia+, +gray+, +green+, +lime+, +maroon+, +navy+, +olive+, +purple+, +red+, +silver+, +teal+, +white+, and +yellow+. You may also use the color keywords from link:$$http://www.w3.org/TR/SVG/types.html#ColorKeywords$$[section 4.2 of the SVG pass:[<phrase role="keep-together">specification</phrase>]].
+
+* A six-digit hexadecimal specifier in the form +#_rrggbb_+, where +_rr_+ is the red component, +_gg_+ is the green component, and +_bb_+ is the blue component in the pass:[<phrase role="keep-together">range <literal>00</literal>–<literal>ff</literal></phrase>].
+
+* A three-digit hexadecimal specifier in the form +#_rgb_+, where +_r_+ is the red component, +_g_+ is the green component, and +_b_+ is the blue component in the range ++0++–++f++.((("rgb color function"))) This is a shorthand form of the previous method of specifying color. To produce the six-digit equivalent, each digit of the short form is duplicated; thus +#d6e+ is the same pass:[<phrase role="keep-together">as <literal>#dd66ee</literal></phrase>].
+
+* An +rgb+ specifier in the form ++rgb++(__++red-value++__, __++green-value++__, __++blue-value++__++)++, where each value is an integer in the range ++0++–++255++ or a percentage in the range +0%+ pass:[<phrase role="keep-together">to <literal>100%</literal></phrase>]. 
+
+* The +currentColor+ keyword, which uses the computed CSS +color+ property for the element.((("color style")))((("currentColor keyword")))  The +color+ property—which doesn't have a direct effect in SVG—is used in HTML to set text color, and is inherited by child elements. Using +currentColor+ in an inline SVG icon (see <<svg-with-html-mixed-doc-inline-section>>) allows the icon to take on the color of the surrounding text.
+
+<<stroke-color-example>> uses all of these [offline_only]#methods (with the exception of +currentColor+), giving the colorful results of <<stroke-color-figure>>.# [online_only]#methods (with the exception of +currentColor+).#
+
+[[stroke-color-example]]
+.Demonstration of stroke color
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/stroke-color.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[source, xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <!-- red -->
+  <line x1="10" y1="10" x2="50" y2="10"
+    style="stroke: red; stroke-width: 5;"/>
+
+  <!-- light green -->
+  <line x1="10" y1="20" x2="50" y2="20"
+    style="stroke: #9f9; stroke-width: 5;"/>
+
+  <!-- light blue -->
+  <line x1="10" y1="30" x2="50" y2="30"
+    style="stroke: #9999ff; stroke-width: 5;"/>
+
+  <!-- medium orange -->
+  <line x1="10" y1="40" x2="50" y2="40"
+    style="stroke: rgb(255, 128, 64); stroke-width: 5;"/>
+
+  <!-- deep purple -->
+  <line x1="10" y1="50" x2="50" y2="50"
+    style="stroke: rgb(60%, 20%, 60%); stroke-width: 5;"/>
+</svg>
+----
+====
+
+[[stroke-color-figure]]
+[role="offline_only"]
+.Demonstration of stroke color
+image::images/sve2_0403.png[]
+
+There are yet more ways to specify color.((("colors", "CSS3 color specification")))((("CSS", "CSS3 color specification"))) They are taken from the link:$$http://www.w3.org/TR/css3-color/$$[CSS3 Color specification]. Although widely supported in web browsers, they are not part of the SVG 1.1 specification, and may not be supported by other SVG implementations; as of this writing, for example, neither Apache Batik or Inkscape support them. There are three new color functions and one new keyword:
+
+* +rgba()+ specifier((("rgba color function"))) in the ((("alpha value", "for rgba/hsla color functions")))form ++rgb(++__++red-value++__, __++green-value++__, __++blue-value++__, __++alpha-value++__++)++, where the color values are in the same format as for the +rgb()+ function, and the alpha value is a decimal in the range ++0++–++1++
+
+* +hsl()+ specifier((("hsl and hsla color functions"))) in the form ++hsl(++__++hue++__, __++saturation++__, __++lightness++__++)++, where _hue_ is an integer angle from 0 to 360, and _saturation_ and _lightness_ are integers in the range ++0++–++255++ or percentages in the range +0%+ to +100%+
+
+* +hsla()+ specifier, with the hue, saturation, and lightness values the same as for +hsl+, and the alpha value the same as for +rgba+
+
+* +transparent+ (fully transparent); ((("transparent specifier (CSS3)")))this is the same as +rgba(0, 0, 0, 0)+
+
+[NOTE]
+====
+If you do not specify a stroke color, you won't see any lines; the default value for the +stroke+ property is +none+.
+====
+
+[[stroke-opacity-section]]
+
+==== stroke-opacity
+
+Up to this point, all the lines in the example have been solid, obscuring anything beneath them.((("stroke-opacity style")))((("transparency", see="alpha value; opacity"))) You control the opacity (which is the opposite of transparency) of a ((("opacity", "stroke-opacity style")))line by giving the +stroke-opacity+ a value from +0.0+ to +1.0+, where 0 is completely transparent and 1 is completely opaque. A value less than 0 will be changed to 0; a value greater than 1 will be changed to 1. [offline_only]#<<stroke-opacity-example>> varies the opacity from 0.2 to 1 in steps of 0.2, with the result in <<stroke-opacity-figure>>. The red line in the figure lets you see the transparency effect more clearly.# [online_only]#In <<stroke-opacity-example>>, experiment with varying the opacity and see the results.#
+
+[[stroke-opacity-example]]
+.Demonstration of stroke-opacity
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/stroke-opacity.html[width="100%", height="300px"]
+
+[role="offline_only"]
+[source, xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <line x1="30" y1="0" x2="30" y2="60"
+        style="stroke:red; stroke-width: 5;"/> 
+  <line x1="10" y1="10" x2="50" y2="10"
+    style="stroke-opacity: 0.2; stroke: black; stroke-width: 5;"/>
+  <line x1="10" y1="20" x2="50" y2="20"
+    style="stroke-opacity: 0.4; stroke: black; stroke-width: 5;"/>
+  <line x1="10" y1="30" x2="50" y2="30"
+    style="stroke-opacity: 0.6; stroke: black; stroke-width: 5;"/>
+  <line x1="10" y1="40" x2="50" y2="40"
+    style="stroke-opacity: 0.8; stroke: black; stroke-width: 5;"/>
+  <line x1="10" y1="50" x2="50" y2="50"
+    style="stroke-opacity: 1.0; stroke: black; stroke-width: 5;"/>
+</svg>
+----
+====
+
+[[stroke-opacity-figure]]
+[role="offline_only"]
+.Demonstration of stroke-opacity
+image::images/sve2_0404.png[]
+
+
+[[stroke-dasharray-section]]
+
+==== stroke-dasharray Attribute
+
+If you need dotted or dashed lines, use the +stroke-dasharray+ attribute, ((("dashed lines")))((("stroke-dasharray style")))whose value consists of a list of numbers, separated by commas or whitespace, specifying dash length and gaps. The list should have an even number of entries, but if you give an odd number of entries, SVG will repeat the list so the total number of entries is even. (See the last instance in <<stroke-dasharray-example>>.)
+
+[[stroke-dasharray-example]]
+.Demonstration of stroke-dasharray
+
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/stroke-dasharray.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+   <!-- 9-pixel dash, 5-pixel gap -->
+   <line x1="10" y1="10" x2="100" y2="10"
+       style="stroke-dasharray: 9, 5;
+       stroke: black; stroke-width: 2;"/>
+
+   <!-- 5-pixel dash, 3-pixel gap, 9-pixel dash, 2-pixel gap -->
+   <line x1="10" y1="20" x2="100" y2="20"
+       style="stroke-dasharray: 5, 3, 9, 2;
+       stroke: black; stroke-width: 2;"/>
+
+   <!-- Odd number of entries is duplicated; this is equivalent to:
+        9-pixel dash, 3-pixel gap,  5-pixel dash,
+        9-pixel gap,  3-pixel dash, 5-pixel gap -->
+   <line x1="10" y1="30" x2="100" y2="30"
+       style="stroke-dasharray: 9 3 5;
+       stroke: black; stroke-width: 2;"/>
+</svg>
+----
+
+====
+[offline_only]#<<stroke-dasharray-figure>> shows the results, zoomed in for clarity.#
+
+[[stroke-dasharray-figure]]
+[role="offline_only"]
+.Demonstration of stroke-dasharray
+image::images/sve2_0405.png[]
+
+
+[[rectangle-section]]
+
+=== Rectangles
+
+The rectangle is the simplest of the basic shapes.((("shapes", "basic", "lines", range="endofrange", startref="ix_shapesline")))((("lines", "stroke characteristics", range="endofrange", startref="ix_linestroke")))((("shapes", "basic", "rectangles", id="ix_shapesrect", range="startofrange")))((("rectangles", id="ix_rect", range="startofrange"))) You specify the _x_- and _y_-coordinates of the upper-left corner of the rectangle,footnote:[Technically, the +x+ value is the smaller of the _x_-coordinate values, and the +y+ is the smaller of the _y_-coordinate values of the rectangle’s sides in the current user coordinate system. Because you are not yet using transformations, which are covered in <<transformation-chapter>>, this is the moral equivalent of the upper-left corner.] its +width+, and its +height+. The interior of the rectangle is filled with the +fill+ color you specify.((("fill style", "specifying color")))((("colors", "fill color"))) If you do not specify a fill color, the interior of the shape is filled with black. The fill color may be specified in any of pass:[<phrase role="keep-together">the ways</phrase>] described in <<stroke-color-section>>, or it may take the value +none+ to leave the interior unfilled and thus transparent. You may also specify a +fill-opacity+ in the same format as you did for +stroke-opacity+ in <<stroke-opacity-section>>.((("opacity", "fill-opacity style")))((("fill-opacity style"))) Both +fill+ and +fill-opacity+ are presentation properties, and they belong in the +style+ attribute.
+
+After the interior is filled (if necessary), the outline of the rectangle is drawn with strokes, whose characteristics you may specify as you did for lines.((("stroke style", "for rectangles"))) If you do not specify a stroke, the value +none+ is presumed, and no outline is drawn.  <<rectangle-example>> draws several variations of the +<rect>+ element. [offline_only]#<<rectangle-figure>> shows the result, with a grid for reference.#
+
+[[rectangle-example]]
+.Demonstration of the rectangle element
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/rectangle.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[source, xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <!-- black interior, no outline -->
+  <rect x="10" y="10" width="30" height="50"/>
+
+  <!-- no interior, black outline -->
+  <rect x="50" y="10" width="20" height="40"
+    style="fill: none; stroke: black;"/>
+
+  <!-- blue interior, thick semi-transparent red outline -->
+  <rect x="10" y="70" width="25" height="30"
+    style="fill: #0000ff;
+      stroke: red; stroke-width: 7; stroke-opacity: 0.5;"/>
+
+  <!-- semi-transparent yellow interior, dashed green outline -->
+  <rect x="50" y="70" width="35" height="20"
+    style="fill: yellow; fill-opacity: 0.5;
+      stroke: green; stroke-width: 2; stroke-dasharray: 5 2"/>
+</svg>
+----
+
+====
+[[rectangle-figure]]
+[role="offline_only"]
+.Demonstration of the rect element
+image::images/sve2_0406.png[]
+
+[NOTE]
+====
+The strokes that form the outline “straddle” the abstract grid lines,((("stroke style", "position relative to shape coordinates"))) so the strokes will be half inside the shape and half outside the shape. <<rectangle-closeup-figure>>, a close-up of the semi-transparent red outline drawn in <<rectangle-example>>, shows this clearly.
+====
+
+
+[[rectangle-closeup-figure]]
+
+.Close-up of transparent border
+image::images/sve2_0407.png[]
+
+If you do not specify a starting +x+ or +y+ value, it is presumed to be 0. If you specify a +width+ or +height+ of 0, then the rectangle is not displayed.((("rectangles", "default attributes"))) It is an error to provide negative values for either +width+ or +height+.
+
+[[rounded-rectangles-section]]
+
+==== Rounded Rectangles
+
+If you wish to have rectangles with rounded corners, specify the _x_- and _y_-radius of the corner curvature.((("rectangles", "rounded"))) The maximum number you may specify for +rx+ (the _x_-radius) is one-half the width of the rectangle; the maximum value of +ry+ (the _y_-radius) is one-half the height of the rectangle. If you specify only one of +rx+ or +ry+, they are presumed to be equal. <<rounded-rectangles-example>> shows various combinations of +rx+ and +ry+.
+
+[[rounded-rectangles-example]]
+.Demonstration of rounded rectangles
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/rounded-rectangles.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source, xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <!-- rx and ry equal, increasing -->
+  <rect x="10" y="10" width="20" height="40" rx="2" ry="2"
+    style="stroke: black; fill: none;"/>
+
+  <rect x="40" y="10" width="20" height="40" rx="5"
+    style="stroke: black; fill: none;"/>
+
+  <rect x="70" y="10" width="20" height="40" ry="10"
+    style="stroke: black; fill: none;"/>
+
+  <!-- rx and ry unequal -->
+  <rect x="10" y="60" width="20" height="40" rx="10" ry="5"
+    style="stroke: black; fill: none;"/>
+
+  <rect x="40" y="60" width="20" height="40" rx="5" ry="10"
+    style="stroke: black; fill: none;"/>
+</svg>
+----
+
+====
+
+[offline_only]#<<rounded-rectangles-figure>> shows the result, with a grid in the background for reference.#
+
+[[rounded-rectangles-figure]]
+[role="offline_only"]
+.Demonstration of rounded rectangles
+image::images/sve2_0408.png[]
+
+
+[NOTE]
+====
+If you're familiar with the CSS +border-radius+ property,((("border-radius style (HTML), compared with rectangle corner radius attributes"))) you might know the trick of turning a rectangle into a circle or ellipse by setting the corner radius to 50% of the height and width. Although you can specify an SVG rectangle's corner radius with percent values, they will be interpreted as a percent of the viewport width (+rx+) or height (+ry+)—the same as if you used a percentage for setting the rectangle's width or height--not as a percentage of the rectangle itself.((("shapes", "basic", "rectangles", range="endofrange", startref="ix_shapesrect")))((("rectangles", range="endofrange", startref="ix_rect")))  Good thing SVG has an easier way to create circles and ellipses...
+====
+
+[[circles-ellipses-section]]
+
+=== Circles and Ellipses
+
+
+To draw a circle, use the +<circle>+ element and specify the center _x_-coordinate, center _y_-coordinate, and radius with the +cx+, +cy+, and +r+ attributes.((("circles")))((("shapes", "basic", "circles and ellipses"))) As with a rectangle, the default is to fill the circle with black and draw no outline unless you specify some other combination of +fill+ and +stroke+.
+
+An ellipse needs both an _x_-radius and a _y_-radius in addition to a center _x_- and _y_-coordinate.((("ellipses"))) The attributes for these radii are named +rx+ and +ry+.
+
+In both circles and ellipses, if the +cx+ or +cy+ is omitted, it is presumed to be 0. If the radius is 0, no shape will be displayed; it is an error to provide a negative radius. <<circles-ellipses-example>> draws some circles and ellipses. [offline_only]#They are shown in <<circles-ellipses-figure>>.#
+
+[[circles-ellipses-example]]
+.Demonstration of circles and ellipses
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/circles-ellipses.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source, xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <circle cx="30" cy="30" r="20" style="stroke: black; fill: none;"/>
+  <circle cx="80" cy="30" r="20"
+    style="stroke-width: 5; stroke: black; fill: none;"/>
+
+  <ellipse cx="30" cy="80" rx="10" ry="20"
+    style="stroke: black; fill: none;"/>
+  <ellipse cx="80" cy="80" rx="20" ry="10"
+    style="stroke: black; fill: none;"/>
+</svg>
+----
+
+====
+
+[[circles-ellipses-figure]]
+.Demonstration of circle and ellipse elements
+[role="offline_only"]
+image::images/sve2_0409.png[]
+
+
+
+
+[[polygon-section]]
+=== The <polygon> Element
+
+In addition to rectangles, circles, and ellipses, you may want to draw hexagons, octagons, stars, or arbitrary closed shapes.((("shapes", "basic", "polygon element", id="ix_shapespolygon", range="startofrange")))((("polygon element", id="ix_polygon", range="startofrange"))) The +<polygon>+ element lets you specify a series of +points+ that describe a geometric area to be filled and outlined as described earlier.((("points attribute, polygon  and polyline elements"))) The +points+ attribute consists of a series of _x_- and _y_-coordinate pairs separated by commas or whitespace. You must give an even number of entries in the series of numbers. You don’t have to return to the starting point; the shape will automatically be closed. <<polygon-example>> uses the +<polygon>+ element to draw a parallelogram, a star, and an irregular shape.
+
+++++
+<?hard-pagebreak?>
+++++
+
+[[polygon-example]]
+.Demonstration of the polygon element
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/polygon.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[source, xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <!-- parallelogram -->
+  <polygon points="15,10  55, 10  45, 20  5, 20"
+    style="fill: red; stroke: black;"/>
+
+  <!-- star -->
+  <polygon
+    points="35,37.5  37.9,46.1 46.9,46.1  39.7,51.5
+      42.3,60.1  35,55  27.7,60.1  30.3,51.5
+      23.1,46.1  32.1,46.1"
+      style="fill: #ccffcc; stroke: green;"/>
+
+  <!-- weird shape -->
+  <polygon
+    points="60 60,  65 72,  80 60,  90 90, 72 80, 72 85, 50 95"
+    style="fill: yellow; fill-opacity: 0.5; stroke: black;
+      stroke-width: 2;"/>
+</svg>
+----
+
+====
+
+[offline_only]#The results, with a grid in the background for reference, are displayed in <<polygon-figure>>.#
+
+[[polygon-figure]]
+[role="offline_only"]
+.Demonstration of the polygon element
+image::images/sve2_0410.png[]
+
+
+
+[[filling-polygons-section]]
+
+==== Filling Polygons That Have Intersecting Lines
+
+For the polygons shown so far, it’s been easy to fill the shape.((("polygon element", "having intersecting lines, filling")))((("fill-rule style", "for polygons with intersecting lines"))) None of the lines forming the polygon cross over one another, so the interior is easily distinguished from the exterior of the shape. However, when lines cross over one another, the determination of what is inside the polygon is not as easy. The SVG in <<filling-polygons-example>> draws such a polygon. In <<filling-polygons-figure>>, is the middle section of the star considered to be inside or outside?
+
+[[filling-polygons-example]]
+.Unfilled polygon with intersecting lines
+
+====
+[source,xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+
+<polygon  points="48,16  16,96  96,48  0,48  80,96"
+  style="stroke: black; fill: none;"/>
+
+</svg>
+----
+====
+
+[[filling-polygons-figure]]
+.Unfilled polygon with intersecting lines
+image::images/sve2_0411.png[]
+
+SVG has two different rules for determining whether a point is inside a polygon or outside it. The +fill-rule+ (which is part of presentation) has a value of either +nonzero+ (the default) or +evenodd+. Depending on the rule you choose, you get a different effect. [offline_only]#<<polygon-fill-rule-example>> uses the rules to fill two diagrams of the star. The result is shown in <<polygon-fill-rule-figure>>.# [online_only]#<<polygon-fill-rule-example>> lets you experiment with the rules.#
+
+[[polygon-fill-rule-example]]
+.Effect of different fill-rules
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/polygon-fill.html[width="100%", height="300px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+
+<polygon style="fill-rule: nonzero; fill: yellow; stroke: black;"
+  points="48,16  16,96  96,48  0,48  80,96" />
+
+<polygon style="fill-rule: evenodd;  fill: #00ff00; stroke: black;"
+  points="148,16  116,96  196,48  100,48  180,96" />
+
+</svg>
+----
+====
+
+[[polygon-fill-rule-figure]]
+.Effect of different fill-rules
+[role="offline_only"]
+image::images/sve2_0412.png[]
+
+[[polygon-fill-rule-sidebar]]
+.Explanation of the Fill Rules
+****
+For the sake of completeness, here is how the +fill-rules+ work, but don’t worry--you don’t need to know the details in order to use them. The +nonzero+ rule determines whether a point is inside or outside a polygon by drawing a line from the point in question to infinity. It counts how many times that line crosses the polygon’s lines, adding one if the polygon line is going right to left, and subtracting one if the polygon line is going left to right. If the total comes out to zero, the point is outside the polygon. If the total is nonzero (hence the name), the point is inside the polygon.
+
+The +evenodd+ rule also draws a line from the point in question to infinity, but it simply counts how many times that line crosses your polygon’s lines. If the total number of crossings is odd, then the point is inside; if even, then the point is outside.((("polygon element", range="endofrange", startref="ix_polygon")))((("shapes", "basic", "polygon element", range="endofrange", startref="ix_shapespolygon")))
+****
+
+
+[[polyline-section]]
+
+=== The <polyline> Element
+
+Finally, to round out our discussion of basic shapes, we’ll return to straight lines. Sometimes you want a series of lines that does not make a closed shape.((("shapes", "basic", "polyline element"))) You can use multiple +<line>+ elements, but if there are many lines, it might be easier to use the +<polyline>+ element.((("points attribute, polygon and polyline elements")))((("polyline element"))) It has the same +points+ attributes as +<polygon>+,((("points attribute, polygon and polyline elements"))) except that the shape is not closed. <<polyline-example>> draws the symbol for an electrical resistor. [offline_only]#The result is in <<polyline-figure>>.#
+
+[[polyline-example]]
+.The polyline element
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/polyline.html[width="100%", height="300px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<svg width="100px" height="50px" viewBox="0 0 100 50"
+  xmlns="http://www.w3.org/2000/svg">
+
+<polyline
+  points="5 20, 20 20, 25 10, 35 30, 45 10,
+    55 30, 65 10, 75 30, 80 20, 95 20"
+  style="stroke: black; stroke-width: 3; fill: none;"/>
+</svg>
+----
+
+====
+
+[[polyline-figure]]
+.Example of the polyline element
+[role="offline_only"]
+image::images/sve2_0413.png[]
+
+[WARNING]
+====
+It’s best to set the +fill+ property to +none+ when using +<polyline>+; ((("fill style","with polyline element")))otherwise, the SVG viewer attempts to fill the shape, sometimes with startling results like those in <<filled-polyline-figure>>.
+====
+
+[[filled-polyline-figure]]
+
+.Example of filled polyline
+image::images/sve2_0414.png[]
+
+[[linecap-linejoin-section]]
+
+=== Line Caps and Joins
+
+When drawing a +<line>+ or +<polyline>+, you may specify the shape of the endpoints of the lines by((("line caps and joins")))((("shapes", "basic", "line caps and joins"))) setting the +stroke-linecap+ style property((("stroke-linecap style"))) to one of the values +butt+, +round+, or +square+. <<linecap-example>> uses these three values, with gray guide lines to show the actual endpoints of the lines. [offline_only]#You can see in <<linecap-figure>># [online_only]#The interactive example shows# that +round+ and +square+ extend beyond the end coordinates; +butt+, the default, ends exactly at the specified endpoint.
+
+[[linecap-example]]
+.Values of the stroke-linecap property
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/linecap.html[width="100%", height="300px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<line x1="10" y1="15" x2="50" y2="15"
+  style="stroke: black; stroke-linecap: butt; stroke-width: 15;"/>
+
+<line x1="10" y1="45" x2="50" y2="45"
+  style="stroke: black; stroke-linecap: round; stroke-width: 15;"/>
+
+<line x1="10" y1="75" x2="50" y2="75"
+  style="stroke: black; stroke-linecap: square; stroke-width: 15;"/>
+
+<!-- guide lines -->
+<line x1="10" y1="0" x2="10" y2="100" style="stroke: #999;"/>
+<line x1="50" y1="0" x2="50" y2="100" style="stroke: #999;"/>
+----
+
+====
+
+[[linecap-figure]]
+.Values of the stroke-linecap attribute
+[role="offline_only"]
+image::images/sve2_0415.png[]
+
+You may specify the way lines connect at the corners of a shape with the +stroke-linejoin+ style property,((("stroke-linejoin style"))) which may have the values +miter+ (pointed), +round+ (round—what did you expect?), or +bevel+ (flat). [offline_only]#<<linejoin-example>> produces the result shown in <<linejoin-figure>>.# [online_only]#You may experiment with this in <<linejoin-example>>.#
+
+[[linejoin-example]]
+.Values of the stroke-linejoin attribute
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch04/linejoin.html[width="100%", height="300px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<polyline
+  style="stroke-linejoin: miter; stroke: black; stroke-width: 12;
+  fill: none;"
+  points="30 30, 45 15, 60 30"/>
+
+<polyline
+  style="stroke-linejoin: round; stroke: black; stroke-width: 12;
+  fill: none;"
+  points="90 30, 105 15, 120 30"/>
+
+<polyline
+  style="stroke-linejoin: bevel; stroke-width: 12; stroke: black;
+  fill: none;"
+  points="150 30, 165 15, 180 30"/>
+----
+
+====
+[[linejoin-figure]]
+.Values of the stroke-linejoin attribute
+[role="offline_only"]
+image::images/sve2_0416.png[]
+
+
+[NOTE]
+====
+If your lines meet at a sharp angle and have a mitered join, it’s possible for the pointed part to extend far beyond the lines’ thickness. You may set the ratio of the miter to the thickness of the lines being joined with((("stroke-miterlimit style"))) the +stroke-miterlimit+ style property; its default value is 4.
+
+====
+
+[[basic-shapes-reference-section]]
+
+=== Basic Shapes Reference Summary
+
+The following tables summarize the basic shapes and((("shapes", "basic", "summary table", id="ix_shapessummary", range="startofrange"))) presentation styles in SVG.
+
+[[basic-shapes-elements-section]]
+
+==== Shape Elements
+
+<<basic-shapes-table>> summarizes the basic((("elements", "reference tables", "basic shapes"))) shapes available in SVG.
+
+
+++++
+<table id="basic-shapes-table">
+<title>Shape elements</title>
+<tgroup cols="2">
+<colspec colname="col_1" colwidth="43%"/>
+<colspec colname="col_2" colwidth="48%"/>
+<thead>
+<row>
+<entry>Shape</entry>
+<entry>Description</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><simpara><literal>&lt;line x1="</literal><emphasis><literal>start-x</literal></emphasis><literal>"</literal>
+  <literal>y1="</literal><emphasis><literal>start-y</literal></emphasis><literal>"</literal>
+  <literal>x2="</literal><emphasis><literal>end-x</literal></emphasis><literal>"</literal>
+  <literal>y2="</literal><emphasis><literal>end-y</literal></emphasis><literal>"/&gt;</literal></simpara></entry>
+<entry><simpara>Draws a line from the starting point at coordinates (<emphasis><literal>start-x</literal></emphasis>, <emphasis><literal>start-y</literal></emphasis>) to the ending point at coordinates (<emphasis><literal>end-x</literal></emphasis>, <emphasis><literal>end-y</literal></emphasis>).</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>&lt;rect x="</literal><emphasis><literal>left-x</literal></emphasis><literal>"</literal>
+  <literal>y="</literal><emphasis><literal>top-y</literal></emphasis><literal>"</literal>
+  <literal>width="</literal><emphasis><literal>width</literal></emphasis><literal>"</literal>
+  <literal>height="</literal><emphasis><literal>height</literal></emphasis><literal>"/&gt;</literal></simpara></entry>
+<entry><simpara>Draws a rectangle whose upper-left corner is at (<emphasis><literal>left-x</literal></emphasis>, <emphasis><literal>top-y</literal></emphasis>) with the given <emphasis><literal>width</literal></emphasis> and <emphasis><literal>height</literal></emphasis>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>&lt;circle cx="</literal><emphasis><literal>center-x</literal></emphasis><literal>"</literal>
+  <literal>cy="</literal><emphasis><literal>center-y</literal></emphasis><literal>"</literal>
+  <literal>r="</literal><emphasis><literal>radius</literal></emphasis><literal>"/&gt;</literal></simpara></entry>
+<entry><simpara>Draws a circle with the given <emphasis><literal>radius</literal></emphasis>, centered at (<emphasis><literal>center-x</literal></emphasis>, <emphasis><literal>center-y</literal></emphasis>).</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>&lt;ellipse cx="</literal><emphasis><literal>center-x</literal></emphasis><literal>"</literal>
+  <literal>cy="</literal><emphasis><literal>center-y</literal></emphasis><literal>"</literal>
+  <literal>rx="</literal><emphasis><literal>x-radius</literal></emphasis><literal>"</literal>
+  <literal>ry="</literal><emphasis><literal>y-radius</literal></emphasis><literal>"/&gt;</literal></simpara></entry>
+<entry><simpara>Draws an ellipse with the given <emphasis><literal>x-radius</literal></emphasis> and <emphasis><literal>y-radius</literal></emphasis> centered at (<emphasis><literal>center-x</literal></emphasis>, <emphasis><literal>center-y</literal></emphasis>).</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>&lt;polygon points="</literal><emphasis><literal>points-list</literal></emphasis><literal>"/&gt;</literal></simpara></entry>
+<entry><simpara>Draws an arbitrary closed polygon whose outline is described by the <emphasis><literal>points-list</literal></emphasis>. The points are specified as pairs of <emphasis>x</emphasis>- and <emphasis>y</emphasis>-coordinates. These are user coordinates only; you may not add a length unit specifier.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>&lt;polyline points="</literal><emphasis><literal>points-list</literal></emphasis><literal>"/&gt;</literal></simpara></entry>
+<entry><simpara>Draws an arbitrary series of connected lines as described by the <emphasis><literal>points-list</literal></emphasis>. The points are specified as pairs of <emphasis>x</emphasis>- and <emphasis>y</emphasis>-coordinates. These are user coordinates only; you may not add a length unit specifier.</simpara></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+++++
+
+When you specify a number for an attribute, it is presumed to be measured in user coordinates. In all but the last two elements of <<basic-shapes-table>>, you may also add a length unit specifier such as +mm+, +pt+, etc. to any number. For example:
+  
+[source,xml]
+----
+<line x1="1cm" y1="30" x2="50" y2="10pt"/>
+----
+
+
+[[specifying-colors-section]]
+
+==== Specifying Colors
+
+You may specify the color((("color"))) for filling or outlining a shape in one of the following ways:
+
+
+* +none+, indicating that no outline is to be drawn or that the shape is not to be filled.
+
+* A basic color name, which is one of +aqua+, +black+, +blue+, +fuchsia+, +gray+, +green+, +lime+, +maroon+, +navy+, +olive+, +purple+, +red+, +silver+, +teal+, +white+, or +yellow+.
+
+* One of the extended color names from link:$$http://www.w3.org/TR/SVG/types.html#ColorKeywords$$[the SVG specifications].
+
+* Six hexadecimal digits +#_rrggbb_+, each pair describing red, green, and blue values.
+
+
+* Three hexadecimal digits +\#_rgb_+, describing the red, green, and blue values. This is shorthand for the previous method; digits are replicated, so +\#_rgb_+ is equivalent to +#_rrggbb_+.
+
+
+* ++rgb(++__++r++__, __++g++__, __++b++__++)++, each value ranging from 0–255 or from 0% to 100%.
+
+* +currentColor+, the computed (usually inherited) +color+ property value for the element.
+
+* One of the specifications from http://www.w3.org/TR/css3-color/[the CSS3 Color module] (which may not be supported by all SVG implementations).
+
+
+[[stroke-fill-characteristics-section]]
+
+==== Stroke and Fill Characteristics
+
+In order to see a line or the outline of a shape, you must specify the stroke characteristics,((("stroke characteristics, table of"))) using the following attributes. A shape’s outline is drawn after its interior is filled. All of these characteristics, summarized in <<stroke-fill-characteristics-table>>, are presentation properties, and go in a +style+ attribute.
+
+++++
+<?hard-pagebreak?>
+++++
+
+++++
+<table id="stroke-fill-characteristics-table">
+<title>Stroke characteristics</title>
+<tgroup cols="2">
+<colspec colname="col_1" colwidth="31%"/>
+<colspec colname="col_2" colwidth="58%"/>
+<thead>
+<row>
+<entry>Attribute</entry>
+<entry>Values</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><simpara><literal>stroke</literal></simpara></entry>
+<entry><simpara>The stroke color, as described in <xref linkend="specifying-colors-section"/>. Default is <literal>none</literal>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-width</literal></simpara></entry>
+<entry><simpara>Width of stroke; may be given as user coordinates or with a length specifier. The stroke width is centered along the abstract grid lines. Default is <literal>1</literal>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-opacity</literal></simpara></entry>
+<entry><simpara>A number ranging from 0.0 to 1.0; 0.0 is entirely transparent; 1.0 is entirely opaque (the default).</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-dasharray</literal></simpara></entry>
+<entry><simpara>A series of numbers that tell the length of dashes and gaps with which a line is to be drawn. These numbers are in user coordinates only. The default value is <literal>none</literal>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-linecap</literal></simpara></entry>
+<entry><simpara>Shape of the ends of a line; has one of the values <literal>butt</literal> (the default), <literal>round</literal>, or <literal>square</literal>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-linejoin</literal></simpara></entry>
+<entry><simpara>The shape of the corners of a polygon or series of lines; has one of the values <literal>miter</literal> (pointed; the default), <literal>round</literal>, or <literal>bevel</literal> (flat).</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-miterlimit</literal></simpara></entry>
+<entry><simpara>Maximum ratio of length of the miter point to the width of the lines being drawn; the default value is 4.</simpara></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+++++
+
+
+You can control the way in which the interior of a shape is to be filled by using one of the fill attributes shown in <<fill-characteristics-table>>. A shape is filled before its outline is drawn.((("fill characteristics, table of")))
+
+++++
+<table id="fill-characteristics-table">
+<title>Fill characteristics</title>
+<tgroup cols="2">
+<colspec colname="col_1" colwidth="33%"/>
+<colspec colname="col_2" colwidth="62%"/>
+<thead>
+<row>
+<entry>Attribute</entry>
+<entry>Values</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><simpara><literal>fill</literal></simpara></entry>
+<entry><simpara>The fill color, as described in <xref linkend="specifying-colors-section"/>. The default is <literal>black</literal>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>fill-opacity</literal><indexterm>
+  <primary>fill-opacity style</primary>
+</indexterm></simpara></entry>
+<entry><simpara>A number ranging from 0.0 to 1.0; 0.0 is entirely transparent; 1.0 (the default) is entirely opaque.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>fill-rule</literal></simpara></entry>
+<entry><simpara>This attribute can have the values <literal>nonzero</literal> (the default) or <literal>evenodd</literal>, which apply different rules for determining whether a point is inside or outside a shape. These rules generate different effects only when a shape has intersecting lines or “holes” in it. Details are in <xref linkend="filling-polygons-section"/> earlier in this chapter.</simpara></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+++++
+
+This is only a small sample of the style properties that can apply to SVG elements; <<css-reference-table>>, in <<css-appendix>>, has a complete list.((("shapes", "basic", "summary table", range="endofrange", startref="ix_shapessummary")))((("shapes", "basic", range="endofrange", startref="ix_shapesbasic")))

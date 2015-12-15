@@ -1,0 +1,483 @@
+[[coordinates-chapter]]
+
+== Coordinates
+
+The world of SVG is an infinite canvas.((("coordinates", id="ix_coord", range="startofrange"))) In this chapter, we’ll find out how to tell a viewer program which part of this canvas you’re interested in, what its dimensions are, and how to locate points within that area.
+
+[[viewport-section]]
+
+=== The Viewport
+
+The area of the canvas your document intends to use is called the _viewport_.((("viewport")))((("coordinates", "specifying user coordinates for a viewport"))) You establish the size of this viewport with the +width+ and +height+ attributes on the +<svg>+ element.((("svg element", "width and height attributes"))) Each attribute's value can be simply a number, which is presumed to be in pixels; this is said to be specified in user coordinates.((("measurement units", "specifying for the viewport"))) You may also specify +width+ and +height+ as a number followed by a unit identifier, which can be one of the following:
+
++em+:: The font size of the default font, usually equivalent to the height of a line of text
+
++ex+:: The height of the letter _x_
+
++px+:: Pixels (in CSS2-supporting graphics, there are 96 pixels per inch)
+
++pt+:: Points (1/72 of an inch)
+
++pc+:: Picas (1/6 of an inch)
+
++cm+:: Centimeters
+
++mm+:: Millimeters
+
++in+:: Inches
+
+Possible SVG viewport((("viewport", "possible declarations"))) declarations include the following:
+
++<svg width="200" height="150">+::
++<svg width="200px" height="150px">+:: Both of these specify an area 200 pixels wide and 150 pixels tall.
+
++<svg width="2cm" height="3cm">+:: This specifies an area 2 centimeters wide and 3 centimeters high.
+
++<svg width="2cm" height="36pt">+:: It is possible, though unusual, to mix units; this element specifies an area 2 centimeters wide and 36 points high.
+
+An +<svg>+ element may also specify its +width+ and +height+ as a percentage. When the element is nested within another +<svg>+ element, the percentage is  measured in terms of the enclosing element. If the +<svg>+ element is the root element, the percentage is in terms of the window size. You will see nested +<svg>+ elements in <<nested-coordinates-section>>.
+
+[[default-user-coordinate-section]]
+
+=== Using Default User Coordinates
+
+The viewer sets up a coordinate system where the horizontal, or _x_-coordinate, increases as you go to the right, and the vertical, or _y_-coordinate, increases as you move vertically downward.((("coordinates", "default user coordinates, using"))) The upper-left corner of the viewport is defined to have an _x_- and _y_-coordinate of 0.footnote:[In this book, coordinates are specified as a pair of numbers in parentheses, with the _x_-coordinate first. Thus, (10,30) represents an _x_-coordinate of 10 and a _y_-coordinate of 30.] This point, written as (0,0), is also called the origin.((("origin (coordinate system)"))) The coordinate system is a pure geometric system; points have neither width nor height, and the grid lines are considered infinitely thin. You can read more about this subject in <<basic-shapes-chapter>>.
+
+<<default-coordinates-example>> establishes a viewport 200 pixels wide and 200 pixels high, and then draws a rectangle whose upper-left corner is at coordinate (10,10) with a width of 50 pixels and a height of 30 pixels.footnote:[To save space, we are leaving out the +<?xml ...?>+ and +<!DOCTYPE ...>+ lines. These are set in stone, so you can take them for granite.] [offline_only]#<<default-coordinates-figure>> shows the result, with rulers and a grid to show the coordinate system.# [online_only]#<<default-coordinates-example>> includes rulers and a grid in the display to show the coordinate system.#
+
+[[default-coordinates-example]]
+.Using default coordinates
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch03/default_coordinates.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<svg width="200" height="200">
+    <rect x="10" y="10" width="50" height="30"
+        style="stroke: black; fill: none;"/>
+</svg>
+----
+====
+
+[[default-coordinates-figure]]
+[role="offline_only"]
+.Rectangle using default coordinates
+image::images/sve2_0301.png[]
+
+
+Even if you don’t specify units in the viewport, you may still use them in some SVG shape elements, as in <<explicit-units-example>>. [offline_only]#<<explicit-units-figure>> shows the result,((("measurement units", "explicit use of"))) with rulers and a grid to show the coordinate system.#
+
+[[explicit-units-example]]
+.Explicit use of units
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch03/explicit_units.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<svg width="200" height="200">
+    <rect x="10mm" y="10mm" width="15mm" height="10mm"
+        style="stroke:black; fill:none;"/>
+</svg>
+----
+====
+
+[[explicit-units-figure]]
+[role="offline_only"]
+.Rectangle using explicit units
+image::images/sve2_0302.png[]
+
+
+Specifying units in the +<svg>+ element((("rectangles", "using explicit units"))) does not affect coordinates given without units in other elements. <<units-on-svg-example>> shows a viewport set up in millimeters, but the rectangle is still drawn at pixel (user) [offline_only]#coordinates, as you see in <<units-on-svg-figure>>.# [online_only]#coordinates.#
+
+[[units-on-svg-example]]
+.Units on the svg element
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch03/units_on_svg.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<svg width="70mm" height="70mm">
+    <rect x="10" y="10" width="50" height="30"
+       style="fill: none; stroke: black;"/>
+</svg>
+----
+====
+
+[[units-on-svg-figure]]
+[role="offline_only"]
+.Viewport with units; rectangle without units
+image::images/sve2_0303.png[]
+
+
+[[user-coordinates-section]]
+=== Specifying User Coordinates for a Viewport
+
+In the examples so far, numbers without units have been considered to be pixels.((("coordinates", "specifying user coordinates for a viewport")))((("viewport", "specifying user coordinates for"))) Sometimes this is not what you want. For example, you might want to set up a system where each user coordinate represents 1/16th of a centimeter. (We’re using this coordinate system to prove a point, not to show a paragon of good design.) In this system, a square that is 40 units by 40 units will display as 2.5 centimeters on a side.
+
+To accomplish this effect, you set the +viewBox+ attribute on the +<svg>+ element.((("svg element", "viewBox attribute")))((("viewBox attribute", "svg element"))) The value of this attribute consists of four numbers that represent the minimum _x_-coordinate, minimum _y_-coordinate, width, and height of the user coordinate system you want to superimpose on the viewport.
+
+So, to set up the 16-units-per-centimeter coordinate system for a 4-centimeter by 5-centimeter drawing, you’d use this starting tag:
+
+[source,xml]
+----
+<svg width="4cm" height="5cm" viewBox="0 0 64 80">
+----
+
+<<using-viewbox-example>> gives the SVG for a picture of a house, displayed using the new coordinate system.
+[offline_only]#<<using-viewbox-figure>> shows the result.# The grid and darker numbers show the new user coordinate system; the lighter numbers are positioned at 1-centimeter intervals.
+
+[[using-viewbox-example]]
+.Using a viewBox
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch03/using_viewbox.html[width="100%", height="600px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<svg width="4cm" height="5cm" viewBox="0 0 64 80">
+  <rect x="10" y="35" width="40" height="40"
+    style="stroke: black; fill: none;"/>
+  <!-- roof -->
+  <polyline points="10 35, 30 7.68, 50 35"
+    style="stroke:black; fill: none;"/>
+  <!-- door -->
+  <polyline points="30 75, 30 55, 40 55, 40 75"
+    style="stroke:black; fill: none;"/>
+</svg>
+----
+====
+
+[[using-viewbox-figure]]
+[role="offline_only"]
+.New user coordinates
+image::images/sve2_0304.png[]
+
+The numbers you specify for the value of the +viewBox+ attribute may be separated by commas or whitespace. If either the width or height is 0, none of your graphic will display. It is an error to specify a negative value for the +viewBox+ width or height.
+
+[NOTE]
+====
+If you were reading the code in <<using-viewbox-example>> carefully, you would have noted that we used a decimal value to get the peak of the house's roof positioned just right.  Nearly all numbers in SVG are floating-point decimal numbers.  SVG viewers are required to support at least 32-bit precision numbers and are encouraged to use higher precision numbers for some calculations.  In fact, you can even use scientific notation to work in a coordinate system with very large or small numbers, so that the point `30,7.68` _could_ have been written like pass:[<literal>3.0E&#x2b;1,7.68e0</literal>].  But for readability and brevity, we wouldn't recommend it—reserve the scientific notation for when it is really necessary.
+
+====
+
+[[preserve-aspect-ratio-section]]
+=== Preserving Aspect Ratio
+
+In the previous example, the aspect ratio, or ratio of width to height, of the viewport((("coordinates", "preserving aspect ratio"))) and the +viewBox+ were identical (4/5 = 64/80).((("aspect ratio, preserving", seealso="preserveAspectRatio attribute")))((("viewport", "aspect ratio"))) What happens, though, if the aspect ratio of the viewport and the +viewBox+ are not the same, as in this example, where +viewBox+ has an aspect ratio of 1:1 (the width and height are equal), but the viewport has an aspect ratio of 1:3 (the height is three times as big as the width)?
+
+[source,xml]
+----
+<svg width="45px" height="135px" viewBox="0 0 90 90">
+----
+
+There are three things SVG can do in this situation:
+
+* Scale the graphic uniformly according to the smaller dimension so the graphic will fit entirely into the viewport. In the example, the picture would become half its original width and height. You’ll see examples of this in <<meet-specifier-section>>.
+
+
+* Scale the graphic uniformly according to the larger dimension and cut off the parts that lie outside the viewport. In the example, the picture would become one and a half times its original width and height. You’ll see examples of this in <<slice-specifier-section>>.
+
+* Stretch and squash the drawing so it fits precisely into the new viewport. (That is, don’t preserve the aspect ratio at all.) See the details in <<none-specifier-section>>.
+
+In the first case, because the image will be smaller than the viewport in one dimension, you must specify where to position it. In the example, the picture will be scaled uniformly to a width and height of 45 pixels. The width of the reduced graphic fits the width of the viewport perfectly, but you must now decide whether the image meets (is aligned with) the top, middle, or bottom of the 135-pixel viewport height.
+
+In the second case, because the image will be larger than the viewport in one dimension, you must specify which area is to be sliced away. In the example, the picture will be scaled uniformly to a width and height of 135 pixels. Now the height of the graphic fits the viewport perfectly, but you must decide whether to slice off the right side, left side, or both edges of the picture to fit within the 45-pixel viewport width.
+
+[[preserve-alignment-section]]
+
+==== Specifying Alignment for preserveAspectRatio
+
+
+The +preserveAspectRatio+ attribute lets((("preserveAspectRatio attribute", "specifying alignment")))((("alignment", "specifying for preserveAspectRatio", id="ix_alignpAR", range="startofrange"))) you specify the alignment of the scaled image with respect to the viewport, and whether you want it to meet the edges or be sliced off. The model for this attribute is
+
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+preserveAspectRatio="_alignment_ [meet | slice]"
+----
+
+where _++alignment++_ specifies the axis and location and is one of the combinations shown in <<preserve-aspect-ratio-table>>. This alignment specifier is formed by concatenating an _x_-alignment and a _y_-alignment +min+, +mid+ (middle), or +max+ value. The default value for +preserveAspectRatio+ is +xMidYMid meet+.
+
+[NOTE]
+====
+The _y_-alignment begins with a capital letter, because the _x_- and _y_-alignments are concatenated into a single word.
+====
+
+++++
+<table id="preserve-aspect-ratio-table" rowsep="1" colsep="1" frame="all">
+<title>Values for alignment portion of preserveAspectRatio</title>
+<tgroup cols="4">
+<colspec colname="col_1" colwidth="25*"/>
+<colspec colname="col_2" colwidth="25*"/>
+<colspec colname="col_3" colwidth="25*"/>
+<colspec colname="col_4" colwidth="25*"/>
+<tbody>
+<row>
+<entry morerows="1" role="align_bottom"><?dbhtml bgcolor="#EEEEEE" ?><simpara><emphasis role="strong">Y Alignment</emphasis></simpara></entry>
+<entry namest="col_2" nameend="col_4"><?dbhtml bgcolor="#EEEEEE" ?><simpara><emphasis role="strong">X Alignment</emphasis></simpara></entry>
+</row>
+<row>
+<entry><?dbhtml bgcolor="#EEEEEE" ?><simpara><emphasis role="strong"><literal>xMin</literal></emphasis></simpara>
+<simpara><emphasis role="strong">Align minimum <emphasis>x</emphasis> value of <literal>viewBox</literal> with left edge of viewport</emphasis></simpara></entry>
+<entry><?dbhtml bgcolor="#EEEEEE" ?><simpara><emphasis role="strong"><literal>xMid</literal></emphasis></simpara>
+<simpara><emphasis role="strong">Align midpoint <emphasis>x</emphasis> value of <literal>viewBox</literal> with horizontal center of viewport</emphasis></simpara></entry>
+<entry><?dbhtml bgcolor="#EEEEEE" ?><simpara><emphasis role="strong"><literal>xMax</literal></emphasis></simpara>
+<simpara><emphasis role="strong">Align maximum <emphasis>x</emphasis> value of <literal>viewBox</literal> with right edge of viewport</emphasis></simpara></entry>
+</row>
+<row>
+<entry><?dbhtml bgcolor="#EEEEEE" ?><simpara><emphasis role="strong"><literal>yMin</literal></emphasis></simpara>
+<simpara><emphasis role="strong">Align minimum <emphasis>y</emphasis> value of <literal>viewBox</literal> with top edge of viewport</emphasis></simpara></entry>
+<entry><simpara><literal>xMinYMin</literal></simpara></entry>
+<entry><simpara><literal>xMidYMin</literal></simpara></entry>
+<entry><simpara><literal>xMaxYMin</literal></simpara></entry>
+</row>
+<row>
+<entry><?dbhtml bgcolor="#EEEEEE" ?><simpara><emphasis role="strong"><literal>yMid</literal></emphasis></simpara>
+<simpara><emphasis role="strong">Align midpoint <emphasis>y</emphasis> value of <literal>viewBox</literal> with vertical center of viewport</emphasis></simpara></entry>
+<entry><simpara><literal>xMinYMid</literal></simpara></entry>
+<entry><simpara><literal>xMidYMid</literal></simpara></entry>
+<entry><simpara><literal>xMaxYMid</literal></simpara></entry>
+</row>
+<row>
+<entry><?dbhtml bgcolor="#EEEEEE" ?><simpara><emphasis role="strong"><literal>yMax</literal></emphasis></simpara>
+<simpara><emphasis role="strong">Align maximum <emphasis>y</emphasis> value of <literal>viewBox</literal> with bottom edge of viewport</emphasis></simpara></entry>
+<entry><simpara><literal>xMinYMax</literal></simpara></entry>
+<entry><simpara><literal>xMidYMax</literal></simpara></entry>
+<entry><simpara><literal>xMaxYMax</literal></simpara></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+++++
+
+Thus, if you want to have the picture with a +viewBox="0 0 90 90"+ fit entirely within a viewport that is 45 pixels wide and 135 pixels high, aligned at the top of the viewport, you would write the following:
+
+[source,xml]
+----
+<svg width="45px" height="135px" viewBox="0 0 90 90"
+  preserveAspectRatio="xMinYMin meet">
+----
+
+[NOTE]
+====
+In this case, because the width fits precisely, the _x_-alignment is irrelevant; you could equally well use +xMidYMin+ or +xMaxYMin+. However, you normally use +preserveAspectRatio+ when you don’t know the aspect ratio of the viewport. For example, you might want the image to scale to fit the application window, or you might let the CSS of a parent document set the height and width. In those situations, you need to consider how you want your image to display when the viewport is too wide as well as when it is too tall.
+====
+
+If you don't specify a +preserveAspectRatio+, the default value is +xMidYMid meet+, which will scale down the graphic to fit the available space, and center it both horizontally and vertically.((("preserveAspectRatio attribute", "default value")))
+
+This is all fairly abstract; the following sections give some concrete examples that show you how the combinations of alignment and +meet+ and +slice+ interact with one another.
+
+[[meet-specifier-section]]
+
+==== Using the meet Specifier
+
+The starting +<svg>+ tags in <<meet-specifier-example>> all((("meet specifier (preserveAspectRatio)")))((("preserveAspectRatio attribute", "meet specifier"))) use the +meet+ specifier.
+
+[[meet-specifier-example]]
+.Use of meet specifier
+
+====
+[source,xml]
+----
+<!-- tall viewports -->
+<svg preserveAspectRatio="xMinYMin meet" viewBox="0 0 90 90"
+    width="45" height="135">
+
+<svg preserveAspectRatio="xMidYMid meet" viewBox="0 0 90 90"
+    width="45" height="135">
+
+<svg preserveAspectRatio="xMaxYMax meet" viewBox="0 0 90 90"
+    width="45" height="135">
+
+<!-- wide viewports -->
+<svg preserveAspectRatio="xMinYMin meet" viewBox="0 0 90 90"
+    width="135" height="45">
+
+<svg preserveAspectRatio="xMidYMid meet" viewBox="0 0 90 90"
+    width="135" height="45">
+
+<svg preserveAspectRatio="xMaxYMax meet" viewBox="0 0 90 90"
+    width="135" height="45">
+----
+
+====
+<<meet-specifier-figure>> shows where the reduced image fits into the enclosing +viewBox+.
+
+[[meet-specifier-figure]]
+
+.meet—viewBox fits in viewport
+image::images/sve2_0305.png[]
+
+[[slice-specifier-section]]
+
+==== Using the slice Specifier
+
+<<slice-specifier-figure>> shows the use of the +slice+ specifier ((("preserveAspectRatio attribute", "slice specifier")))((("slice specifier (preserveAspectRatio)")))to eliminate parts of the picture that do not fit in the viewport. They were created with the +<svg>+ tags in <<slice-specifier-example>>.
+
+[[slice-specifier-example]]
+.Use of slice specifier
+
+====
+[source, xml]
+----
+<!-- tall viewports -->
+<svg preserveAspectRatio="xMinYMin slice" viewBox="0 0 90 90"
+    width="45" height="135">
+
+<svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 90 90"
+    width="45" height="135">
+
+<svg preserveAspectRatio="xMaxYMax slice" viewBox="0 0 90 90"
+    width="45" height="135">
+
+<!-- wide viewports -->
+<svg preserveAspectRatio="xMinYMin slice" viewBox="0 0 90 90"
+    width="135" height="45">
+
+<svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 90 90"
+    width="135" height="45">
+
+<svg preserveAspectRatio="xMaxYMax slice" viewBox="0 0 90 90"
+    width="135" height="45">
+----
+====
+
+[role="online_only"]
+Experiment with the +meet+ and +slice+ alignment. See what happens when you change the width and height.
+
+[role="offline_only"]
+The online example for this section allows you to experiment with the different +preserveAspectRatio+ options to slice, shrink, and shift the cat around any pass:[<phrase role="keep-together">sized SVG</phrase>]:
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch03/meet_slice_specifier.html[width="100%", height="600px"]
+
+[[slice-specifier-figure]]
+.slice—graphic fills viewport
+image::images/sve2_0306.png[]
+
+[[none-specifier-section]]
+==== Using the none Specifier
+
+Finally, there is the third option for((("alignment", "specifying for preserveAspectRatio", range="endofrange", startref="ix_alignpAR")))((("none specifier (preserveAspectRatio)")))((("preserveAspectRatio attribute", "none specifier"))) scaling a graphic when the +viewBox+ and viewport don’t have the same aspect ratio. If you specify +preserveAspectRatio="none"+, then the graphic will be scaled nonuniformly so its user coordinates fit the viewport. <<no-aspect-ratio-figure>> shows such a “fun-house mirror” effect produced with the +<svg>+ tags in <<no-aspect-ratio-example>>.
+
+[[no-aspect-ratio-example]]
+.Aspect ratio not preserved
+
+====
+[source, xml]
+----
+<!-- tall viewport -->
+<svg preserveAspectRatio="none" viewBox="0 0 90 90"
+   width="45" height="135">
+
+<!-- wide viewport -->
+<svg preserveAspectRatio="none" viewBox="0 0 90 90"
+  width="135" height="45">
+----
+====
+
+[[no-aspect-ratio-figure]]
+
+.Aspect ratio not preserved
+image::images/sve2_0307.png[]
+
+[[nested-coordinates-section]]
+
+=== Nested Systems of Coordinates
+
+You can establish a new viewport and system of coordinates at any time by putting((("coordinates", "nested systems of"))) another +<svg>+ element into your document. The effect is to create a “mini-canvas” upon which you can draw. We used this technique to create illustrations such as <<meet-specifier-figure>>. Rather than drawing the rectangles, then rescaling and positioning the cat inside each one (the brute-force approach), we took these steps:
+
+* Draw the blue rectangles on the main canvas
+
+* For each rectangle, define a new +<svg>+ element with the appropriate +preserveAspectRatio+ attribute
+
+* Draw the cat into that new canvas (with +<use>+), and let SVG do the heavy lifting
+
+Here’s a simplified example that shows a circle on the main canvas,((("viewport", "nested"))) then inside a new canvas outlined by a blue rectangle that’s also on the main canvas. <<nested-viewport-figure>> is the desired result.
+
+[[nested-viewport-figure]]
+
+.Nested viewports
+image::images/sve2_0308.png[]
+
+First, generate the SVG for the main coordinate system and the circle (note that the user coordinates coincide exactly with the viewport in this document):
+
+++++
+<screen language="xml"><emphasis role="strong">&lt;svg width="200px" height="200px" viewBox="0 0 200 200"&gt;</emphasis>
+    &lt;circle cx="25" cy="25" r="25" style="stroke: black; fill: none;"/&gt;
+&lt;/svg&gt;</screen>
+++++
+
+The result is in <<nested-viewport-stage1-figure>>.
+
+[[nested-viewport-stage1-figure]]
+
+.Circle in main viewport
+image::images/sve2_0309.png[]
+
+Now, draw the boundary of the box showing where you want the new viewport to be:
+
+
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200">
+    <circle cx="25" cy="25" r="25" style="stroke: black; fill: none;"/>
+    *<rect x="100" y="5" width="30" height="80"
+       style="stroke: blue; fill: none;"/>*
+</svg>
+----
+
+This produces <<nested-viewport-stage2-figure>>.
+
+[[nested-viewport-stage2-figure]]
+
+.Circle and boundary box in main viewport
+image::images/sve2_0310.png[]
+
+Now, add another +<svg>+ element for the new viewport. In addition to specifying the +viewBox+, +width+, +height+, and +preserveAspectRatio+ specification, you may also specify the +x+ and +y+ attributes—in terms of the enclosing +<svg>+ element—where the new viewport is to be established (if you don’t give values for +x+ and +y+, they are presumed to pass:[<phrase role="keep-together">be 0)</phrase>]:
+
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200">
+    <circle cx="25" cy="25" r="25" style="stroke: black; fill: none;"/>
+    <rect x="100" y="5" width="30" height="80"
+        style="stroke: blue; fill: none;"/>
+
+    *<svg x="100px" y="5px" width="30px" height="80px"
+      viewBox="0 0 50 50" preserveAspectRatio="xMaxYMax meet">
+    </svg>*
+</svg>
+----
+
+Setting up the new coordinates with this nested +<svg>+ element doesn’t change the visual display, but it does permit you to add the circle in that new system, producing the result shown in <<nested-viewport-figure>>:
+
+
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200">
+  <circle cx="25" cy="25" r="25" style="stroke: black; fill: none;"/>
+  <rect x="100" y="5" width="30" height="80" style="stroke: blue;
+    fill: none;"/>
+
+  <svg x="100px" y="5px" width="30px" height="80px" viewBox="0 0 50 50"
+    preserveAspectRatio="xMaxYMax meet">
+    *<circle cx="25" cy="25" r="25" style="stroke: black;
+      fill: none;"/>*
+  </svg>
+</svg>
+----
+
+[WARNING]
+====
+If you try to use a +meet+ or +slice+ value for the +preserveAspectRatio+ attribute on an +<svg>+ nested inside another +<svg>+ with ++preserveAspectRatio="none"++, the results may surprise you. The aspect ratio of the nested element’s viewport will be evaluated in the squished or stretched coordinates of the parent SVG, possibly resulting in an image that is ((("coordinates", range="endofrange", startref="ix_coord")))both squished _and_ cropped or shrunk pass:[<phrase role="keep-together">to fit</phrase>].
+====

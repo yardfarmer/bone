@@ -1,0 +1,15 @@
+div {
+	border: 1px solid #000000;
+}
+
+#container{
+	height: 200px;
+}
+
+#a{
+	height: 100px;
+}
+
+#b{
+	margin-top:-50px;
+}

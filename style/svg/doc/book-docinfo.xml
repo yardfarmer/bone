@@ -1,0 +1,66 @@
+  <othercredit role="proofreader">
+    <firstname>Sharon</firstname>
+    <surname>Wilkey</surname>
+  </othercredit>
+  <othercredit role="illustrator">
+    <firstname>Rebecca</firstname>
+    <surname>Demarest</surname>
+  </othercredit>
+
+  <!-- All rights reserved. -->
+
+  <publisher>
+    <publishername>O’Reilly Media, Inc.    </publishername>
+    <address format="linespecific">
+      <street>1005 Gravenstein Highway North</street>
+      <city>Sebastopol</city>
+      <state>CA</state>
+      <postcode>95472</postcode>
+    </address>
+  </publisher>
+
+  <legalnotice role="printlocation">
+    <para>Printed in the United States of America.</para>
+  </legalnotice>
+
+  <legalnotice role="printer">
+    <para>[LSI]</para>
+  </legalnotice>
+
+  <legalnotice role="use">
+    <para>O’Reilly books may be purchased for educational, business, or sales promotional use. Online editions are also available for most 
+          titles (<ulink url="http://safaribooksonline.com" role="orm:hideurl:ital">http://safaribooksonline.com</ulink>). For more information, contact our corporate/institutional sales department:
+          800-998-9938 or <phrase role="keep-together"><emphasis>corporate@oreilly.com</emphasis></phrase>.</para>
+  </legalnotice>
+
+  <legalnotice role="trademarks">
+    <para>The O'Reilly logo is a registered trademark of O’Reilly Media, Inc. <emphasis>SVG Essentials</emphasis>, the image of a great argus pheasant,
+      and related trade dress are trademarks of O’Reilly Media, Inc.</para>
+      <para>Many of the designations used by manufacturers and sellers to distinguish
+        their products are claimed as trademarks. Where those designations appear
+        in this book, and O’Reilly Media, Inc., was aware of a trademark claim,
+        the designations have been printed in caps or initial caps.</para>
+  </legalnotice>
+
+  <legalnotice role="damages">
+    <para>While every precaution has been taken in the preparation of this book,
+        the publisher and authors assume no responsibility for errors or omissions, 
+        or for damages resulting from the use of the information contained herein.</para>
+  </legalnotice>
+<isbn>9781449374358</isbn><edition>2</edition><author><firstname>J. David</firstname><surname>Eisenberg</surname><authorblurb><para><emphasis role="strong">J. David Eisenberg</emphasis> is a programmer and instructor living in San Jose, California. David has a talent for teaching and explaining. He has developed courses for HTML and CSS, JavaScript, XML, and Perl. He teaches computer and information technology courses at Evergreen Valley College in San Jose.  He has also developed online courses providing introductory tutorials for Korean, Modern Greek, and Russian. David has been developing education software since 1975, when he worked with the Modern Foreign Language project at the University of Illinois to develop computer-assisted instruction on the PLATO system. He is coauthor of <emphasis>Introducing Elixir</emphasis>. When not programming, David enjoys digital photography, caring for a feral cat colony at work, and riding his bicycle.</para></authorblurb></author><author><firstname>Amelia</firstname><surname>Bellamy-Royds</surname><authorblurb><para><emphasis role="strong">Amelia Bellamy-Royds</emphasis> is a freelance writer specializing in scientific and technical communication.  She helps promote web standards and design through participation in online communities such as Web Platform Docs, Stack Exchange and Codepen.  Her interest in SVG stems from work in data visualization and builds upon the programming fundamentals she learned while earning a BSc in bioinformatics.  A policy research job for the Canadian Library of Parliament convinced her that she was more interested in discussing the big-picture applications of scientific research than doing the laboratory work herself, leading to graduate studies in journalism.  She currently lives in Edmonton, Alberta.  If she isn't at a computer, she's probably digging in her vegetable garden or out enjoying live music.</para></authorblurb></author><editor><firstname>Simon</firstname><surname>St. Laurent</surname></editor><editor><firstname>Meghan</firstname><surname>Blanchette</surname></editor><copyright><year>2015</year><holder>J. David Eisenberg and Amelia Bellamy-Royds</holder></copyright><editor role="production"><firstname>Matthew</firstname><surname>Hacker</surname></editor><editor role="copy"><firstname>Jasmine</firstname><surname>Kwityn</surname></editor><othercredit role="indexer"><firstname>Ellen</firstname><surname>Troutman Zaig</surname></othercredit><othercredit role="coverdesigner"><firstname>Karen</firstname><surname>Montgomery</surname></othercredit><othercredit role="interiordesigner"><firstname>David</firstname><surname>Futato</surname></othercredit>
+<printhistory>
+  <formalpara>
+    <title>First Edition</title>
+    <para>February, 2002</para>
+  </formalpara>
+  <formalpara>
+    <title>Second Edition</title>
+    <para>October, 2014</para>
+  </formalpara>
+</printhistory>
+<revhistory><revision><date>2014-10-02</date><revremark>First release</revremark></revision></revhistory><legalnotice role="perfect"><para/></legalnotice>
+<mediaobject role="cover"> <!-- source in the cover -->
+<imageobject role="front-large" remap="lrg">
+<imagedata format="PNG" fileref="images/cover.png"/>
+</imageobject>
+</mediaobject>

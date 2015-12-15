@@ -1,0 +1,818 @@
+[[generating-svg-chapter]]
+
+== Generating SVG
+
+The previous chapters have described the major features of SVG.((("generating SVG", id="ix_genSVG", range="startofrange"))) All the examples have been relatively modest and have been written in an ordinary text editor. For graphics of any great complexity, though, few people will write SVG from scratch. Let’s face it: almost nobody does this by hand. Instead, graphic designers will use some sort of graphic tool that outputs SVG, and programmers will take existing raw data and convert it to SVG with a script. 
+
+If you’re dealing with a graphic program’s output that is already in SVG format, you can sit back and relax; all the heavy lifting has been done for you. If you ever take a look at the SVG that it generated, it may be hard to read. Some programs, for example, may not use groups (the +<g>+ element) efficiently or they may not optimize paths. When you use these programs, you are trading off the ease of generating SVG for the absolute control you have when you write the entire file by hand. Hopefully, with a better understanding of what's going on “under the hood," you will be better able to write code to adapt and interact with the graphics program's output.
+
+Generating SVG code from a data file is a trickier topic. The possibilities will depend on what type of data you have to start with and what type of programming languages you can work with.
+
+One option for generating SVG is to build up an SVG document object model using the methods presented in <<svg-dom-chapter>>. link:$$http://d3js.org$$[D3.js], which we alluded to briefly in <<javascript-libraries-section>>, is specifically designed for  using data files to dynamically build SVG charts and graphs in the web browser. Scott Murray's pass:[<ulink role="orm:hideurl" url="http://shop.oreilly.com/product/0636920026938.do"><emphasis>Interactive Data Visualization for the Web</emphasis></ulink>] (O'Reilly) is a good introduction for beginners. There are also many good tutorials by the library's original author, Mike Bostock, and others listed on https://github.com/mbostock/d3/wiki/Tutorials[the project's wiki page].
+
+A different approach to dynamically generating an SVG file is to piece together the markup using the string manipulation and file-writing methods of your favorite pass:[<phrase role="keep-together">programming</phrase>] language. The first section of this chapter outlines how you could use a custom program to convert geographical mapping data that’s not in an XML format to an SVG file.
+
+If your data is already in XML format, you may just need to extract the pertinent data and plug it into an SVG framework. In such a case, you can use tools that implement Extensible Stylesheet Language Transformations (XSLT).((("XSLT (Extensible Stylesheet Language Transformations)"))) XSLT is an XML syntax for defining how to convert one XML file into another. The second part of this chapter shows how to use XSLT to convert an XML-formatted aeronautical weather report to pass:[<phrase role="keep-together">SVG</phrase>].
+
+[[data-to-svg-section]]
+
+=== Converting Custom Data to SVG
+
+If anyone lives a life that revolves around graphics display, it’s a mapmaker.((("generating SVG", "converting custom data to SVG", id="ix_genSVGconvcus", range="startofrange"))) Cartographers are finding XML markup in general and SVG in particular to be excellent vehicles for putting data into a portable format. At present, though, much of the data that is currently available is in custom or proprietary formats. 
+
+One such proprietary format was developed by Environmental Systems Research Institute for use by their ArcInfo Geographic Information System. Data created in this system can be exported in an ASCII _ungenerate_ form.((("polygon element", "ArcInfo Geographic Information in"))) Such a file contains a series of polygon descriptions, followed by a line with the word +END+ on it. Each polygon starts with a line that consists of an integer polygon identification number and the _x_- and _y_-coordinates of the polygon’s centroid. This line is followed by the _x_- and _y_-coordinates of the polygon’s vertices, one vertex per line. A line with the word +END+ on it marks the end of the polygon. Here is a sample file:
+
+
+----
+         1      -0.122432044171565E+03       0.378635608621089E+02
+      -0.122418712172884E+03       0.378527169597E+02
+      -0.122434402770255E+03       0.378524342437443E+02
+      -0.122443301934511E+03       0.378554484803880E+02
+      -0.122446316168374E+03       0.378610463416856E+02
+      -0.122438565286068E+03       0.378683666259093E+02
+      -0.122418712172884E+03       0.378527169591107E+02
+END
+         2      -122.36                      37.82
+      -122.378                     37.826
+      -122.377                     37.831
+      -122.370                     37.832
+      -122.378                     378.826
+END
+END
+----
+
+Converting such a file to SVG is a simple task of inserting the coordinates into the points attribute of +<polygon>+ elements. The only twist is that ARC/INFO stores data in Cartesian coordinates,((("Cartesian coordinates, converting from"))) so we will have to flip the _y_-coordinates upside-down. The program we’ll describe will take two parameters: the _input-file_ name and the desired  _width_ of the resulting SVG graphic in pixels.
+
+In addition to those parameters, we're going to need a few global variables to keep track of the data:
+
+* ++lineBuffer++, an array of tokens from parsing each line of the file into whitespace-separated words and numbers.
+* ++singlePolygon++, an array of coordinates for the current polygon.
+* ++polygonList++, an array of +points+ strings for all the polygons.
+* ++minX++, ++minY++, ++maxX++, ++maxY++, numbers representing the extreme coordinates observed so far in each direction. The minimum variables should be initialized to equal positive Infinity (or the maximum number possible in the programming language), and the maximum variables to negative Infinity. That way, any finite number compared to them will become the new maximum or minimum.
+
+The following algorithm assumes that you have a way of reading the input file one line at a time, and printing the results to an output stream or file. The exact ways to do so will depend on your programming language, but nearly every language can do both: 
+
+1. Create a utility subroutine that grabs one token at a time from the input file:
++
+[subs="specialcharacters,quotes"]
+----
+*function get_token() 
+{*
+  *if (* _lineBuffer_ is empty *) //* out of data?
+  *{*
+    read the next line from _input-file_;
+    get rid of leading and trailing whitespace;
+    split on whitespace to create an array of tokens;
+    put into _lineBuffer_;
+  *}*
+  remove first item in _lineBuffer_ and return it
+*}*
+----
+
+2. The main program (after validating and storing the input parameters and initializing the other variables), uses nested loops to process the data file. The outer loop handles the start and end of each polygon, and the inner loop processes the pairs of coordinates. Each polygon starts with an index number and ends with the token +END+. The file as a whole also ends with an additional +END+. Read an index number, initialize ++singlePolygon++ as a coordinate array, read coordinates until you reach +END+, add that coordinate array to the _polygonList_, and then repeat unless the next token is also +END+:
++
+[subs="specialcharacters,quotes"]
+----
+open _input-file_;
+
+*while ((polygonNumber = get_token())* is not "END" *)*
+*{*
+  _singlePolygon_ = empty list;
+
+  *while ((xCoord = get_token())* is not "END" *)*
+  *{
+    yCoord = get_token();*
+    append (*xCoord, yCoord*) to _singlePolygon_;
+
+    // keep track of minimum and maximum coordinates 
+    *minX = min(xCoord, minX);
+    maxX = max(xCoord, maxX);
+    minY = min(yCoord, minY);
+    maxY = max(yCoord, maxY);*
+  *}*
+  append _singlePolygon_ to _polygonList_;
+*}*
+
+close _input-file_ ;
+----
+
+3. After processing the input file, ++polygonList++ is an array of arrays of coordinate pairs, and ++minX++, ++minY++, ++maxX++, and ++maxY++ hold the largest and smallest coordinates in each dimension. But before you can start building your SVG, you need to determine an appropriate scale to fit the _x_-range of the data into the pixel width requested by the user. Initialize additional variables to keep track of the input and output pass:[<phrase role="keep-together">dimensions</phrase>]:   
++
+[subs="specialcharacters,quotes"]
+----
+*deltaX = maxX - minX;
+deltaY = maxY - minY;
+scale = width / deltaX;
+height = deltaY * scale;
+height = int(height + 0.5);* // round up to integer
+----
+
+4. The SVG file itself is constructed by printing markup to a file, substituting in the values from the data:
++
+[subs="specialcharacters,quotes"]
+----
+open output;
+
+print the following to output, replacing variables in {}
+with their values:
+
+  *<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+  <svg width="* {_width_} *" height="* {_height_} *"
+    viewBox="0 0* {_deltaX_}  {_deltaY_} *"
+    xmlns="http://www.w3.org/2000/svg">
+  <title>Map constructed from* {_input-file_} *</title>
+  <g style="fill: none; stroke: black;">*
+----
+
+5. Process the data arrays to create polygon objects:
++
+[subs="specialcharacters,quotes"]
+----
+*polygonNumber = 1;*
+*foreach* _singlePolygon_ in _polygonList_ 
+*{*
+  *print ' <polyline id="poly* {_polygonNumber_} *" points=" ';*
+  remove first set of coordinates in _singlePolygon_;
+  
+  *n = 0;* //coordinate index
+  *foreach coordinate* in _singlePolygon_
+  *{*
+    *if (n % 2 == 1)    // y-coordinate
+    {
+      coordinate = (maxY - coordinate); // invert y coords
+    }
+    else
+    {
+      coordinate = (coordinate - minX);
+    }*
+    print the coordinate followed by a space;
+  *}*
+
+  // To avoid long lines, place only 8 coordinates per line 
+    *n = (n + 1) % 8;
+    if (n == 0) {* print a newline *}*
+  *}*
+  *print ' /> ';*    // close off the polyline
+  *polygonNumber++;*
+}
+----
+
+6. Close off open tags and close the file:
++
+[subs="specialcharacters,quotes"]
+----
+*print ' </g>\n</svg>\n ';*
+close output;
+----
+
+This pseudocode algorithm is a simplified version of a real program written in Perl.
+Running the Perl program with the data for the state of Michigan with an output width of 250 pixels produces <<data-to-svg-figure>>. Michigan was chosen because it requires several polygons to draw, and its outline is more visually interesting than that of, say, Colorado. This data came from the US Census Bureau Cartographic Boundary Files website.
+////
+at link:$$http://www.census.gov/geo/www/cob/$$[].
+////
+
+[[data-to-svg-figure]]
+
+.Conversion from ARC/INFO ungenerate to SVG
+image::images/sve2_1501.png[]
+
+
+[[xml-to-svg-section]]
+
+=== Using XSLT to Convert XML Data to SVG
+
+If your data is in XML format, then Extensible Stylesheet Language Transformations (XSLT) may be your best choice for doing the conversion to SVG.((("generating SVG", "converting custom data to SVG", range="endofrange", startref="ix_genSVGconvcus")))((("XSLT (Extensible Stylesheet Language Transformations)", "converting XML data to SVG", id="ix_XSLT", range="startofrange")))((("generating SVG", "using XSLT to convert XML data to SVG", id="ix_genSVGXSLT", range="startofrange")))
+
+[[xml-conversion-task]]
+
+==== Defining the Task
+
+This example uses XSLT to extract information from an XML file and insert it into an SVG file.((("XSLT (Extensible Stylesheet Language Transformations)", "converting XML data to SVG", "objectives"))) The source data is a weather report that is retrieved from _http://w1.weather.gov/xml/current_obs/NNNN.xml_, where _NNNN_ represents a four-letter weather pass:[<phrase role="keep-together">station</phrase>] identifier. It is formatted as a Weather Observation Markup Format (OMF) document, according to the National Oceanic and Atmospheric Organization’s link:$$http://www.nws.noaa.gov/view/current_observation.xsd$$[definition of the data format]. Here is some sample data (edited for length) from station KSJC:
+
+[source,xml]
+----
+<current_observation version="1.0">
+  <credit>NOAA's National Weather Service</credit>
+  <credit_URL>http://weather.gov/</credit_URL>
+  <location>San Jose International Airport, CA</location>
+  <station_id>KSJC</station_id>
+  <latitude>37.37</latitude>
+  <longitude>-121.93</longitude>
+  <observation_time>Last Updated on Jul 15 2014, 7:53 am PDT
+    </observation_time>
+  <observation_time_rfc822>Tue, 15 Jul 2014 07:53:00 -0700
+    </observation_time_rfc822>
+  <weather>Overcast</weather>
+  <temperature_string>62.0 F (16.7 C)</temperature_string>
+  <temp_f>62.0</temp_f>
+  <temp_c>16.7</temp_c>
+  <wind_string>West at 5.8 MPH (5 KT)</wind_string>
+  <wind_dir>West</wind_dir>
+  <wind_degrees>290</wind_degrees>
+  <wind_mph>5.8</wind_mph>
+  <visibility_mi>10.00</visibility_mi>
+  <copyright_url>http://weather.gov/disclaimer.html</copyright_url>
+</current_observation>
+
+----
+
+The objective is to extract the reporting station, the date and time, temperature, wind speed and direction, and visibility from the report. The data will be filled into the graphic template of <<weather-template-figure>>.
+
+[[weather-template-figure]]
+
+.Graphic weather template
+image::images/sve2_1502.png[]
+
+The elements we’re interested in are listed here, along with the plan for displaying them in the final graphic:
+
++<observation_time_rfc822>+:: In the final graphic, the date and time will be represented in text, and the time will also be shown on an analog clock. The color of the clock face will be light yellow to indicate hours between 6 a.m. and 6 p.m., and light blue for evening and night hours.
+
++<station_id>+:: The reporting station’s call letters. The final graphic will represent this as text.
+
++<temp_c>+:: The air temperature in degrees Celsius. This will be displayed by coloring in the thermometer to the appropriate level. If the temperature is greater than 0, the coloring will be red; if less than or equal to 0, it will be blue.
+
++<wind_degrees>+:: The direction is measured in degrees; 0 indicates wind blowing from true north, and 270 indicates wind from the west. This will be represented by a line on the compass.
+
++<wind_mph>+:: The wind speed is expressed in miles per hour, which will be converted to meters per second.
+  
++<wind_gust_mph>+:: If there are wind gusts, this element will give the speed in miles per hour, which will also be converted to meters per second.
+
++<visibility_mi>+:: Surface visibility in miles, which will be converted to kilometers. The final graphic will represent this by filling in a horizontal bar. Any visibility above 40 kilometers will be presumed to be unlimited.
+
+[[svgess-CHP-12-SECT-3.2]]
+
+==== How XSLT Works
+
+To convert an OMF source file to its destination SVG format, we will create a list of specifications that tells which elements and attributes in OMF are of interest.((("XSLT (Extensible Stylesheet Language Transformations)", "converting XML data to SVG", "how XSLT works"))) These specifications will then detail what SVG elements to generate whenever the processor encounters an item of interest. If you were asking a human to do the transformation by hand, you could write out an English language description:
+
+. Begin a new SVG document by typing this:
++
+[source,xml]
+----
+<!DOCTYPE svg PUBLIC "-//W3C/DTD SVG 1.0//EN",
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+----
++
+. Go through the source document. As you find each element, look for instructions on how to process it.
++
+. To process the +<current_observation>+ element, add the following code to your file, and then process any child elements as specified in comments:
++
+[source,xml]
+----
+<svg viewBox="0 0 350 200" height="200" width="350">
+    <!-- process any child elements from <current_observation> -->
+</svg>
+----
++
+. To process a +<station_id>+ element, add this code and fill in the blanks:
++
+[source,xml]
+----
+<text font-size="10pt" x="10" y="20">
+    <!-- fill in the value of the element's content -->
+</text>
+----
++
+. To process a +<temp_c>+ element, use its content when following the instructions for “how to draw a thermometer.”
++
+. To process a +<wind_dir>+ element, use its contents as you follow the instructions for “how to draw a wind compass.”
+
+Similarly, for each other element type, you would indicate where to find the instructions to follow. Then you'd have supplemental instructions like these:
+
+* To draw a thermometer:
+** Calculate the height of the bar as 50 minus the value you got from the caller.
+** Determine the appropriate color (+red+ or +blue+) based on whether or not the value is greater than 0. 
+** Insert those values where you see the italicized text in the following:
++
+[subs="specialcharacters,quotes"]
+----
+<path
+  d = "M 25 _height_ 25 90
+  A 10 10 0 1 0 35 90
+  L 35 _height_ Z"
+  style="stroke: none; fill: _color_ ;"/>
+<path
+  d= "M 25 0 25 90 A 10 10 0 1 0 35 90 L 35 0 Z"
+  style="stroke: black; fill: none;"/>
+----
+
+There would be equally detailed instructions for “how to draw a wind compass” and all the other elements.
+
+Rather than writing the specifications in English and handing them to a human to perform, you write the specifications in the XSLT markup format. You can then hand the XSLT file, along with the XML file, to an XLST processor, and it will process elements and fill in the blanks to produce an output SVG file.
+
+Here is a quick English-to-XSLT translation guide:
+
+++++
+<informaltable
+>
+<tgroup cols="2">
+<colspec colname="col_1" colwidth="39%"/>
+<colspec colname="col_2" colwidth="46%"/>
+<thead>
+<row>
+<entry>English</entry>
+<entry>            XSLT</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><simpara>Create an output document of a given type</simpara></entry>
+<entry align="left" valign="top"><literallayout class="monospaced">&lt;xsl:output method="xml"
+  doctype-public="..." doctype-system="..."&gt;</literallayout></entry>
+</row>
+<row>
+<entry><simpara>Process an <emphasis><literal>element</literal></emphasis> element</simpara></entry>
+<entry align="left" valign="top"><literallayout class="monospaced">&lt;xsl:template match="element"&gt;
+  &lt;!-- output to produce --&gt;
+&lt;/xsl:template&gt;</literallayout></entry>
+</row>
+<row>
+<entry><simpara>Process any <emphasis><literal>items</literal></emphasis> within the  current element</simpara></entry>
+<entry align="left" valign="top"><literallayout class="monospaced">&lt;xsl:apply-templates select="items"/&gt;</literallayout></entry>
+</row>
+<row>
+<entry><simpara>Fill in the value of an <emphasis><literal>item</literal></emphasis></simpara></entry>
+<entry align="left" valign="top"><literallayout class="monospaced">&lt;xsl:value-of select="item"/&gt;</literallayout></entry>
+</row>
+<row>
+<entry><simpara>Use the value of an <emphasis><literal>item</literal></emphasis> as a variable named <emphasis><literal>var</literal></emphasis></simpara></entry>
+<entry align="left" valign="top"><literallayout class="monospaced">&lt;xsl:variable name="var"&gt;
+  &lt;!-- instructions to produce item's value --&gt;
+&lt;/xsl:variable&gt;</literallayout></entry>
+</row>
+<row>
+<entry><simpara>Call another template named <emphasis>some-name</emphasis>, and give it
+a <emphasis>parameter</emphasis> with <emphasis>some-value</emphasis></simpara></entry>
+<entry align="left" valign="top"><literallayout class="monospaced">&lt;xsl:call-template name="some-name"&gt;
+  &lt;xsl:with-param name="parameter"
+    select="some-value"/&gt;
+&lt;/xsl:call-template&gt;</literallayout></entry>
+</row>
+<row>
+<entry><simpara>Add the following content if the data passes a test</simpara></entry>
+<entry align="left" valign="top"><literallayout class="monospaced">&lt;xsl:if test="some-test"&gt;
+   &lt;!-- content --&gt;
+&lt;/xsl:if&gt;</literallayout></entry>
+</row>
+<row>
+<entry><simpara>Add content if data passes a test; otherwise, add other content</simpara></entry>
+<entry align="left" valign="top"><literallayout class="monospaced">&lt;xsl:choose&gt;
+   &lt;xsl:when test="some-test"&gt;
+      &lt;!-- content --&gt;
+   &lt;/xsl:when&gt;
+   &lt;xsl:otherwise&gt;
+      &lt;!-- other content --&gt;
+   &lt;/xsl:otherwise&gt;
+ &lt;/xsl:choose&gt;</literallayout></entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+++++
+
+
+[[developing-xsl-stylesheet-section]]
+
+==== Developing an XSL Stylesheet
+
+We’ll add details as we proceed, but this is more than enough to start.((("stylesheets", "XSLT stylesheet")))((("XSLT (Extensible Stylesheet Language Transformations)", "converting XML data to SVG", "stylesheet structure"))) The XSLT file begins like this, and, for the purposes of this example, is stored in a file named pass:[<phrase role="keep-together"><emphasis>weather.xsl</emphasis></phrase>]:
+
+++++
+<screen language="xml">&lt;xsl:stylesheet version="1.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns="http://www.w3.org/2000/svg"&gt;
+
+&lt;xsl:output method="xml" indent="yes"
+  doctype-public="-//W3C//DTD SVG 1.0//EN"
+  doctype-system=
+    "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"/&gt;    <co id="daXSLs1"/>
+
+&lt;xsl:template match="current_observation"&gt;     <co id="daXSLs2"/>
+&lt;svg width="350" height="200" viewBox="0 0 350 200"
+  xmlns="http://www.w3.org/2000/svg"&gt;
+  &lt;g style="font-family: sans-serif"&gt;
+
+  &lt;!-- Process all child elements --&gt;
+  &lt;xsl:apply-templates /&gt;     <co id="daXSLs3"/>
+  &lt;/g&gt;
+&lt;/svg&gt;
+&lt;/xsl:template&gt;</screen>
+<calloutlist>
+<callout arearefs="daXSLs1">
+<para>
+The <literal>&lt;xsl:output&gt;</literal> specifies that the output will be an XML file and that it should be indented nicely. It also generates the appropriate <literal>&lt;!DOCTYPE &#8230;&gt;</literal> instruction.
+</para>
+</callout>
+<callout arearefs="daXSLs2">
+<para>
+<literal>&lt;xsl:template&gt;</literal> directs the XSLT processor to generate the specified output whenever it encounters a <literal>&lt;current_observation&gt;</literal> element. This template will be called only once, because there’s only one such element in the source document. It creates the outermost <literal>&lt;svg&gt;</literal> element and a <literal>&lt;g&gt;</literal> element for <phrase role="keep-together">later use</phrase>.
+</para>
+</callout>
+<callout arearefs="daXSLs3">
+<para>
+After outputting the <literal>&lt;svg&gt;</literal> and <literal>&lt;g&gt;</literal>, <literal>&lt;xsl:apply-templates&gt;</literal> directs the processor to find any child elements and generate whatever is specified by their <literal>&lt;xsl:template&gt;</literal> elements.
+</para>
+</callout>
+</calloutlist>
+++++
+
+This is the markup to process the +station_id+ element:
+
+[source,xml]
+----
+<xsl:template match="station_id">
+ <text font-size="10pt" x="10" y="20">
+    <xsl:value-of select="."/>
+  </text>
+</xsl:template>
+----
+
+The +<xsl:value-of>+ inserts the value of the selected item. In this case, the +.+ means “the current element.”
+
+[NOTE]
+====
+So far, this example uses only element names as the values of a +match+ or +select+. In reality, you can put any XPath expression as a value.((("XPath"))) XPath is a notation that lets you select parts of an XML document with extreme precision. For example, while processing an XHTML document, you could select only the odd +<td>+ elements that are within +<tr>+ elements that have a +title+ attribute.
+====
+
+While it would be possible to output all the relevant SVG for the temperature within one +<xsl:template>+, a modular approach is easier to read and maintain. XSLT lets you create templates that act somewhat like functions; they don’t correspond to any element in the source document, but you may explicitly call them by name and pass parameters to them. Here is the code to draw the thermometer:
+
+[source,xml]
+----
+<xsl:template match="temp_c">
+  <xsl:call-template name="draw-thermometer">
+    <xsl:with-param name="t" select="."/>
+  </xsl:call-template>
+</xsl:template>
+----
+
+If the value of a parameter is an attribute value or the content of an element, the easiest way to set it is with a +select+. Another way to set the value is to put the content between a beginning and ending tag.
+
+Now you can write the template for +draw-thermometer+. The passed-in parameter determines the height to fill the thermometer and whether the thermometer should be filled with red or blue. Let’s build this up in stages. First, extract the parameter and draw the parts that are static:
+
+[language="xml"]
+[subs="specialcharacters,callouts,quotes"]
+----
+<xsl:template name="draw-thermometer">
+  <xsl:param name="t" select="0"/>
+  <g id="thermometer" transform="translate(10, 40)">
+    <path id="thermometer-path" stroke="black" fill="none"
+      d= "M 25 0 25 90 A 10 10 0 1 0 35 90 L 35 0 Z"/>
+      
+    <g id="thermometer-text" font-size="8pt" font-family="sans-serif">
+      <text x="20" y="95" text-anchor="end">-40</text>
+      <text x="20" y="55" text-anchor="end">0</text>
+      <text x="20" y="5" text-anchor="end">50</text>
+      <text x="10" y="110" text-anchor="end">C</text>
+      <text x="40" y="95">-40</text>
+      <text x="40" y="55">32</text>
+      <text x="40" y="5">120</text>
+      <text x="50" y="110">F</text>
+      <text x="30" y="130" text-anchor="middle">Temp.</text>
+  </g>
+</g>
+</xsl:template>
+----
+
+The +<xsl:param>+ element lets you provide a default value (in this case, +0+) if no parameter is passed in.
+
+Next, add the code to display the temperature as text. If there was no temperature present, display the value +N/A+. Notice that the parameter name is +t+, but to access its contents, you must say +$t+. This code goes inside the +<g id="thermometer-text">+:
+
+[source,xml]
+----
+<text x="30" y="145" text-anchor="middle">
+  <xsl:choose>
+    <xsl:when test="$t != ''">
+      <xsl:value-of select="round($t)"/>&#176;C /
+      <xsl:value-of select="round($t div 5 * 9 + 32)"/>&#176;F
+    </xsl:when>
+    <xsl:otherwise>N/A</xsl:otherwise>
+  </xsl:choose>
+</text>
+----
+
+The text is set conditionally with the +<xsl:choose>+ element, which contains one or more +<xsl:when>+ elements. The first one whose +test+ succeeds is the one whose output goes into the final document. The +<xsl:otherwise>+ element is a catch-all in case all the preceding tests fail.
+
+[NOTE]
+====
+The formula for conversion of Celsius to Fahrenheit uses +div+ for division; this is because the forward slash is already used in XPath to separate levels of element nesting.((("XPath")))
+====
+
+The next step is to fill the thermometer. This should be done only if the value of the +t+ parameter is not the empty string. The following code uses +<xsl:variable>+ to create a variable named +tint+ and sets its value to either +red+ or +blue+, depending on whether the temperature is above 0 degrees Celsius or not. Variables in XSL are _single-assignment_. Every time the template is called, the variable is set to an initial value, but for the duration of the template, it cannot be changed further. Place this after the closing +</g>+ tag of the +thermometer-text+ group:
+
+[source,xml]
+----
+<xsl:if test="$t != ''">
+  <xsl:variable name="tint">
+  <xsl:choose>
+    <xsl:when test="$t &gt; 0">red</xsl:when>
+    <xsl:otherwise>blue</xsl:otherwise>
+  </xsl:choose>
+  </xsl:variable>
+  <!-- remainder of code -->
+</xsl:if>
+----
+
+Again, the code uses +<xsl:choose>+ to conditionally set the variable. The +test+ uses the entity reference +&amp;gt;+ for a greater-than symbol to avoid problems with some XSLT processors; if you ever want to produce a less-than symbol, it _must_ be written as +&amp;lt;+.
+
+Here is the remainder of the code for filling the thermometer:
+
+[source,xml]
+----
+<!-- "fill" the thermometer by drawing a solid
+  rectangle and clipping it to the shape of
+  the thermometer -->
+<xsl:variable name="h">
+  <xsl:choose>
+    <xsl:when test="$t &lt; -55">
+      <xsl:value-of select="105"/>
+    </xsl:when>
+    <xsl:when test="$t &gt; 50">
+      <xsl:value-of select="0"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="50 - $t"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:variable>
+
+<clipPath id="thermoclip">
+  <use xlink:href="#thermometer-path"/>
+</clipPath>
+<path d="M 10 {$h} h40 V 120 h-40 Z"
+  fill="{$tint}" clip-path="url(#thermoclip)"/>
+----
+
+The +<xsl:choose+> in the preceding code has two +<xsl:when>+ clauses; they limit the height of the “mercury” in case temperatures go above or below the thermometer’s limits. The +<xsl:otherwise>+ clause sets the height for all other in-range temperatures.
+
+When referring to parameters or variables in the values of attributes of the output document, as in the final +<path>+ element, you must enclose them with curly braces.
+
+This would be a good time to test the transformation so far. Before you can test, you have to add an empty template to handle text nodes. XSLT processors are set up with default templates to ensure that they will visit all the elements and text in the source document. The default behavior is to send the text within elements directly to the destination document. In this transformation, you want to throw away any text that you don’t specifically want to process, so there’s an empty template for text nodes; they will not appear in the SVG file. Finally, you need the closing +</xsl:stylesheet>+ tag:
+
+[source,xml]
+----
+<xsl:template match="text()"/>
+
+</xsl:stylesheet>
+----
+
+Invoke your XSLT processor on the XML file that contains the weather report. The resulting graphic, <<svg-thermometer-figure>>, shows the station name and the thermometer. If you don’t have a standalone XSLT processor, you can add the following lines at the top of the XML file:
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="weather.xsl"?>
+----
+
+Then open the file in your browser, and it will do the transformation for you.
+
+[[svg-thermometer-figure]]
+
+.XSL-generated SVG file showing thermometer
+image::images/sve2_1503.png[]
+
+You have seen that XSLT can do simple arithmetic; it can also do a reasonable amount of string manipulation. Here is the XSLT to display the day and time. It uses the +substring+ function to extract the necessary information.
+
+++++
+<screen language="xml">&lt;xsl:template match="observation_time_rfc822"&gt;
+  &lt;xsl:variable name="time" select="."/&gt; <co id="displaytime1"/>
+
+  &lt;text font-size="10pt" x="345" y="20" text-anchor="end"&gt;
+    &lt;xsl:value-of select="substring($time, 6, 11)"/&gt; <co id="displaytime2"/>
+  &lt;/text&gt;
+
+  &lt;xsl:call-template name="draw-time-and-clock"&gt; <co id="displaytime3"/>
+    &lt;xsl:with-param name="hour"
+      select="number(substring($time, 18, 2))"/&gt;
+    &lt;xsl:with-param name="minute"
+      select="number(substring($time, 21, 2))"/&gt;
+  &lt;/xsl:call-template&gt;
+&lt;/xsl:template&gt;</screen>
+<calloutlist>
+<callout arearefs="displaytime1">
+<para>
+For convenience, store the string in a variable rather than having to do many <literal>&lt;xsl:value-of&gt;</literal>s.
+</para>
+</callout>
+<callout arearefs="displaytime2">
+<para>
+The <literal>substring()</literal> function needs the string, starting character index, and number of characters to extract. The first character of the string is index number 1, not 0, as in many other programming languages.
+</para>
+</callout>
+<callout arearefs="displaytime3">
+<para>
+Pass the hour and minute to a named template to do the heavy lifting.<indexterm>
+  <primary>number function, XSLT</primary>
+</indexterm> The <literal>number()</literal> function converts its string parameter to a true numeric value.
+</para>
+</callout>
+</calloutlist>
+++++
+
+And here is the template that draws the clock face and displays the time as text (the only new construct here is the +format-number()+ function):
+
+++++
+<screen language="xml">&lt;xsl:template name="draw-time-and-clock"&gt;
+  &lt;xsl:param name="hour"&gt;0&lt;/xsl:param&gt;
+  &lt;xsl:param name="minute"&gt;0&lt;/xsl:param&gt;
+
+  &lt;!-- clock face is light yellow from 6 a.m. to 6 p.m.,
+       otherwise light blue --&gt;
+  &lt;xsl:variable name="tint"&gt;
+    &lt;xsl:choose&gt;
+      &lt;xsl:when test="$hour &amp;gt;= 6 and $hour &amp;lt; 18"
+           &gt;#ffffcc&lt;/xsl:when&gt;
+      &lt;xsl:otherwise&gt;#ccccff&lt;/xsl:otherwise&gt;
+    &lt;/xsl:choose&gt;
+  &lt;/xsl:variable&gt;
+
+  &lt;!-- calculate angles for hour and minute hand
+    of analog clock --&gt;
+  &lt;xsl:variable name="hourAngle"
+    select="(30 * ($hour mod 12 + $minute div 60)) - 90"/&gt;
+  &lt;xsl:variable name="minuteAngle"
+    select="($minute * 6) - 90"/&gt;
+
+  &lt;text font-size="10pt" x="345" y="40" text-anchor="end"&gt;
+    &lt;xsl:value-of select="format-number($hour,00)"/&gt; <co id="drawtimeastext1"/>
+    &lt;xsl:text&gt;:&lt;/xsl:text&gt; <co id="drawtimeastext2"/>
+    &lt;xsl:value-of select="format-number($minute,00)"/&gt;
+  &lt;/text&gt;
+  &lt;g id="clock" transform="translate(255, 30)"&gt;
+    &lt;circle cx="20" cy="20" r="20" fill="{$tint}"
+            stroke="black"/&gt;
+    &lt;line transform="rotate({$minuteAngle}, 20, 20)"
+      x1="20" y1="20" x2="38" y2="20" stroke="black"/&gt;
+    &lt;line transform="rotate({$hourAngle}, 20, 20)"
+      x1="20" y1="20" x2="33" y2="20" stroke="black"/&gt;
+  &lt;/g&gt;
+&lt;/xsl:template&gt;</screen>
+<calloutlist>
+<callout arearefs="drawtimeastext1">
+<para>
+The <literal>format-number($hour,<replaceable>00</replaceable>)</literal> ensures that the output will have a leading zero if it is less than two digits long.
+</para>
+</callout>
+<callout arearefs="drawtimeastext2">
+<para>
+The <literal>&lt;xsl:text&gt;</literal> element places its contents, which must be pure text, into the output document verbatim. Using <literal>&lt;xsl:text&gt;</literal> helps avoid problems with whitespace; if I had not used it, the newline and indentation would have made its way into the resultant SVG <literal>&lt;text&gt;</literal> element, which would have produced extra space around the colon in the final graphic.
+</para>
+</callout>
+</calloutlist>
+++++ 
+
+Here is the markup to draw the wind speed indicator:
+
+++++
+<screen language="xml">&lt;xsl:template match="wind_degrees"&gt;
+  &lt;xsl:call-template name="draw-wind"&gt;
+    &lt;xsl:with-param name="dir" select="number(.)"/&gt;
+    &lt;xsl:with-param name="speed"
+      select="number(../wind_mph) * 1609.344 div 3600"/&gt; <co id="windspeedindicator1"/>
+    &lt;xsl:with-param name="gust"
+      select="number(following-sibling::wind_gust_mph) *
+        1609.344 div 3600"/&gt;
+  &lt;/xsl:call-template&gt;
+&lt;/xsl:template&gt;
+
+&lt;xsl:template name="draw-wind"&gt;
+  &lt;xsl:param name="dir"&gt;0&lt;/xsl:param&gt;
+  &lt;xsl:param name="speed"&gt;0&lt;/xsl:param&gt;
+  &lt;xsl:param name="gust"&gt;0&lt;/xsl:param&gt;
+
+  &lt;g id="compass" font-size="8pt" font-family="sans-serif"
+    transform="translate(110, 70)"&gt;
+    &lt;circle cx="40" cy="40" r="30" stroke="black" fill="none"/&gt;
+    &lt;!-- tick marks at cardinal directions --&gt;
+    &lt;path stroke="black" fill="none"
+      d= "M 40 10 L 40 14
+      M 70 40 L 66 40
+      M 40 70 L 40 66
+      M 10 40 L 14 40"/&gt;
+    &lt;xsl:if test="$speed &amp;gt;= 0"&gt;
+      &lt;path d="M 40 40 h 25"
+        fill="none" stroke="black"
+        transform="rotate({$dir - 90},40,40)"/&gt; <co id="windspeedindicator2"/>
+    &lt;/xsl:if&gt;
+    &lt;text x="40" y="9" text-anchor="middle"&gt;N&lt;/text&gt;
+    &lt;text x="73" y="44"&gt;E&lt;/text&gt;
+    &lt;text x="40" y="80" text-anchor="middle"&gt;S&lt;/text&gt;
+    &lt;text x="8" y="44" text-anchor="end"&gt;W&lt;/text&gt;
+    &lt;text x="40" y="100" text-anchor="middle"&gt;Wind (m/sec)&lt;/text&gt;
+    &lt;text x="40" y="115" text-anchor="middle"&gt; <co id="windspeedindicator3"/>
+      &lt;xsl:choose&gt;
+        &lt;xsl:when test="$speed &amp;gt;= 0"&gt;
+          &lt;xsl:value-of select="format-number($speed, <emphasis>0.</emphasis>)"/&gt;
+        &lt;/xsl:when&gt;
+        &lt;xsl:otherwise&gt;N/A&lt;/xsl:otherwise&gt;
+      &lt;/xsl:choose&gt;
+      &lt;xsl:if test="$gust &amp;gt; 0"&gt;
+        &lt;xsl:text&gt; - &lt;/xsl:text&gt;
+        &lt;xsl:value-of select="format-number($gust, <emphasis>0.</emphasis>)"/&gt;
+      &lt;/xsl:if&gt;
+    &lt;/text&gt;
+  &lt;/g&gt;
+&lt;/xsl:template&gt;</screen>
+<calloutlist>
+<callout arearefs="windspeedindicator1">
+<para>
+Here is a more complex XPath expression. <literal>..</literal> means “this node’s parent,” so <literal>../wind_mph</literal> will find all the <literal>&lt;wind_mph&gt;</literal> elements that are children of the parent of the <literal>&lt;wind_degree&gt;</literal> element (in this XML file, there is only one such element). The expression that gets the wind gust (if any) uses the more verbose <literal>following-sibling::</literal> specification.<indexterm>
+  <primary>XPath</primary>
+</indexterm>
+</para>
+</callout>
+<callout arearefs="windspeedindicator2">
+<para>
+The NOAA specification says that a true north wind is 360 degrees, with 0 degrees implying no wind. You have to subtract 90 degrees, because “north” is –90 degrees in SVG.
+</para>
+</callout>
+<callout arearefs="windspeedindicator3">
+<para>
+This logic for displaying the wind speed (and gusts) as text works even if there is no <literal>&lt;wind_mph&gt;</literal> or <literal>&lt;wind_gust_mph&gt;</literal> element in the weather report. When a nonexistent element’s content is converted to a number, the result is <literal>NaN</literal> (Not a Number). When you do any comparison with <literal>NaN</literal>, the result is <emphasis>always</emphasis> false. Thus, if there is no <literal>&lt;wind_mph&gt;</literal>, the resulting text is <literal>N/A</literal>, and when there is no <literal>&lt;wind_gust_mph&gt;</literal>, the dash and second number are never output.
+</para>
+</callout>
+</calloutlist>
+++++
+
+
+Here are the XSLT commands to draw the visibility bar. The first template converts the visibility to kilometers as it passes it to the second template. The visibility bar is 100 pixels wide, so any visibility greater than 40 km is set to 100; anything less is scaled:
+
+++++
+<screen language="xml">&lt;xsl:template match="visibility_mi"&gt;
+  &lt;xsl:call-template name="draw-visibility"&gt;
+    &lt;xsl:with-param name="v" select="number(.) * 1.609344"/&gt; <co id="visibilitybar1"/>
+  &lt;/xsl:call-template&gt;
+&lt;/xsl:template&gt;
+
+&lt;xsl:template name="draw-visibility"&gt;
+  &lt;xsl:param name="v"&gt;0&lt;/xsl:param&gt;
+  &lt;g id="visbar" transform="translate(220,110)"
+    font-size="8pt" text-anchor="middle"&gt;
+
+  &lt;!-- fill in the rectangle if there is a visibility value --&gt;
+  &lt;xsl:if test="$v &amp;gt;= 0"&gt;
+    &lt;xsl:variable name="width"&gt; <co id="visibilitybar2"/>
+      &lt;xsl:choose&gt;
+      &lt;xsl:when test="$v &amp;gt; 40"&gt;100&lt;/xsl:when&gt;
+      &lt;xsl:otherwise&gt;
+        &lt;xsl:value-of select="$v * 100.0 div 40.0"/&gt;
+      &lt;/xsl:otherwise&gt;
+      &lt;/xsl:choose&gt;
+    &lt;/xsl:variable&gt;
+    &lt;rect style="fill:green; stroke:none;"
+      x="0" y="0" width="{$width}" height="20"/&gt;
+  &lt;/xsl:if&gt;
+
+  &lt;rect x="0" y="0" width="100" height="20"
+        style="stroke:black; fill:none"/&gt;
+
+  &lt;path fill="none" stroke="black"
+    d="M 25 20 L 25 25 M 50 20 L 50 25 M 75 20 L 75 25"/&gt;
+
+  &lt;text x="0" y="35"&gt;0&lt;/text&gt;
+  &lt;text x="25" y="35"&gt;10&lt;/text&gt;
+  &lt;text x="50" y="35"&gt;20&lt;/text&gt;
+  &lt;text x="75" y="35"&gt;30&lt;/text&gt;
+  &lt;text x="100" y="35"&gt;40+&lt;/text&gt;
+  &lt;text x="50" y="60"&gt;
+    Visibility (km)
+  &lt;/text&gt;
+  &lt;text x="50" y="75"&gt;
+    &lt;xsl:choose&gt;
+       &lt;xsl:when test="$v &amp;gt;= 0"&gt;
+         &lt;xsl:value-of select="format-number($v,'0.###')"/&gt; <co id="visibilitybar3"/>
+      &lt;/xsl:when&gt;
+      &lt;xsl:otherwise&gt;N/A&lt;/xsl:otherwise&gt;
+    &lt;/xsl:choose&gt;
+  &lt;/text&gt;
+&lt;/g&gt;
+&lt;/xsl:template&gt;</screen>
+<calloutlist>
+<callout arearefs="visibilitybar1">
+<para>
+The first template passes the visibility, converted to kilometers, to the next template.
+</para>
+</callout>
+<callout arearefs="visibilitybar2">
+<para>
+The visibility bar is 100 pixels wide. Visibility greater than 40 km is set to 100; anything less than that is scaled to 100 pixels.
+</para>
+</callout>
+<callout arearefs="visibilitybar3">
+<para>
+This format string will print a leading zero before the decimal point and three digits after the decimal point.
+</para>
+</callout>
+</calloutlist>
+++++
+
+Putting this all together produces <<svg-complete-weather-figure>>.
+
+This is only a small sample of what you can do with XSLT. For more information, get pass:[<ulink role="orm:hideurl" url="http://shop.oreilly.com/product/9780596527211.do"><emphasis>XSLT</emphasis></ulink>] by Doug Tidwell (O’Reilly). Chapter 9 of that marvelous book also contains an example of using XSLT to generate SVG from an XML file. If you’re serious about manipulating XML, you would be well advised to have that book on your shelf.
+((("generating SVG", "using XSLT to convert XML data to SVG", range="endofrange", startref="ix_genSVGXSLT")))((("XSLT (Extensible Stylesheet Language Transformations)", "converting XML data to SVG", range="endofrange", startref="ix_XSLT")))((("generating SVG", range="endofrange", startref="ix_genSVG")))
+
+[[svg-complete-weather-figure]]
+.XSLT-generated SVG file showing complete data
+image::images/sve2_1504.png[]

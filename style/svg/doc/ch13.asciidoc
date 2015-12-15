@@ -1,0 +1,1026 @@
+[[scripting-chapter]]
+
+== Adding Interactivity
+
+To this point, you, the author of the SVG document, have made all the decisions about a graphic.((("interactivity, adding", id="ix_interact", range="startofrange"))) You decide what a static image should look like, and if there are any animations, you decide when they start and stop. In this chapter, you will see how to hand some of that control over to the person who is viewing your document.
+
+The lowest level of interactivity is _declarative interactivity_&#x2014;animation or other style changes((("declarative interactivity"))) created by telling the browser what should happen under certain situations, without directly controlling the effect with a script. SVG provides a limited set of built-in interactive states.
+
+
+[[linking-svg]]
+=== Using Links in SVG
+
+The easiest sort of interactivity to provide is linking,((("links in SVG"))) accomplished with the +<a>+ element.((("a element")))((("interactivity, adding", "using links in SVG"))) By enclosing a graphic in this element, it becomes active; when clicked, you go to the URL specified in the +xlink:href+ attribute.((("xlink:href attribute", "a element"))) You can link to another SVG file or, depending upon your environment, a web page. In <<svg-link-example>>, clicking the word “Cat” will link to an SVG drawing of a cat; clicking the red, green, and blue shapes will link to the World Wide Web Consortium’s SVG page. All the items within the second link are individually linked to the same destination, not the entire bounding box. When you test this example and move the cursor between the shapes, you will see that those areas do not respond to clicks. 
+
+[[svg-link-example]]
+.Links in SVG
+
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch13/svg_link.svg[width="100%", height="150px"]
+
+[source,xml]
+----
+<a xlink:href="cat.svg">
+  <text x="100" y="30" style="font-size: 12pt;">Cat</text>
+</a>
+
+<a xlink:href="http://www.w3.org/SVG/">
+  <circle cx="50" cy="70" r="20" style="fill: red;"/>
+  <rect x="75" y="50" width="40" height="40" style="fill: green;"/>
+  <path d="M120 90, 140 50, 160 90 Z" style="fill: blue;"/>
+</a>
+----
+
+====
+
+In the +<use>+ element, +xlink:href+ specifies a resource that becomes((("use element", "xlink:href attribute"))) part of your graphic, as described in <<use-element-section>>. For the +<a>+ element, the +xlink:href+ attribute specifies a different resource to jump to.
+
+Links in HTML are recognizable by color and underlining effects.  [online_only]#In <<svg-link-example>>,# [offline_only]#<<svg-link-figure>> shows the results of <<svg-link-example>>;# there’s nothing to tell you that the graphics are actually linked, unless you notice the change of the cursor from an arrow to a “hand” icon.  Keyboard users have the same difficulty: some browsers outline elements if they have keyboard focus, but others do not. ((("CSS", "pseudoclasses")))You can use CSS pseudoclasses to give users some feedback about the interactive elements of your graphic.  Like a CSS class, a _pseudoclass_ is used ((("pseudoclasses", id="ix_pseudoclass", range="startofrange")))to apply styles to select instances of an element; unlike true classes, they are applied automatically, not assigned in the +class+ attribute.footnote:[The Apache Batik SVG viewer, version 1.7, does not support CSS pseudoclass selectors.]
+
+[role="offline_only"]
+[[svg-link-figure]]
+.A hyperlinked SVG, the results of <<svg-link-example>>
+image::images/sve2_1301.png[]
+
+////
+There are six pseudoclasses which are relevant for link interactivity:
+
++:hover+ :: Hover styles apply when the main mouse or pointer is over an element.
++:active+ :: Active styles apply when an element is being activated by a mouseclick or keyboard action.
++:focus+ :: Focus styles apply when an element has keyboard focus.  You can often use the same styles for both +__element__:hover+ and +__element__:focus+.
++:target+ :: Target styles apply when an element's +id+ is referenced in the fragment part of the URL, like +__file_url__#id+.  Using target styles and links that point to fragments within your graphic, you can create diagrams where an element is highlighted if the corresponding label is clicked, or vice versa.
++:visited+ :: Visited styles apply to links if the user has previously accessed the linked URL.
++:link+ :: Link styles apply to links that the user hasn't (recently) visited.
+////
+
+The +:hover+ pseudoclass applies when(((":hover pseudoclass", sortas="hover"))) the main mouse pointer is over an element, while the +:focus+ pseudoclass applies(((":focus pseudoclass", sortas="focus pseudoclass"))) when an element has the keyboard focus.  You can often use the same styles for both +__element__:hover+ and +__element__:focus+, because both indicate the potential for user action.
+
+
+<<svg-css-link-example>> uses((("links in SVG", "highlighting with SVG pseudoclasses"))) the same graphics as <<svg-link-example>>, but now the links give feedback when they are hovered or focused.  The text will become bold and underlined, and the shapes will get a light blue border.
+  
+[[svg-css-link-example]]
+.Links in SVG highlighted with CSS
+====
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch13/svg_css_link.svg[width="100%", height="150px"]
+
+[source,xml]
+----
+<style type="text/css"><![CDATA[
+----
+[source,css]
+----
+    a.words:hover, a.words:focus {
+       text-decoration: underline; 
+       font-weight:bold;
+    }
+    a.shapes:hover, a.shapes:focus {
+       stroke: #66f; 
+       stroke-width: 2;
+       outline: none; /* override default focus formatting */
+    }
+    ]]>
+----
+[source,xml]
+----
+  </style>
+
+  <a class="words" xlink:href="cat.svg">
+    <text x="100" y="30" style="font-size: 12pt;">Cat</text>
+  </a>
+
+  <a class="shapes" xlink:href="http://www.w3.org/SVG/">
+    <circle cx="50" cy="70" r="20" style="fill: red;"/>
+    <rect x="75" y="50" width="40" height="40" style="fill: green;"/>
+    <path d="M120 90, 140 50, 160 90 Z" style="fill: blue;"/>
+  </a>
+----
+
+====
+
+[[controlling-css-animation-section]]
+=== Controlling CSS Animations
+
+What if you wanted more dynamic user feedback?((("CSS", "animating SVG with", "controlling using pseudoclasses")))((("interactivity, adding", "controlling CSS animations"))) CSS animations are defined as style properties, so they can also be controlled by pseudoclasses.  <<animated-css-link-example>> starts an animation when you hover the mouse over the shapes.((("links in SVG", "highlighting with SVG pseudoclasses")))
+  
+[[animated-css-link-example]]
+.Animating a link with :hover
+====
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch13/anim_css_link.svg[width="100%", height="150px"]
+
+[source,xml]
+----
+<style type="text/css"><![CDATA[
+----
+[source,css]
+----
+  a.animatedLink {
+    animation-name: animKeys;
+    animation-iteration-count: infinite;
+    animation-duration: 0.5s;
+    animation-direction: alternate;
+    animation-play-state: paused;
+  }
+  
+  a.animatedLink:hover {
+    animation-play-state: running;
+  }
+
+  @keyframes animKeys {
+    0% {fill-opacity: 1.0;}
+    100% {fill-opacity: 0.5;}
+  }
+  ]]>
+----
+[source,xml]
+----
+  </style>
+
+<a class="animatedLink" xlink:href="http://www.w3.org/SVG/">
+  <circle cx="50" cy="70" r="20" style="fill: red;"/>
+  <rect x="75" y="50" width="40" height="40" style="fill: green;"/>
+  <path d="M120 90, 140 50, 160 90 Z" style="fill: blue;"/>
+</a>
+----
+
+====
+
+The example isn't a great demonstration of user design: if you move the mouse out of the link area while the animation is going on, it simply pauses but doesn’t revert back to full opacity.((("pseudoclasses", range="endofrange", startref="ix_pseudoclass"))) If you're interested in CSS animations, link:$$http://www.w3.org/TR/css3-animations/$$[the latest draft specifications] describe all the possibilities.
+
+[[user-triggered-SMIL-section]]
+=== User-Triggered SMIL Animations
+
+CSS animations are limited in what sort of changes they can create((("SMIL animation", "user-triggered", id="ix_SMILanimateuser", range="startofrange")))((("interactivity, adding", "user-triggered SMIL animation"))) and what sort of events they can respond to.  If you are using SMIL animation elements in your SVG, you can use an alternative format for the `begin` and `end` attributes to declare that they should respond to user actions.  
+
+The format for an interactive animation timing attribute is `elementID.eventName`.  The element referenced in the ID does not have to be the same element that is being animated.  
+
+Interaction using the SMIL begin and end attributes is _event based_: once((("DOM (Document Object Model)", "events", "compared with CSS pseudoclasses")))((("events", "compared with CSS pseudoclasses")))((("DOM (Document Object Model)", "events", "to control SMIL animation", id="ix_DOMeventsSMIL", range="startofrange")))((("event-based interaction")))((("events", "to control SMIL animation", id="ix_eventsSMIL", range="startofrange"))) an animation is started, it will continue until the duration of the animation is complete or an ending event occurs. In contrast, interaction using CSS pseudoclasses is _state based_: the ((("state-based interaction")))style or animation is only applied for so long as the state is true. For example, the CSS `#myElement:hover` pseudoclass selector describes the state of the element with ID `myElement` when the mouse pointer is over it; to define an animation to occur pass:[<phrase role="keep-together">during the same period</phrase>], you would set the animation attributes `begin="myElement.mouseover"` and `end="myElement.mouseout"`.footnote:[If you’re familiar with JavaScript event handling, you’ll recognize that the event names are the same as used in DOM event handling. If you’re not familiar with JavaScript and DOM events, keep reading.]
+
+For greater control, you can optionally add a time offset, of the form `elementID.eventName + offset`.  The offset is specified in the same format as for other SMIL animation ((("time measurement for animation")))timing attributes (see <<time-measurement-section>>, in <<animation-chapter>>), with a unit like `1.5min` or as a stopwatch time like `01:30`.  You could even use a negative time offset, but since there is no such thing as Psychic Vector Graphics, the animation won’t actually start before the event occurs.  Instead, as soon as the event occurs the computer will skip the first part of the animation (which “should” have occurred before the event) and continue on with the rest of the animation.
+
+<<smil-event-animation-example>> creates a trapezoid and a button.((("click events", "in user-triggered SMIL animations", id="ix_click", range="startofrange"))) When you click the button, the trapezoid rotates 360 degrees. [offline_only]#Screenshots, before and after a click, are shown in <<smil-event-animation-figure>>.#
+
+[role="offline_only"]
+[[smil-event-animation-figure]]
+.Screenshot of two stages of scripting with animation
+image::images/sve2_1302.png[]
+
+++++
+<example id="smil-event-animation-example">
+<title>Interactive Animation</title>
+<?iframe src="http://oreillymedia.github.io/svg-essentials-examples/ch13/smil_event_animation.svg" width="100%" height="150px"?>
+<screen language="xml">&lt;g id="button"&gt;     <co id="ia1"/>
+  &lt;rect x="10" y="10" width="40" height="20" rx="4" ry="4"
+    style="fill: #ddd;"/&gt;
+  &lt;text x="30" y="25"
+    style="text-anchor: middle; font-size: 8pt"&gt;Start&lt;/text&gt;
+&lt;/g&gt;
+
+&lt;g transform="translate(100, 60)"&gt;
+  &lt;path d="M-25 -15, 0 -15, 25 15, -25 15 Z"
+    style="stroke: gray; fill: #699;"&gt;
+
+    &lt;animateTransform id="trapezoid" attributeName="transform"
+      type="rotate" from="0" to="360"
+      begin="button.click"
+      dur="6s"/&gt;   <co id="ia2"/>
+  &lt;/path&gt;
+&lt;/g&gt;</screen>
+<calloutlist>
+<callout arearefs="ia1">
+<para>
+The start button is a simple rounded rectangle with text. The entire group gets the <literal>id</literal>.
+</para>
+</callout>
+<callout arearefs="ia2">
+<para>
+Instead of giving the begin time for the animation in terms of seconds, we begin whenever a <literal>click</literal> event is detected on the <literal>button</literal> object.<indexterm class="endofrange" startref="ix_DOMeventsSMIL">
+</indexterm><indexterm class="endofrange" startref="ix_eventsSMIL">
+</indexterm><indexterm class="endofrange" startref="ix_click">
+</indexterm>
+</para>
+</callout>
+</calloutlist>
+</example>
+++++
+
+[NOTE]
+====
+It is often easier to design the SVG first and add the scripting later. One advantage of this method is that you can see if the base drawing looks good before you start making it react to events.((("SMIL animation", "user-triggered", range="endofrange", startref="ix_SMILanimateuser")))
+====
+
+[[scripting-svg-section]]
+=== Scripting SVG
+
+The next step up from these declarative animations—and it’s a big step—is scripting.((("scripts", see="JavaScript/ECMAScript")))((("interactivity, adding", "scripting SVG", id="interactscript", range="startofrange"))) You can write a program in ECMAScript to interact with an SVG graphic.((("ECMAScript", seealso="JavaScript/ECMAScript"))) (ECMAScript is the standardized version of what is commonly called JavaScript,((("JavaScript/ECMAScript", id="ix_JSECMAS", range="startofrange"))) as defined by ECMA, an organization formerly known as the European Computer Manufacturer's pass:[<phrase role="keep-together">Association</phrase>].) If you're new to ECMA/JavaScript--or programming in general--you'll want to read <<programming-concepts-appendix>>.
+
+As the SVG viewer reads the markup in an SVG document, it creates a tree of _nodes_, which are((("nodes"))) objects in memory that correspond to the structure and content of the markup.((("DOM (Document Object Model)"))) This is the _Document Object Model_, and it is accessible to your scripts. 
+
+The first thing you need to do in order to deal with the DOM is to access the nodes. pass:[<phrase role="keep-together">The main function</phrase>] you will probably use to deal with the DOM is +document.getElementById(_idString_)+.((("document object", "getElementById function"))) This function takes a string that is the +id+ of an SVG element and returns a reference to that element’s node in the DOM. If you want all of the elements in a document that have a particular tag name (the tag name is the “svg" in +<svg>+ or “rect" in +<rect>+), you can use another +document+ method, +getElementsByTagName(_name_)+; this returns an array of nodes.((("document object", "getElementsByTagName function")))
+
+Once you ((("JavaScript/ECMAScript", "attributes, accessing and changing")))((("attributes", "accessing and changing using the DOM")))have an element’s node, you can:
+
+* Read its attributes by calling __++element++__++.getAttribute(++__++attributeName++__++)++, which returns the attribute value as a string.
+* Change an attribute’s value by calling __++element++__++.setAttribute(++__++name++__++,++ __++newValue++__++)++; if the attribute with the given _name_ does not exist, it will be created. 
+* Remove attributes by calling __++element++__++.removeAttribute(++__++name++__++)++.  
+
+You could modify inline styles((("inline styles", "modifying"))) using __++element++__++.setAttribute("style",++ __++newStyleValue++__++)++, but this overwrites _all_ styles on the element.  Instead, you can work with the __++element++__++.style++ property.  Use:
+
+* __++element++__++.style.getPropertyValue(++__++propertyName++__++)++ to access a specific style,
+* __++element++__++.style.setProperty(++__++propertyName++__++,++ __++newValue++__++,++ __++priority++__++)++ to change it (__++priority++__ is usually null, but could be "important"), and
+* __++element++__++.style.removeProperty(++__++propertyName++__++)++ to delete it.
+
+If you _do_ want to set all styles at once, then you can directly modify __++element++__++.style.cssText++, which is a string representation of all the styles((("JavaScript/ECMAScript", "styles, accessing and modifying"))) in __++property-name++__++:++ __++value++__ format.footnote:[Most browsers also allow you get or set CSS properties using the form __++element++__++.style.++__++propertyName++__ or __++element++__++.style&#91;++"__++property-name++__"++&#93;++.  However, this isn't part of the http://www.w3.org/TR/cssom/[CSS object model standards] and isn't supported in some other SVG viewers, or even consistently between browsers.]  
+
+If you need to access or modify the text content of any node, use the __++element++__++.textContent++ property.((("text", "modifying text content of a node"))) When you read this property, it returns the pass:[<phrase role="keep-together">concatenated</phrase>] text of all of the node’s descendants. If you set it, you will replace any descendant nodes with a single text block.footnote:[If you're familiar with using the +.innerHTML+ property to modify the combined text and markup all descendents of an element, be warned that this property is only defined in the specifications for nodes of type +HTMLElement+, and many browsers and SVG viewers do not support it on SVG elements.]
+
+<<basic-dom-example>> uses these functions to access the attributes of an SVG element,((("DOM (Document Object Model)", "accessing SVG with"))) display them in text format, and modify an attribute. (This isn’t interactive, but bear with us; we’re building suspense in the plot line.)
+
+++++
+<example id="basic-dom-example">
+<title>Accessing SVG with the DOM</title>
+<?iframe src="http://oreillymedia.github.io/svg-essentials-examples/ch13/basic_dom_example.svg" width="100%" height="150px"?>
+<screen language="xml">&lt;svg width="300" height="100" viewBox="0 0 300 100"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
+
+  &lt;title&gt;Accessing Content in SVG&lt;/title&gt;
+
+  &lt;rect id="rectangle" x="10" y="20" width="30" height="40"
+    style="stroke:gray; fill: #ff9; stroke-width:3"/&gt; <co id="aSVGwDOM1"/>
+  &lt;text  id="output" x="10" y="80" style="font-size:9pt"&gt;&lt;/text&gt;
+
+  &lt;script type="application/ecmascript"&gt;
+  // &lt;![CDATA[ <co id="aSVGwDOM2"/>
+    var txt = document.getElementById("output"); <co id="aSVGwDOM3"/>
+    var r = document.getElementById("rectangle");
+    var msg =  r.getAttribute("x") + ", " + <co id="aSVGwDOM4"/>
+      r.getAttribute("y") + " " +
+      r.style.getPropertyValue("stroke") + " " +
+      r.style.getPropertyValue("fill");
+    r.setAttribute("height", "30"); <co id="aSVGwDOM5"/>
+    txt.textContent= msg; <co id="aSVGwDOM6"/>
+    // ]]&gt;
+  &lt;/script&gt;
+&lt;/svg&gt;</screen>
+</example>
+<calloutlist>
+<callout arearefs="aSVGwDOM1">
+<para>
+In order to easily access an element from a script, give it a unique <literal>id</literal>.
+</para>
+</callout>
+<callout arearefs="aSVGwDOM2">
+<para>
+The <literal>&lt;![CDATA[</literal> is used to ensure that any stray <literal>&lt;</literal> or <literal>&gt;</literal> signs are not interpreted as markup.
+</para>
+</callout>
+<callout arearefs="aSVGwDOM3">
+<para>
+Select elements from the document by <literal>id</literal>, and save the results in variables.
+</para>
+</callout>
+<callout arearefs="aSVGwDOM4">
+<para>
+The results of <literal>getAttribute()</literal> and <literal>style.getPropertyValue()</literal> are strings; these are concatenated together with <literal>&#43;</literal> to create the message string.
+</para>
+</callout>
+<callout arearefs="aSVGwDOM5">
+<para>
+This changes the height of the rectangle to convert it to a square.
+</para>
+</callout>
+<callout arearefs="aSVGwDOM6">
+<para>
+Finally, set the content of the <literal>&lt;text&gt;</literal> element to display the attributes.
+</para>
+</callout>
+</calloutlist>
+++++
+
+[NOTE]
+====
+The script in <<basic-dom-example>> is included in the SVG file _after_ the +<rect>+ and +<text>+ elements that it uses.  This ensures that the elements exist in the DOM before the script is run.
+====
+
+[[events-overview-section]]
+==== Events: An Overview
+
+Interaction occurs when graphic objects respond to events.((("events")))((("JavaScript/ECMAScript", "events", "overview"))) There are several categories of events. The text for many of ((("events", "categories of")))these descriptions comes directly from the link:$$http://www.w3.org/TR/SVG/interact.html#SVGEvents$$[World Wide Web Consortium’s specification].
+
+User interface events::
+The +focusIn+ and +focusOut+ events ((("user interface events")))occur when an element receives or loses focus, such as selecting or unselecting text. The +activate+ element occurs when an element is activated through a mouse click or keypress.
+
+Mouse events::
+The +mousedown+ and +mouseup+ events ((("mouse events")))occur when a pointing device button is pressed or released on an element. If the screen location for these events is the same, then a +click+ event is generated.((("click events")))
++
+The +mouseover+, +mousemove+, and +mouseout+ events occur when the pointing device is moved over an element, moved while over an element, and moved away from an element.
+
+Mutation events::
+The SVG viewer will generate events ((("mutation events, DOM")))when the DOM changes (by another script);((("DOM (Document Object Model)", "mutation events"))) for example, +DOMNodeInserted+ occurs when a node has been added as a child of another node; +DOMAttrModified+ occurs when an attribute has been modified on a node. This book will not cover these events in detail.
+
+Document events::
+The +SVGLoad+ event is triggered when the SVG viewer has fully parsed ((("document events")))a document and is ready to act upon it (e.g., display it on a device). +SVGUnload+ occurs when a document is removed from a window. +SVGAbort+ occurs when page loading is stopped before loading completes; +SVGError+ occurs when an element does not load properly or an error occurs during script execution.
++
+The +SVGResize+, +SVGScroll+, and +SVGZoom+ events occur when the viewer changes the document in the way that the name suggests.
+
+Animation events::
+The SVG viewer generates +beginEvent+, +endEvent+, and +repeatEvent+ when ((("animation events (SMIL)")))((("SMIL animation", "animation events")))an animation element begins, ends, or repeats; +repeatEvent+ is not generated for the first iteration.
+
+Key events::
+There are no events built into SVG for keypresses, but((("key events"))) some viewers may support nonstandard +keydown+ and +keyup+ events.
+
+[[event-listen-respond-section]]
+==== Listening for and Responding to Events
+
+To allow an object to respond to an event, you must first tell the object to listen for the event.((("JavaScript/ECMAScript", "events", "listening for and responding to")))((("events", "listening for and responding to"))) You do this by calling the +addEventListener()+ function.((("addEventListener function"))) This function has two required arguments. The first is a string with the name of the type of event you want to listen for. The second argument is the name of a function that will handle the event.((("DOM (Document Object Model)", "events"))) An optional third argument is a boolean that tells whether you want to respond to the event when the viewer is passing the event down the DOM hierarchy from parent elements to children to find the specific target (“capture” stage). A value of +false+ (the usual) causes your listener to wait to handle the event until after any child elements have dealt with it; this is the “bubbling” stage, as events float to the top of the DOM tree.footnote:[This is a very simplistic definition. See link:$$http://www.w3.org/TR/DOM-Level-3-Events/#event-flow$$[the DOM Events specification] for the full details.]
+
+The function that handles the event takes one argument: an event object that contains information about the event that triggered the call. The most important property of the event object is the +target+ property,((("target property, events"))) which is the object to which the event was dispatched. Other important event properties are +clientX+ and +clientY+, which ((("clientX and clientY event properties")))give the coordinates at which the event occurred relative to the DOM implementation’s client area, which is the area occupied by the entire _.svg_ file or web page.
+
+<<simple-event-example>> adds listeners for the +mouseover+, +mouseout+, and +click+ events to a circle.((("mouse events", "adding mouse movement listeners")))((("click events"))) Moving the mouse in and out of the circle will cause its radius to grow or shrink; clicking the mouse will increase or decrease the circle’s stroke width.
+
+[[simple-event-example]]
+.Adding mouse movement listeners
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch13/simple_event.svg[width="100%", height="150px"]
+
+[source,xml]
+----
+  <circle id="circle" cx="50" cy="50" r="20" 
+    style="fill: #ff9; stroke:black; stroke-width: 1"/>
+
+  <script type="application/ecmascript"><![CDATA[
+----
+[source,javascript]
+----
+    function grow(evt) {
+      var obj = evt.target;
+      obj.setAttribute("r", "30");
+    }
+    
+    function shrink(evt) {
+      this.setAttribute("r", "20");
+    }
+    
+    function reStroke(evt) {
+      var w = evt.target.style.getPropertyValue("stroke-width");
+      w = 4 - parseFloat(w); /* toggle between 1 and 3 */
+      evt.target.style.setProperty("stroke-width", w, null);
+    }
+    
+    var c = document.getElementById("circle");
+    c.addEventListener("mouseover", grow);
+    c.addEventListener("mouseout", shrink);
+    c.addEventListener("click", reStroke);
+    // ]]>
+----
+[source,xml]
+----
+  </script>
+----
+
+====
+
+The first event handler, +grow()+, uses +evt.target+ to access the element that received the event, and stores it in a separate variable. The second event handler, +shrink()+, uses the reserved word +this+ to((("this keyword"))) refer to the element that is attached to the event listener (which in this case, but not always, is the same as the event target). The last event handler, +reStroke()+, again uses +evt.target+, but without the use of a temporary variable.
+
+While we _could_ have used +c+ instead of +evt.target+ (because it is the only element with a listener), this would have been a terrible idea, because you will often need to attach the same event handler to many different targets, as in the next example.
+
+[[script-change-multi-object-section]]
+
+==== Changing Attributes of Multiple Objects
+
+Sometimes you will want an event that occurs on object((("JavaScript/ECMAScript", "attributes, accessing and changing")))((("attributes", "accessing and changing using the DOM"))) A to affect attributes of both object A and some other object B. <<script-change-multi-object-example>> presents possibly the world’s crudest example of SVGcommerce. [offline_only]#<<script-change-multi-object-figure>># [online_only]#The following interactive example# shows a T-shirt whose size changes as the user clicks each labeled button. The currently selected size button is highlighted in light yellow.
+
+//////
+I've created new versions of all the files in this example with the following goals
+*shorten code (and modularize) by moving styles into a <style> block
+ and use classes to change styles
+*use standardized methods (it mostly works in Batik now)
+*use parent instead of top to access the HTML page (which might not be the top page, e.g., it isn't when trying the examples on Chimera)
+
+The code samples also switch from using code comments to callouts, which are much easier to read on Chimera.
+
+To keep organized, I've renamed most of the files with -ABR,except for the embedded SVG file, which I've renamed "shirt_interact_parent.svg".
+//////
+
+++++
+<?hard-pagebreak?>
+++++
+
+
+[role="offline_only"]
+[[script-change-multi-object-figure]]
+.Screenshots of different selections
+image::images/sve2_1303.png[]
+
+++++
+<example id="script-change-multi-object-example">
+<title>Changing multiple objects in a script</title>
+<?iframe src="http://oreillymedia.github.io/svg-essentials-examples/ch13/shirt1.svg" width="100%" height="250px"?>
+<simpara><emphasis role="strong">The XML code:</emphasis></simpara>
+<screen language="xml">&lt;svg width="400" height="250" viewBox="0 0 400 250"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  onload="init(evt)"&gt; <co id="cmoias1"/>
+
+  &lt;defs&gt;
+    &lt;style type="text/css" &gt; &lt;![CDATA[
+      /* style rules will go here */
+    ]]&gt;&lt;/style&gt;
+    &lt;script type="application/ecmascript"&gt; &lt;![CDATA[
+      /* script will go here */
+    ]]&gt;&lt;/script&gt;
+
+    &lt;path id="shirt-outline"
+      d="M -6 -30 -32 -19 -25.5 -13 -22 -14 -22 30 23 30
+        23 -14 26.5 -13 33 -19 7 -30
+        A 6.5 6 0 0 1 -6 -30"/&gt; <co id="cmoias2"/>
+  &lt;/defs&gt;
+
+  &lt;g id="shirt" &gt;
+    &lt;use xlink:href="#shirt-outline" x="0" y="0"/&gt;
+  &lt;/g&gt;
+
+  &lt;g id="scale0" &gt;
+    &lt;rect x="100" y="10" width="30" height="30" /&gt;
+    &lt;text x="115" y="30"&gt;S&lt;/text&gt;
+  &lt;/g&gt;
+
+  &lt;g id="scale1" class="selected"&gt; <co id="cmoias3"/>
+    &lt;rect x="140" y="10" width="30" height="30" /&gt;
+    &lt;text x="155" y="30"&gt;M&lt;/text&gt;
+  &lt;/g&gt;
+
+  &lt;g id="scale2" &gt;
+    &lt;rect x="180" y="10" width="30" height="30" /&gt;
+    &lt;text x="195" y="30"&gt;L&lt;/text&gt;
+  &lt;/g&gt;
+&lt;/svg&gt;</screen>
+<calloutlist>
+<callout arearefs="cmoias1">
+<para>
+As soon as the document finishes loading, the <literal>SVGLoad</literal> event occurs, and the <literal>onload</literal> handler will call the init function, passing it the event information. Many scripts will use this event handler to make sure all their variables are set up properly. This allows you to put the <literal>&lt;script&gt;</literal> before the SVG elements to be maniuplated. Attributes of the form <literal>on<replaceable>eventname</replaceable></literal> can be used to listen to many events, but are discouraged (in favor of  <literal>addEventListener()</literal>) because they mix your scripting functionality with your XML structure; document loading is an exception.
+</para>
+</callout>
+<callout arearefs="cmoias2">
+<para>
+The shirt outline is centered at (0, 0), so that it will scale from the center, and is then positioned with transformations in the script.
+</para>
+</callout>
+<callout arearefs="cmoias3">
+<para>
+The medium button is selected initially.
+</para>
+</callout>
+</calloutlist>
+<simpara><emphasis role="strong">The styles:</emphasis></simpara>
+<screen language="css">    svg { /* default values */
+       stroke: black;
+       fill: white;
+    }
+    g.selected rect {
+       fill: #ffc; /* light yellow */
+    }
+    text {
+       stroke: none;
+       fill:black;
+       text-anchor: middle;
+    }</screen>
+<simpara>The “selected" class is used to indicate which size option is active, by filling the button in light yellow.</simpara>
+<simpara><emphasis role="strong">The script:</emphasis></simpara>
+<screen language="javascript">    var scaleChoice = 1;  <co id="CO4-1"/>
+    var scaleFactor = [1.25, 1.5, 1.75];
+
+    function init(evt) { <co id="CO4-2"/>
+      var obj;
+      for (var i = 0; i &lt; 3; i++) {
+        obj = document.getElementById("scale" + i);
+        obj.addEventListener("click", clickButton, false);
+      }
+      transformShirt();
+    }
+
+    function clickButton(evt) {
+      var choice = evt.target.parentNode; <co id="CO4-3"/>
+      var name = choice.getAttribute("id");
+      var old = document.getElementById("scale" + scaleChoice);
+      old.removeAttribute("class"); <co id="CO4-4"/>
+      choice.setAttribute("class", "selected");
+
+      scaleChoice = parseInt(name[name.length - 1]); <co id="CO4-5"/>
+      transformShirt();
+    }
+
+    function transformShirt() { <co id="CO4-6"/>
+      var factor = scaleFactor[scaleChoice];
+      var obj = document.getElementById("shirt");
+      obj.setAttribute("transform",
+        "translate(150, 150) " +
+        "scale(" + factor + ")");
+      obj.setAttribute("stroke-width",
+        1 / factor);
+    }</screen>
+<calloutlist>
+<callout arearefs="CO4-1">
+<para>
+This script works by keeping track of which button (S, M, or L) has been chosen, and indexing into the corresponding entry in the <literal>scaleFactor</literal> array. The default is index number one, medium.
+</para>
+</callout>
+<callout arearefs="CO4-2">
+<para>
+The <literal>init()</literal> function gets each rectangle-and-text <literal>&lt;g&gt;</literal> and tells it to listen for a <literal>click</literal> event. The function then displays the shirt at its current size.
+</para>
+</callout>
+<callout arearefs="CO4-3">
+<para>
+A click could occur on either the text or the interior of the rectangle. Using <literal>parentNode</literal> puts the <literal>&lt;g&gt;</literal> object into variable <literal>choice</literal>.
+</para>
+</callout>
+<callout arearefs="CO4-4">
+<para>
+Remove the "selected" class from the button <literal>&lt;g&gt;</literal> corresponding to the previously selected size, and add it to the newly selected <literal>&lt;g&gt;</literal>.
+</para>
+</callout>
+<callout arearefs="CO4-5">
+<para>
+Extract the number at the end of the button group’s <literal>id</literal>; this is the new <literal>scaleChoice</literal>. It&#8217;s stored in a global variable, accessible by the <literal>transformShirt()</literal> function.
+</para>
+</callout>
+<callout arearefs="CO4-6">
+<para>
+The shirt is resized and positioned by setting its <literal>transform</literal> attribute. The stroke width is rescaled by the inverse factor, so that it appears to stay the same when the shirt is scaled up and down.
+</para>
+</callout>
+</calloutlist>
+</example>
+++++
+
+[[drag-objects-section]]
+==== Dragging Objects
+
+Let us expand this example by adding “sliders” that((("dragging objects")))((("JavaScript/ECMAScript", "dragging objects"))) can be dragged to set the color of the shirt, as shown [offline_only]#in <<drag-objects-figure>>.# [online_only]#here.#
+
+[role="offline_only"]
+[[drag-objects-figure]]
+.Screenshot of color sliders
+image::images/sve2_1304.png[]
+
+[role="offline_only"]
+You can experiment with the slider in the online example:
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch13/drag_objects.svg[width="100%", height="250px"]
+
+This script needs some more global variables. The first of these, +slideChoice+, tells which slider (0, 1, or 2) is currently being dragged; its initial value is -1, meaning no slider is active. The script also uses an array called +rgb+ to hold the percent of red, green, and blue; the initial values are all 100, because the shirt is initially white:
+
+[source,javascript]
+----
+var slideChoice = -1;
+var rgb = [100, 100, 100];
+----
+
+Next, draw the sliders themselves. The color bar and the slide indicator are drawn on a white background, and they are grouped together. The +id+ attribute goes on the indicator +<line>+ element, because its _y_-coordinate will be changing. The event handlers will be attached to the enclosing +<g>+ element. The group will then capture the mouse events that happen on any of its child elements (this is why we drew the white rectangle; the mouse will still track even if you drag outside the colored bar):
+
+[source,xml]
+----
+  <g id="sliderGroup0" transform="translate( 230, 10 )">
+    <rect x="-10" y="-5" width="40" height="110"/>
+    <rect x="5" y="0" width="10" height="100" style="fill: red;"/>
+    <line id="slide0" class="slider"
+      x1="0" y1="0" x2="20" y2="0" />
+  </g>
+
+  <g id="sliderGroup1" transform="translate( 280, 10 )">
+    <rect x="-10" y="-5" width="40" height="110"/>
+    <rect x="5" y="0" width="10" height="100" style="fill: green;"/>
+    <line id="slide1" class="slider"
+      x1="0" y1="0" x2="20" y2="0" />
+  </g>
+
+  <g id="sliderGroup2" transform="translate( 330, 10 )">
+    <rect x="-10" y="-5" width="40" height="110"/>
+    <rect x="5" y="0" width="10" height="100" style="fill: blue;"/>
+    <line id="slide2" class="slider"
+      x1="0" y1="0" x2="20" y2="0" />
+  </g>
+----
+
+New style rules handle everything except for the slider-specific colors:
+
+[source, css]
+----
+    line.slider {
+       stroke: gray; 
+       stroke-width: 2;
+    }
+----
+
+In the +init()+ function, add three event ((("events", "listening for and responding to")))listeners to each slider group:
+
+[source, javascript]
+----
+obj = document.getElementById("sliderGroup" + i);
+obj.addEventListener("mousedown", startColorDrag, false);
+obj.addEventListener("mousemove", doColorDrag, false);
+obj.addEventListener("mouseup", endColorDrag, false);
+----
+
+The corresponding functions are as follows.
+
+++++
+<screen language="javascript">function startColorDrag(evt) { <co id="number1"/>
+  var sliderId = evt.target.parentNode.getAttribute("id");
+  endColorDrag( evt );
+  slideChoice = parseInt(sliderId[sliderId.length - 1]);
+}
+
+function endColorDrag(evt) { <co id="number2"/>
+  slideChoice = -1;
+}
+
+function doColorDrag(evt) { <co id="number3"/>
+  var sliderId = evt.target.parentNode.getAttribute("id");
+  chosen = parseInt(sliderId[sliderId.length - 1]);
+
+  if (slideChoice &gt;= 0 &amp;&amp; slideChoice == chosen) {  <co id="number4"/>
+
+    var obj = evt.target; <co id="number5"/>
+    var pos = evt.clientY - 10;
+    if (pos &lt; 0) { pos = 0; }
+    if (pos &gt; 100) { pos = 100; }
+
+    obj = document.getElementById("slide" + slideChoice); <co id="number6"/>
+    obj.setAttribute("y1", pos);
+    obj.setAttribute("y2", pos);
+
+    rgb[slideChoice] = 100-pos; <co id="number7"/>
+
+    var colorStr = "rgb(" + rgb[0] + "%," +  <co id="number8"/>
+      rgb[1] + "%," + rgb[2] + "%)";
+    obj = document.getElementById("shirt");
+    obj.style.setProperty("fill", colorStr, null);
+  }
+}</screen>
+<calloutlist>
+<callout arearefs="number1">
+<para>
+<literal>startColorDrag(evt)</literal> is called on mousedown. It stops dragging the current slider (if any) and sets the current slider to the one specified (<literal>0</literal> = red, <literal>1</literal> = green, <literal>2</literal> = blue).
+</para>
+</callout>
+<callout arearefs="number2">
+<para>
+<literal>endColorDrag(evt)</literal> is called on mouseup or by other functions. It sets the slider choice to -1, indicating that no slider is begin dragged. No access to the event is needed for this function.
+</para>
+</callout>
+<callout arearefs="number3">
+<para>
+<literal>doColorDrag(evt)</literal> is called on mousemove. It uses both the event’s <literal>target</literal> property (to determine which slider is being dragged) and the <literal>clientY</literal> property to determine the mouse position relative to the top of the SVG.
+</para>
+</callout>
+<callout arearefs="number4">
+<para>
+Check that a slider is active and that the event is on the chosen slider.
+</para>
+</callout>
+<callout arearefs="number5">
+<para>
+Get the slider indicator line object, and the mouse position (adjusted by the position of the top of the color bar).  Clamp the position values to the range 0–100.
+</para>
+</callout>
+<callout arearefs="number6">
+<para>
+Move the slider line to the new mouse position.
+</para>
+</callout>
+<callout arearefs="number7">
+<para>
+Calculate the new color value for this slider.
+</para>
+</callout>
+<callout arearefs="number8">
+<para>
+Compile the color values into <literal>rgb()</literal> notation and change the shirt&#8217;s color accordingly.
+</para>
+</callout>
+</calloutlist>
+++++
+
+There’s only one minor point to take care of—the document will respond to an +onmouseup+ only if it occurs within the slider area. So, if you click the mouse on the red color bar, drag the mouse down to the shirt, then release the mouse button, the document will be unaware of it. When you then move the mouse over the red slider again, it will still follow the mouse. To solve this problem, we insert a transparent rectangle that completely covers the viewport, and it responds to a +mouseup+ event by calling +stopColorDrag+. It will be the first, and therefore bottom-most object in the graphic. To make the rectangle as unobtrusive as possible, it will be set to +style="fill: none;"+. “But wait,” you interject. “A transparent area cannot respond to an event!” No, ordinarily it can’t, but you can set the +pointer-events+ attribute to +visible+, meaning that an object can respond to events as long as it is visible, no matter what its opacity:footnote:[Other values for +pointer-events+ let you respond to an object’s events in the filled areas only (+fill+), outline areas only (+stroke+), or the fill and outline together (+painted+), whether visible or not. Corresponding attribute values of +visibleFill+, +visibleStroke+, and +visiblePainted+ take the object’s visibility into account as well.]
+
+[source,xml]
+----
+<rect id="eventCatcher" x="0" y="0" width="400" height="300"
+  style="fill: none;" pointer-events="visible" />
+----
+
+The +init()+ function is modified to add the appropriate event listener:
+
+[source,javascript]
+----
+document.getElementById("eventCatcher").
+  addEventListener("mouseup", endColorDrag, false);
+----
+
+[[html-interaction-section]]
+
+==== Interacting with an HTML Page
+
+There are two ways to put interactive SVG into an HTML document, ((("JavaScript/ECMAScript", "interacting with an HTML page", id="ix_JSECMAinteract", range="startofrange")))as described in <<svg-with-html-chapter>>. ((("HTML", "interacting with embedded SVG", id="ix_HTMLinteract", range="startofrange")))If you have a small amount of SVG, just put it directly into the HTML. If you have a large SVG graphic, you can include it by using the +<object>+ element. ((("object element, HTML")))The following markup shows how you would do this for the preceding SVG example:
+  
+[source,html]
+----
+<object id="externalShirt" data="shirt_interact.svg"
+  type="image/svg+xml">
+  <p>Alas, your browser does not support SVG.</p>
+</object>
+----
+
+The relevant attributes are the +data+ source for the graphic (a URL—in this case, a relative pathname) and the +type+ attribute, which will be +image/svg+xml+. The HTML between the opening and closing +<object>+ tags is only displayed if the object cannot be loaded. You can now add code to the SVG script and the HTML page’s script so they can communicate with one another; the +id+ attribute will come into play for that.
+
+The web page will have a form that lets users type in the red, green, and blue percentages. The values they enter will be reflected in the sliders. If users adjust the sliders, the values in the form fields will be updated accordingly.
+
+Here is the HTML document, with references to the (as yet unwritten) +updateSVG()+ function. This function will take the input field number and the value currently within the input field as its arguments:
+
+[source,html]
+----
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>SVG and HTML</title>
+  <style type="text/css">
+    /* make form entries begin on a new line */
+    label {display: block;}
+    h1 {font-size: 125%;}
+  </style>
+  <script type="text/javascript">
+    /* script goes here */
+  </script>
+</head>
+
+<body>
+<h1>SVG and HTML</h1>
+<div style="text-align:center">
+  <object id="shirt" data="shirt_interact.svg"
+    type="image/svg+xml">
+    <p>Alas, your browser cannot load this SVG file.</p>
+  </object>
+
+  <form id="rgbForm">
+    <label>Red: <input id="fld0" type="text" size="5" value="100"
+      onchange="updateSVG(0, this.value)" />% </label>
+    <label>Green: <input id="fld1" type="text" size="5" value="100"
+      onchange="updateSVG(1, this.value)" />% </label>
+    <label>Blue: <input id="fld2" type="text" size="5" value="100"
+      onchange="updateSVG(2, this.value)" />%</label>
+  </form>
+</div>
+</body>
+</html>
+----
+
+[NOTE]
+====
+In the interest of keeping the code sample short, we've used poor coding style and mixed our script in with our HTML. The attribute +onchange="updateSVG(0, this.value)"+ is equivalent to adding a listener for the +<input>+ element's +change+ event, and setting it to run the command +updateSVG(0, this.value)+.
+====
+
+Here is the script that goes into the head of the HTML document. Function +updateSVG+ checks to see that the input value is an integer (it will discard any decimal part), and, if so, calls function +setShirtColor+. This is actually a reference to a function that exists in the SVG document, and it will be the SVG document’s responsibility to connect the function to this HTML reference. (You will see this happen later in the chapter.)
+
+Function +updateHTMLField+ will be called from the SVG document’s script. It will receive a form field number and a percent value, which it will display in the appropriate form field:
+
+[source,javascript]
+----
+function updateSVG(which, amount) {
+  amount = parseInt(amount);
+  if (!isNaN(amount) && window.setShirtColor) {
+    window.setShirtColor(which, amount);
+  }
+}
+
+function updateHTMLField(which, percent) {
+  document.getElementById("fld" + which).value = percent;
+}
+----
+
+Now you have to modify the SVG document. There are now two ways to set shirt color--from the slider and from the HTML. Thus, the first task is to separate the setting of the shirt color from the slider dragging. The modified +doColorDrag(evt)+ function detects the active slider and calculates the position of the slider, but it then calls a new +svgSetShirtColor+ function to implement the change:
+
+[source,javascript]
+----
+function doColorDrag(evt) {
+  if (slideChoice >= 0) {
+    var sliderId = evt.target.parentNode.getAttribute("id");
+    chosen = parseInt(sliderId[sliderId.length - 1]);
+    if (slideChoice == chosen) {
+      svgSetShirtColor(slideChoice, 100 - (evt.clientY - 10));
+    }
+  }
+}
+----
+
+Function +svgSetShirtColor+ will do what the remainder of +doColorDrag+ used to do, with two major differences. It uses the slider number it is given as the first parameter, not the global +slideChoice+ variable. Also, it takes the percentage as its second parameter. These are the sort of changes you have to make when you decide to modularize simple code that was written for an ad hoc example:
+
+++++
+<screen language="javascript">function svgSetShirtColor(which, percent) {
+  var obj;
+  var colorStr;
+  var newText;
+
+  if (percent &lt; 0) { percent = 0; } <co id="no1"/>
+  if (percent &gt; 100) { percent = 100; }
+
+  obj = document.getElementById("slide" + which); <co id="no2"/>
+  <emphasis role="strong">obj.setAttribute("y1", 100 - percent);
+  obj.setAttribute("y2", 100 - percent);
+  rgb[which] = percent;</emphasis>
+
+  colorStr = "rgb(" + rgb[0] + "%," + <co id="no3"/>
+    rgb[1] + "%," + rgb[2] + "%)";
+  obj = document.getElementById("shirt");
+  obj.style.setProperty("fill", colorStr, null);
+}</screen>
+<calloutlist>
+<callout arearefs="no1">
+<para>
+You still have to check that the percent value is within the correct range.
+</para>
+</callout>
+<callout arearefs="no2">
+<para>
+The slider line is moved, to the new position.
+</para>
+</callout>
+<callout arearefs="no3">
+<para>
+The color-changing code is the same.
+</para>
+</callout>
+</calloutlist>
+++++
+
+Now, use the reserved word +parent+ in the +init+ function to connect the SVG document’s +svgSetShirtColor+ function to the HTML page’s +setShirtColor+ reference. This works because when one document is embedded in another, the +parent+ global variable in the child document will be a reference to the other document's +window+ object. As +setShirtColor+ will be a property of the window in which the web page is running, the HTML document will be able to access it. The following code accomplishes the HTML to SVG communication.  Before using the +parent+ variable, it tests to confirm that the parent object exists (meaning that the SVG is actually embedded in another document):
+
+[language="javascript"]
+[subs="specialcharacters,quotes"]
+----
+function init( evt ) {
+  // add event listeners
+  *if (parent) {
+        parent.setShirtColor = svgSetShirtColor;
+   }*
+  transformShirt();
+}
+----
+
+The last step is to communicate from SVG back to HTML if the user decides to choose colors with the slider. Rather than continuously update the HTML fields, we made the design decision to update the HTML when the mouse drag stops. Add the boldface code to function +endColorDrag+. If a slider was being moved, this sends the slider number and its value back to the updateHTMLField function in the parent web browser window (if it exists): 
+
+[language="javascript"]
+[subs="specialcharacters,quotes"]
+----
+function endColorDrag( ) {
+  
+  *if (slideChoice >= 0) {
+    if (parent) 
+      parent.updateHTMLField(slideChoice, rgb[slideChoice]);
+  }*
+
+  // In any case, nobody's being dragged now 
+  slideChoice = -1;
+}
+----
+
+
+[role="online_only"]
+This is what the finished product looks like:
+
+[role="offline_only"]
+The result is shown in <<html-interaction-figure>>; the screenshot has been edited to eliminate unnecessary whitespace.
+
+[role="offline_only"]
+[[html-interaction-figure]]
+.Screenshot of HTML and SVG interaction
+image::images/sve2_1305.png[]
+
+[role="offline_only"]
+Try it out yourself online:
+
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch13/shirt_interact.html[width="100%", height="400px"]
+
+[[creating-elements-section]]
+==== Creating New Elements
+
+In addition to modifying the attributes of existing elements, a script can also create new elements.((("HTML", "putting interactive SVG in", range="endofrange", startref="ix_HTMLinteract")))((("JavaScript/ECMAScript", "interacting with an HTML page", range="endofrange", startref="ix_JSECMAinteract")))((("elements", "creating new, with scripts")))((("JavaScript/ECMAScript", "creating new elements"))) The next addition we will make to the shirt example is the ability to add rings to the shirt in a bull's-eye pattern. [offline_only]#<<script-create-elements-figure>># [online_only]#The following interactive example# shows the result, which we're sure will soon be a hugely popular fashion.
+
+[role="offline_only"]
+[[script-create-elements-figure]]
+.Screenshots of different selections
+image::images/sve2_1306.png[]
+
+[role="offline_only"]
+You can create your own designs with the online example:
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch13/shirt_create.html[width="100%", height="400px"]
+
+The HTML has to be modified to add a new form field for specifying the number of rings:
+
+[source,html]
+----
+<label>Rings: <input id="nRings" type="text" size="3" value="0"
+  onchange="createRings(this.value)" /></label>
+----
+
+The SVG lives in an external document, and the script in the HTML file needs a way to access it.  In the previous section, the script in the SVG file used +parent+ to access the environment where the HTML scripts were running.  In this example, the HTML script will use the +<object>+ element's +getSVGDocument()+ method to directly access--and then modify--the SVG DOM.((("getSVGDocument function")))((("JavaScript/ECMAScript", "interacting with an HTML page", "getSVGDocument function")))  The SVG file is the same as in the previous section.
+
+To establish the connection with the SVG document, an initialization function is called on the web page's +<body>+ when the entire page has loaded:
+  
+[source,html]
+----
+<body onload="init()">
+----
+
+The +init()+ function accesses the SVG document and stores it in a global variable:
+
+[source,javascript]
+----
+var svgDoc;
+
+function init() {
+  var obj = document.getElementById("shirt");
+  svgDoc = obj.getSVGDocument();
+}
+----
+
+With the stage set, the function +createRings()+ in the HTML page's script can add and remove elements in the SVG document, as shown in <<create-elements-example>>.
+  
+++++
+<example id="create-elements-example">
+<title>JavaScript code to create elements</title>
+<screen language="javascript">function createRings(nRings) {
+  var shirt = svgDoc.getElementById("shirt"); <co id="JSctce1"/>
+  var rings = shirt.getElementsByTagName("circle"); <co id="JSctce2"/>
+  var i;
+  var radius;
+  var circle;
+
+  for (i = rings.length - 1; i &gt;= 0; i--) { <co id="JSctce3"/>
+    shirt.removeChild(rings[i]);
+  }
+
+  /* Pin the range to 0-5 */
+  if (nRings &lt; 0) { nRings = 0; }
+  else if (nRings &gt; 5) { nRings = 5; }
+
+  radius = nRings * 4;
+  for (i = 0; i &lt; nRings * 2; i++) {
+    circle = svgDoc.createElementNS("http://www.w3.org/2000/svg",  <co id="JSctce4"/>
+      "circle");
+    circle.setAttribute("cx", "0");
+    circle.setAttribute("cy", "0");
+    circle.setAttribute("r", radius);
+
+    if (i % 2 == 0) { <co id="JSctce5"/>
+        circle.style.cssText = "fill:black; stroke:none";
+    }
+    else {
+        circle.style.cssText = "fill:white; stroke:none;";
+    }
+    shirt.appendChild(circle); <co id="JSctce6"/>
+    radius -= 2;
+  }
+}</screen>
+<calloutlist>
+<callout arearefs="JSctce1">
+<para>
+Get the <literal>&lt;g&gt;</literal> from the SVG document
+</para>
+</callout>
+<callout arearefs="JSctce2">
+<para>
+Retrieve all the <literal>&lt;circle&gt;</literal> elements in that group.
+</para>
+</callout>
+<callout arearefs="JSctce3">
+<para>
+Remove all the rings (in reverse order) by calling <literal>removeChild(<replaceable>nodeToRemove</replaceable>)</literal> on the parent <literal>&lt;g&gt;</literal> stored in the <literal>shirt</literal> variable.
+</para>
+</callout>
+<callout arearefs="JSctce4">
+<para>
+The element that is being created is part of an SVG document, so you must create an element in the namespace (<literal>NS</literal>) for SVG.  Note that you define the namespace using the namespace URL string, not a prefix.
+</para>
+</callout>
+<callout arearefs="JSctce5">
+<para>
+The assigned style alternates for even and odd numbered rings.  Because we&#8217;re setting multiple styles on a new, unstyled element, we set them as a block using <literal><replaceable>element</replaceable>.style.cssText</literal>.
+</para>
+</callout>
+<callout arearefs="JSctce6">
+<para>
+Finally, append the newly created <literal>&lt;circle&gt;</literal> element and reduce the radius in preparation for the next circle by calling <literal>addChild(<replaceable>newNode</replaceable>)</literal> on the <literal>shirt</literal> group.  The new nodes will be inserted in the DOM in the order they are added, largest to smallest, so the smaller circles will be drawn on top of the <phrase role="keep-together">larger ones</phrase>.
+</para>
+</callout>
+</calloutlist>
+</example>
+++++
+((("interactivity, adding", "scripting SVG", range="endofrange", startref="interactscript")))((("JavaScript/ECMAScript", range="endofrange", startref="ix_JSECMAS")))((("interactivity, adding", range="endofrange", startref="ix_interact")))

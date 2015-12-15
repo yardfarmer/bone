@@ -1,0 +1,805 @@
+[[animation-chapter]]
+
+== Animating SVG
+
+Up to this point, all the images you have seen are static images; once constructed, they never change.((("animation", seealso="CSS; JavaScript/ECMAScript; SMIL animation"))) In this chapter, we will examine two of three methods of making graphic images move. The first method, SMIL-based animation, should be used for movement that is a fundamental part of what the graphic represents, and for which the motion can be defined ahead of time. CSS animations should be used for stylistic effects and simple feedback (like highlighting an element on focus/hover). Scripting should be used for more complex interaction, and it is covered in <<scripting-chapter>>.
+  
+In <<filters-chapter>>, we suggested that filters should be used as a means to enhance a graphic’s message, not as an end in themselves. This suggestion is even more crucial with animation. Drunk with the power of animation, you will be tempted to turn your every graphic into an all-dancing, all-singing, Broadway spectacular. As long as your goal is experimentation, this is fine. If your goal is to convey a message, however, nothing is worse than gratuitous use or overuse of animation. Let me state this clearly: nobody except the company CEO is interested in repeated viewing of a spinning, flashing, color-changing, strobe-lit version of the company logo.
+
+In this chapter, the message _is_ the animation, so most of the examples will be remarkably free of any content while, of course, avoiding gratuitous and overwrought animation as much as possible.
+
+[WARNING]
+====
+Internet Explorer browsers (through version 11, the latest at the time of writing) do ((("web browsers", "Internet Explorer and SVG animation")))not support either the SMIL-based animation or CSS animation applied to SVG elements. There are JavaScript-based solutions such as link:$$http://schepers.cc/svg/smilscript/$$[SMILscript] and link:$$http://leunen.me/fakesmile/$$[FakeSMILe] that can convert SMIL-based animation into scripted animation for Internet Explorer.
+====
+
+
+[[animation-basics-section]]
+
+=== Animation Basics
+
+The animation features of SVG are((("animation", "basics"))) based on the World Wide Web Consortium’s link:$$http://www.w3.org/TR/SMIL3/$$[Synchronized Multimedia Integration Language Level 3 (SMIL3) specification]. ((("Synchronized Multimedia Integration Language", see="SMIL animation")))((("SMIL3 specifiation")))((("SMIL animation", id="ix_SMILanimate", range="startofrange")))In this system, you specify the starting and ending values of the attribute, color, motion, or transformation you wish to animate; the time at which the animation should begin; and the duration of the animation. [online_only]#<<simple-animation-example>> shows this in action.# [offline_only]#<<simple-animation-example>> gives the basic code.#
+  
+
+[[simple-animation-example]]
+.The incredible shrinking rectangle
+====
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/simple_animation.html[width="100%", height="400px"]
+
+[source, xml]
+[role="offline_only"]
+----
+<rect x="10" y="10" width="200" height="20" stroke="black" fill="none">
+  <animate
+    attributeName="width"
+    attributeType="XML"
+    from="200" to="20"
+    begin="0s" dur="5s"
+    fill="freeze" />
+</rect>
+----
+
+====
+
+The first thing to notice is that the +<rect>+ element is no longer an empty element; the
+animation is contained within the ((("SMIL animation", "animate element")))((("animate element", seealso="SMIL animation")))element.
+
+The +<animate>+ element specifies the following:
+
+* The +attributeName+ whose value should change ((("attributeName, animation elements")))over time; in this case, +width+.
+* The +attributeType+. The +width+ attribute is an +XML+ attribute.((("XML", "attributeType in animation elements")))((("attributeType, animation elements"))) The other common value of +attributeType+ is +CSS+, indicating that the property you want to change is a CSS property.((("CSS", "attributeType for animation elements"))) If you omit this specification, the default value of +auto+ is used; it searches through CSS properties first and then XML attributes.
+* The starting (+from+) and ending (+to+) values for the attribute. In this example, the starting value is 200, and the ending value is 20. The +from+ value is optional; if you leave it out, the starting value is whatever was specified in the parent element.There is also a +by+ attribute, which you may use instead of +to+; it is an offset added to the starting +from+ value; the result is the ending value.
+* The beginning and duration times for the animation. In this example, time is measured in seconds, specified by the +s+ after the number. Other ways to define time are described in the next section, <<time-measurement-section>>.
+* What to do when the animation finishes. In this example, after the 5-second duration, the attribute will "freeze" at the +to+ value. This is the SMIL +fill+ attribute, which tells the animation engine how to fill up the remaining time. Don't confuse it with SVG's +fill+ attribute, which tells SVG how to paint an object.  If you remove this line, the default value (+remove+) will return the +width+ attribute to its original value of 200 after the 5-second animation has finished. 
+
+[role="offline_only"]
+Figures pass:[<xref linkend="simple-animation-start-figure" xrefstyle="select: labelnumber"/>] and pass:[<xref linkend="simple-animation-end-figure" xrefstyle="select: labelnumber"/>] show the beginning and ending stages of ((("SMIL animation", "beginning and ending of")))the animation. They can’t do justice to the actual effect, so we strongly recommend you try it out within your browser.
+
+[role="offline_only"]
+[[simple-animation-start-figure]]
+.Beginning of animation
+image::images/sve2_1201.png[]
+
+[role="offline_only"]
+[[simple-animation-end-figure]]
+.Ending of animation
+image::images/sve2_1202.png[]
+
+<<multiple-animation-example>> is a bit more ambitious. It starts with a 20 by 20 green square that will grow to 250 by 200 over the space of 8 seconds. For the first 3 seconds, the opacity of the green will increase, and then decrease for the next 3 seconds. Note that +fill-opacity+ is referred to with +attributeType="CSS"+ because it was set((("SMIL animation", "multiple animations on an object"))) in a +style+.
+
+[[multiple-animation-example]]
+.Multiple animations on a single object
+====
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/multiple_animation.html[width="100%", height="500px"]
+
+[source,xml]
+[role="offline_only"]
+----
+<rect x="10" y="10" width="20" height="20"
+  style="stroke: black; fill: green; style: fill-opacity: 0.25;">
+  <animate attributeName="width" attributeType="XML"
+    from="20" to="200" begin="0s" dur="8s" fill="freeze"/>
+  <animate attributeName="height" attributeType="XML"
+    from="20" to="150" begin="0s" dur="8s" fill="freeze"/>
+  <animate attributeName="fill-opacity" attributeType="CSS"
+    from="0.25" to="1" begin="0s" dur="3s" fill="freeze"/>
+  <animate attributeName="fill-opacity" attributeType="CSS"
+    from="1" to="0.25" begin="3s" dur="3s" fill="freeze"/>
+</rect>
+----
+
+====
+
+The last simple example, <<multiple-animation2-example>>, animates a square and a circle. The square will expand from 20 by 20 to 120 by 120 over the space of 8 seconds. Two seconds after the beginning of the animation, the circle’s radius will start expanding from 20 to 50 over the space of four seconds. [offline_only]#<<multiple-animation2-figure>> shows a combined screenshot of the animation at four times: 0 seconds, when the animation begins; 2 seconds, when the circle starts to grow; 6 seconds, when the circle finishes growing; and 8 seconds, when the animation is finished.#
+
+[[multiple-animation2-example]]
+.Simple animation of multiple objects
+====
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/multiple_animation2.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<rect x="10" y="10" width="20" height="20"
+  style="stroke: black; fill: #cfc;">
+  <animate attributeName="width" attributeType="XML"
+     begin="0s" dur="8s" from="20" to="120" fill="freeze"/>
+  <animate attributeName="height" attributeType="XML"
+     begin="0s" dur="8s" from="20" to="120" fill="freeze"/>
+</rect>
+
+<circle cx="70" cy="70" r="20"
+  style="fill: #ccf; stroke: black;">
+  <animate attributeName="r" attributeType="XML"
+    begin="2s" dur="4s" from="20" to="50" fill="freeze"/>
+</circle>
+----
+
+====
+
+[role="offline_only"]
+[[multiple-animation2-figure]]
+.Stages of multiobject animation
+image::images/sve2_1203.png[]
+
+[[time-measurement-section]]
+=== How Time Is Measured
+
+SVG’s animation clock starts ticking when the SVG has finished((("time measurement for animation")))((("SMIL animation", "time measurement"))) loading, and it stops ticking when the user leaves the page. You may specify a beginning or duration for a particular animation segment as a numeric value in one of these ways:
+
+
+* A full clock value in hours, minutes, and seconds (+1:20:23+).
+* A partial clock value in minutes and seconds (+02:15+).
+* A time value followed by an abbreviation that is one of +h+ (hours), +min+ (minutes), +s+ (seconds), or +ms+ (milliseconds), for example, +dur="3.5s"+ +begin="1min"+. You may not put any whitespace between the value and the unit.
+
+If no unit is specified, the default is seconds. 
+
+[[synchronization-section]]
+=== Synchronizing Animation
+
+Instead of defining each animation's start time as the document((("SMIL animation", "synchronizing")))((("synchronization of animations"))) loading time, you can tie an animation’s beginning time to the beginning or end of another animation. <<tied-animation-example>> animates two circles; the second one will start expanding as soon as the first one has stopped shrinking. [offline_only]#<<tied-animation-figure>> shows the important stages of the pass:[<phrase role="keep-together">animation</phrase>].#
+
+[[tied-animation-example]]
+.Synchronization of animations
+====
+
+[source,xml]
+----
+<circle cx="60" cy="60" r="30" style="fill: #f9f; stroke: gray;">
+  <animate id="c1" attributeName="r" attributeType="XML"
+    begin="0s" dur="4s" from="30" to="10" fill="freeze"/>
+</circle>
+
+<circle cx="120" cy="60" r="10" style="fill: #9f9; stroke: gray;">
+  <animate attributeName="r" attributeType="XML"
+    begin="c1.end" dur="4s" from="10" to="30" fill="freeze"/>
+</circle>
+----
+
+====
+
+[role="offline_only"]
+[[tied-animation-figure]]
+.Stages of synchronized animations
+image::images/sve2_1204.png[]
+
+It is also possible to add an offset to a synchronization. To make an animation start 2 seconds after another animation, you would use a construction of the form +$$begin="otherAnim.end+2s"$$+. (You may add whitespace around the plus sign.)  In <<sync-with-offset-example>>, the second circle begins to grow 1 1/4 seconds after the first circle begins shrinking.
+
+[[sync-with-offset-example]]
+.Synchronization of animations with offsets
+====
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/sync_with_offset.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<circle cx="60" cy="60" r="30" style="fill: #f9f; stroke: gray;">
+  <animate id="c1" attributeName="r" attributeType="XML"
+    begin="0s" dur="4s" from="30" to="10" fill="freeze"/>
+</circle>
+
+<circle cx="120" cy="60" r="10" style="fill: #9f9; stroke: gray;">
+  <animate attributeName="r" attributeType="XML"
+    begin="c1.begin+1.25s" dur="4s" from="10" to="30" fill="freeze"/>
+</circle>
+----
+
+====
+
+Now that you know about synchronizing animations, we can introduce the +end+ attribute,((("end attribute, animation elements"))) which sets an end time for an animation. This is _not_ a substitute for the +dur+ attribute! The following animation will start 6 seconds after the page loads. It will last for 12 seconds or until an animation named +otherAnim+ ends, whichever comes first:
+
+[subs="specialcharacters,quotes"]
+----
+<animate attributeName="width" attributeType="XML"
+  begin="6s" dur="12s" *end="otherAnim.end"*
+  from="10" to="100" fill="freeze"/>
+----
+
+You can, of course, set the value of +end+ to a specific time; this is useful for halting an animation partway through so you can see if everything is in the right place. [offline_only]#This is how we were able to create <<multiple-animation2-figure>>.# The following animation starts at 6 seconds and should last for 12 seconds, but is halted 9 seconds after the document loads (4 seconds after the animation starts). The animation is stopped 40% of the way through, so the width will freeze at a value of 140 (40% of the distance from 100 to 200):
+
+[subs="specialcharacters,quotes"]
+----
+<animate attributeName="width" attributeType="XML"
+    begin="5s" dur="10s" *end="9s"*
+    from="100" to="200" fill="freeze"/>
+----
+
+[[repeated-action-section]]
+=== Repeated Action
+
+The animations so far occur exactly once; +fill+ is set to +freeze+ to keep((("fill attribute, animation elements"))) the final stage of the animation.((("SMIL animation", "repeated action")))((("repeated animations"))) If you want to have the object return to its pre-animation state, omit the attribute. (This is equivalent to setting +fill+ to the default value of +remove+.)
+
+Two other attributes allow you to repeat an animation. The first of them, +repeatCount+, is set to an integer value telling how many times you want a particular animation to repeat. The second, +repeatDur+, is set to a time telling how long the repetition should last. If you want an animation to repeat until the user leaves the page, set either +repeatCount+ or +repeatDur+ to the value +indefinite+. You will usually use only one of the two, not both. If you do specify both +repeatCount+ and +repeatDur+, the one that specifies the end time that occurs first will be used. 
+
+The animation in <<repeated-action-example>> shows two circles. The upper circle moves from left to right in two repetitions of 5 seconds each. The second circle moves from right to left for a total of 8 seconds.
+
+[[repeated-action-example]]
+.Example of repeated animation
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/repeated_action.html[width="100%", height="430px"]
+
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<circle cx="60" cy="60" r="30" style="fill: none; stroke: red;">
+  <animate attributeName="cx" attributeType="XML"
+    begin="0s" dur="5s" repeatCount="2"
+    from="60" to="260" fill="freeze"/>
+</circle>
+
+<circle cx="260" cy="90" r="30" style="fill: #ccf; stroke: black;">
+  <animate attributeName="cx" attributeType="XML"
+    begin="0s" dur="5s" repeatDur="8s"
+    from="260" to="60" fill="freeze"/>
+</circle>
+----
+
+====
+
+
+Just as it is possible to synchronize an animation with the beginning or ending of another animation, you can tie the start of one animation to the start of a specific repetition of another animation.((("synchronization of animations", "with repetition"))) You give the first animation an +_id_+, and then set the +begin+ of the second animation to __++id++__++.repeat(++__++count++__++)++, where _++count++_ is a number beginning at 0 for the first repetition. <<sync-repetition-example>> shows an upper circle moving from left to right three times, requiring 5 seconds for each repetition. The lower square will go right to left only once, and will not begin until halfway through the second repetition. 
+
+[[sync-repetition-example]]
+.Synchronizing an animation with a repetition
+====
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/sync_repetition.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<circle cx="60" cy="60" r="15"
+  style="fill: none; stroke: red;">
+  <animate id="circleAnim" attributeName="cx" attributeType="XML"
+    begin="0s" dur="5s" repeatCount="3"
+    from="60" to="260" fill="freeze"/>
+</circle>
+
+<rect x="230" y="80" width="30" height="30"
+  style="fill: #ccf; stroke: black;">
+  <animate attributeName="x" attributeType="XML"
+    begin="circleAnim.repeat(1)+2.5s" dur="5s"
+    from="230" to="30" fill="freeze"/>
+</rect>
+----
+
+====
+
+[[animating-color-section]]
+=== Animating Complex Attributes
+Animation is not limited to simple numbers and lengths.((("SMIL animation", "complex attributes")))  You can animate nearly any attribute or style where you can calculate a smooth transition between two values.
+
+To animate a color, simply make the +from+ and +to+ attributes valid color values,((("colors", "animating"))) as described in <<basic-shapes-chapter>>, in <<stroke-color-section>>.  The color is treated as a vector of three numbers for the calculations; the +R+, +G+, and +B+ values will each transition from their value in one color to the other.footnote:[ The color change is affected by the +color-interpolation+ property, as described in <<color-space-sidebar>>.  The default interpolation, +sRGB+, usually produces pleasant results. ] 
+<<animating-color-example>> animates the fill and stroke colors of a circle, changing the fill from light yellow to red, and the gray outline to blue. Both animations start 2 seconds after the page loads; this gives you time to see the original colors.
+
+[[animating-color-example]]
+.Example of animating color
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/animate_color.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<circle cx="60" cy="60" r="30"
+	style="fill: #ff9; stroke: gray; stroke-width: 10;">
+  <animate attributeName="fill"
+    begin="2s" dur="4s" from="#ff9" to="red" fill="freeze"/>
+  <animate attributeName="stroke"
+    begin="2s" dur="4s" from="gray" to="blue" fill="freeze"/>
+</circle>
+----
+
+
+====
+
+You can also animate attributes that are lists of numbers, so long as the _number_ of numbers in the list does not change; each value in the list is transitioned separately.((("paths", "animating")))((("polygon element", "animating")))  That means you can animate path data or a polygon’s points, so long as you maintain the number of points and the types of path segments; <<animate-path-poly-example>> shows animations of both a +<polygon>+ and a +<path>+.
+    
+[[animate-path-poly-example]]
+.Example of animating path and polygon
+====
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/animate_path_poly.html[width="100%", height="600px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<polygon points="30 30 70 30 90 70 10 70"
+  style="fill:#fcc; stroke:black">
+  <animate id="animation"
+    attributeName="points"
+    attributeType="XML"
+    to="50 30 70 50 50 90 30 50"
+    begin="0s" dur="5s" fill="freeze" />
+</polygon>
+
+<path d="M15 50 Q 40 15, 50 50, 65 32, 100 40"
+  style="fill:none; stroke: black" transform="translate(0,50)">
+  <animate attributeName="d"
+    attributeType="XML"
+    to="M50 15 Q 15 40, 50 50, 32 65, 40 100"
+    begin="0s" dur="5s" fill="freeze"/>
+</path>
+----
+
+====
+
+[[animate-values-section]]
+=== Specifying Multiple Values 
+
+All the animation elements presented so far give a starting (+from+ or default) value and an ending (+to+) value, and let the computer calculate how to get from one to the other.((("SMIL animation", "multiple values")))  It is possible to give specific intermediary values for an animation, allowing a single +<animate>+ element to define complex sequences of changes.((("colors", "animating"))) Instead of animating the color in <<animating-color-example>> from light yellow to red, you can give a semicolon-separated list of +values+  that((("values attribute, animation elements"))) the animation will use over the duration. <<animating-values-example>> shows a circle that animates color using values of light yellow, light blue, pink, and light green.  
+    
+[[animating-values-example]]
+.Animating color by specific values
+====
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/animating_values.html[width="100%", height="350px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<circle cx="50" cy="50" r="30"
+  style="fill: #ff9; stroke:black;">
+  <animate attributeName="fill"
+    begin="2s" dur="4s" values="#ff9;#99f;#f99;#9f9"
+    fill="freeze"/>
+</circle>
+----
+
+====
+
+The +values+ attribute can also be used to make repeating animations alternate back((("repeated animations", "alternating between two values"))) and forth between two values, using the format ++values="++__++start++__++;++ __++end++__++;++ __++start++__++;"++. 
+
+[[keyTimes-calcMode-section]]
+=== Timing of Multistage Animations
+When an animation has multiple values, the duration of the animation (the +dur+ attribute) is the time it takes to cycle through _all_ the values.((("timing of animations")))((("dur (duration) attribute, animation elements")))((("SMIL animation", "key times and calculation")))  By default, the duration of the animation is divided into equal time periods for each transition.  <<animating-values-example>> used four color values, so there are three color transitions; the total duration is 4 seconds, so each transition lasts 4/3 of a second.  
+
+The +keyTimes+ attribute allows((("keyTimes attribute", "timing of multistage animations"))) you to divide the duration in other ways.  The format of +keyTimes+ is also a semicolon-separated list, and it must have the same number of entries as +values+.  The first entry is always +0+ and the last is always +1+; the intermediary times are expressed as decimal numbers between 0 and 1, representing the proportion of the animation duration that should pass by the time the corresponding value is reached.
+
+More options for controlling timing are created with the +calcMode+ attribute.((("calcMode attribute, animation elements"))) There are four possible values for +calcMode+:  
+
++paced+ :: The SVG viewer will calculate the distance between subsequent values and divide up the duration so that the rate of change is constant (any +keyTimes+ attribute will be ignored).  Paced animation mode works with colors and simple numbers or lengths, but is not possible for lists of points or path data. 
+
++linear+ :: The default for +<animate>+ elements; each transition will proceed at a steady pace, but the time alotted to each transition is equal (if +keyTimes+ aren't specified) or is determined by +keyTimes+.
+
++discrete+ :: The animation will jump from one value to the next without transitioning.  If you animate a property that doesn't support transitions (like +font-family+), discrete mode will be used automatically.
+
++spline+ :: The animation will accelerate and decelerate according to the values of the +keySplines+ attribute; you can read more about it in http://www.w3.org/TR/SVG11/animate.html#KeySplinesAttribute[the SVG specifications].
+
+[[animation-set-section]]
+=== The <set> Element
+
+All of these animations have modified values over time.((("SMIL animation", "set element")))((("set element"))) Sometimes, particularly for non-numeric attributes or properties that can't transition, you simply want to change the value at a chosen point in the animation sequence. 
+
+For example, you might want an initially invisible text item to become visible at a certain time; there’s no real need for both a +from+ and +to+. Thus, SVG has the convenient shorthand of the +<set>+ element, which needs only a +to+ attribute and the proper timing information.   <<animation-set-example>> shrinks a circle down to 0, then reveals text 1/2 second after the circle is gone.
+
+
+[[animation-set-example]]
+.Example of set element
+====
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/animation_set.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<circle cx="60" cy="60" r="30" style="fill: #ff9; stroke: gray;">
+  <animate id="c1" attributeName="r" attributeType="XML"
+    begin="0s" dur="4s" from="30" to="0" fill="freeze"/>
+</circle>
+
+<text text-anchor="middle" x="60" y="60" style="visibility: hidden;">
+  *<set attributeName="visibility" attributeType="CSS"
+    to="visible" begin="4.5s" dur="1s" fill="freeze"/>*
+  All gone!
+</text>
+----
+
+====
+    
+[[animateTransform-section]]
+=== The <animateTransform> Element
+
+The +<animate>+ element doesn’t work with rotate, translate, scale, or skew transformations ((("animateTransform element")))((("SMIL animation", "animateTransform element")))((("transformations", "animateTransform element")))because they’re all “wrapped up” inside the +transform+ attribute. This is where the +<animateTransform>+ element comes to the rescue. You set its +attributeName+ to +transform+. The +type+ attribute’s value then specifies the transformation whose values should change (one of +translate+, +scale+, +rotate+, +skewX+, or +skewY+). The +from+ and +to+ values are specified as appropriate for the transform you’re animating. As of this writing, most implementations currently support only +<animateTransform>+ on the XML +transform+ attribute((("XML", "attributeType in animation elements"))) rather than ((("CSS","transformations and SVG")))the CSS3 transformations.
+
+<<animateTransform-example>> stretches a rectangle from normal scale to a scale of four times in the horizontal direction and two times in the vertical direction. Note that the rectangle is centered around the origin so it doesn’t move as it scales; it is inside a +<g>+ so it can be translated to a more convenient location. [offline_only]#<<animateTransform-figure>> shows the beginning and end of the animation.#
+
+++++
+<?hard-pagebreak?>
+++++
+
+[[animateTransform-example]]
+.Example of animateTransform
+====
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/animate_transform.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<g transform="translate(100,60)">
+  <rect x="-10" y="-10" width="20" height="20"
+    style="fill: #ff9; stroke: black;">
+    <animateTransform attributeType="XML"
+      attributeName="transform" type="scale"
+      from="1" to="4 2"
+      begin="0s" dur="4s" fill="freeze"/>
+  </rect>
+</g>
+----
+
+====
+
+[role="offline_only"]
+[[animateTransform-figure]]
+.animateTransform—before and after
+image::images/sve2_1205.png[]
+
+If you intend to animate more than one transformation, you must use the +additive+ attribute.((("additive attribute, animation elements"))) The default value of +additive+ is +replace+, which replaces the specified transformation in the object being animated. This won’t work in a series of transformations, because the second animation would override the first one. By setting +additive+ to +sum+, SVG will accumulate the transformations.  <<additive-transform-example>> stretches and rotates the rectangle. [offline_only]#The before and after pictures are in <<additive-transform-figure>>.#
+
+[[additive-transform-example]]
+.Example of multiple animateTransform elements
+[role="offline_only"]
+====
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/additive_transform.html[width="100%", height="400px"]
+
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<rect x="-10" y="-10" width="20" height="20"
+  style="fill: #ff9; stroke: black;">
+  <animateTransform attributeName="transform" attributeType="XML"
+    type="scale" from="1" to="4 2"
+    additive="sum" begin="0s" dur="4s" fill="freeze"/>
+  <animateTransform attributeName="transform" attributeType="XML"
+    type="rotate" from="0" to="45"
+    additive="sum" begin="0s" dur="4s" fill="freeze"/>
+</rect>
+----
+
+====
+
+[role="offline_only"]
+[[additive-transform-figure]]
+.Multiple animateTransforms—before and after
+image::images/sve2_1206.png[]
+
+[NOTE]
+====
+You can also use  +additive="sum"+ to combine the effects of animation elements that control numerical and color attributes.((("additive attribute, animation elements", "combining effects controlling numerical and color attributes")))  If the animations are specified using +to+, adding them together causes subsequent animations to use the current value of the previous animation as their starting-point.  If the animations use the +by+ attribute to define their effects, or use _both_ +from+ and +to+, then the final value will be the sum of all the individual changes.   
+====
+
+[[animateMotion-section]]
+=== The <animateMotion> Element
+
+You can cause an object to animate along a straight-line path((("SMIL animation", "animateMotion element", id="ix_animatioAM", range="startofrange"))) by using +translate+ with the +<animateTransform>+ element.((("animateMotion element"))) However, if you wanted to move the object in a more complicated pattern, you would need an extended series of transform animations timed to start one after another.  The +<animateMotion>+ element makes it easier to animate an object along an arbitrary path, whether a straight line or a series of overlapping loops.
+
+If you want to use +<animateMotion>+ for straight-line motion,((("animateMotion element", "animation along a linear path"))) you simply set the +from+ and +to+ attributes, assigning them each a pair of (__x__,__y__) coordinates. The coordinates specify the position where the (0,0) point of the shape's coordinate system will be moved, similar to how +translate(x,y)+ works. <<linear-animateMotion-example>> moves a grouped circle and rectangle from (0,0) to (60,30).
+
+[[linear-animateMotion-example]]
+.Animation along a linear path
+====
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/linear_animateMotion.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[language="xml"]
+----
+<g>
+  <rect x="0" y="0" width="30" height="30" style="fill: #ccc;"/>
+  <circle cx="30" cy="30" r="15" style="fill: #cfc; stroke: green;"/>
+  <animateMotion from="0,0" to="60,30" dur="4s" fill="freeze"/>
+</g>
+----
+
+====
+
+Multiple points can be specified with +values+, but the motion will((("animateMotion element", "animation along a complex path"))) still be a series of straight lines.  If you want a more complex path to follow, use the +path+ attribute instead; its value is in the same format as the +d+ attribute in the +<path>+ element. <<animateMotion-complex-example>>, adapted from the SVG specification, animates a triangle along a((("Bézier curves", "animation along a cubic Bézier curve path"))) cubic Bézier curve path.
+
+[[animateMotion-complex-example]]
+.Animation along a complex path
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/complex_animate_motion.html[width="100%", height="475px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<!-- show the path along which the triangle will move -->
+<path d="M50,125 C 100,25 150,225, 200, 125"
+  style="fill: none; stroke: blue;"/>
+
+<!-- Triangle to be moved along the motion path.
+   It is defined with an upright orientation with the base of
+   the triangle centered horizontally just above the origin. -->
+<path d="M-10,-3 L10,-3 L0,-25z" style="fill: yellow; stroke: red;">
+  <animateMotion
+    path="M50,125 C 100,25 150,225, 200, 125"
+    dur="6s" fill="freeze"/>
+</path>
+----
+
+
+====
+
+[role="online_only"]
+As you can see, the triangle stays upright throughout its entire path.
+
+[role="offline_only"]
+As you can see in <<animateMotion-complex-figure>>, the triangle stays upright throughout its entire path.
+
+[role="offline_only"]
+[[animateMotion-complex-figure]]
+.animateMotion along a complex path
+image::images/sve2_1207.png[]
+
+If you would prefer that the object tilt so its __x__-axis is always parallel to the slope of the path,((("animateMotion element", "rotate attribute", id="ix_aMrotate", range="startofrange"))) just add the +rotate+ attribute with a value of +auto+ to the +<animateMotion>+ element. [offline_only]#<<animateMotion-rotate-example>> shows the SVG, and <<animateMotion-rotate-figure>> shows screenshots taken at various stages of the animation.# [online_only]#<<animateMotion-rotate-example>> shows this in action.#
+
+[[animateMotion-rotate-example]]
+.Animation along a complex path with auto-rotation
+====
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/animate_motion_rotate.html[width="100%", height="475px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<!-- show the path along which the triangle will move -->
+<path d="M50,125 C 100,25 150,225, 200, 125"
+  style="fill: none; stroke: blue;"/>
+
+<!-- Triangle to be moved along the motion path.
+   It is defined with an upright orientation with the base of
+   the triangle centered horizontally just above the origin. -->
+<path d="M-10,-3 L10,-3 L0,-25z" style="fill: yellow; stroke: red;" >
+  <animateMotion
+    path="M50,125 C 100,25 150,225, 200, 125"
+    rotate="auto"
+    dur="6s" fill="freeze"/>
+</path>
+----
+
+====
+
+Put simply, when you leave off the +rotate+ attribute, you get the default value of 0, and the object acts like a hot-air balloon floating along the path. If you set +rotate+ to +auto+, the object acts like a car on a roller coaster, tilting up and down as the path does.
+
+You can also set +rotate+ to a numeric value, which will set the rotation of the object throughout the animation. Thus, if you wanted an object rotated 45 degrees no matter what direction the path took, you’d use +rotate="45"+.((("animateMotion element", "rotate attribute", range="endofrange", startref="ix_aMrotate")))
+
+[role="offline_only"]
+[[animateMotion-rotate-figure]]
+.animateMotion along a complex path with auto-rotation
+image::images/sve2_1208.png[]
+
+<<animateMotion-rotate-example>>  drew the path in blue so it was visible, and then duplicated the path in the +<animateMotion>+ element. You can avoid this duplication by((("mpath element, using in animateMotion element")))((("animateMotion element", "using mpath"))) adding an +<mpath>+ element within the +<animateMotion>+ element. The +<mpath>+ will contain an +xlink:href+ attribute that references the path you want to use.((("xlink:href attribute", "mpath element"))) This also comes in handy when you have one path you wish to use to animate multiple objects. Here’s the preceding example, rewritten as <<mpath-example>>, using +<mpath>+.
+
+[[mpath-example]]
+.Motion along a complex path using mpath
+====
+
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<path id="cubicCurve" d="M50,125 C 100,25 150,225, 200, 125"
+  style="fill: none; stroke: blue;"/>
+
+<path d="M-10,-3 L10,-3 L0,-25z" style="fill: yellow; stroke: red;" >
+  <animateMotion dur="6s" rotate="auto" fill="freeze">
+    <mpath xlink:href="#cubicCurve"/>
+  </animateMotion>
+</path>
+----
+
+====
+
+[[key-times-splines-section]]
+=== Specifying Key Points and Times for Motion
+
+In <<animateMotion-rotate-example>>, the triangle ((("SMIL animation", "animateMotion element", range="endofrange", startref="ix_animatioAM")))moved at a steady pace.((("SMIL animation", "key points and times for motion"))) This _paced_ animation((("paced animation")))((("animateMotion element", "specifying key points and times for motion"))) is the default for +<animateMotion>+ (equivalent to +calcMode="paced"+); the amount of time it takes to move between subsequent points is directly proportional to the distance between them.footnote:[ There's one exception to the distance rule for paced +<animateMotion>+: if your path has any moveto commands, these are counted as zero distance, meaning your object will immediately jump from the end of one subpath to the beginning of the next. ]
+
+In <<keyTimes-calcMode-section>>, we introduced the +keyTimes+ attribute,((("keyTimes attribute", "animateMotion element"))) which can be used to control the rate an animation transitions between different values.  You can use +keyTimes+ for motion animation too, but if you're using a path instead of a +values+ list to define the motion, you need to specify key points along the path using (you guessed it) the +keyPoints+ attribute.((("paths", "key points for animateMotion element")))((("keyPoints attribute, animateMotion element")))  
+
+Like +keyTimes+, +keyPoints+ is a semicolon-separated list of decimal numbers.  Each point represents how far along the path the object should have moved at the corresponding entry in the +keyTimes+ list. Just as +keyTimes+ ranges from 0 (beginning of animation) to 1 (end of animation), +keyPoints+ ranges from 0 (beginning of the path) to 1 (end of the path). <<key-points-example>> shows the triangle moving more slowly as it goes uphill. 
+
+Although +keyTimes+ must be given in order from 0 to 1, +keyPoints+ may start or end in the middle of the path and go in either direction.  However, the +keyPoints+ and +keyTimes+ lists must have the same number of entries, and you must set +calcMode="linear"+ (or +"spline"+, but that's beyond the scope of this book).
+
+[[key-points-example]]
+.Variable speed motion along a path using keyPoints and keyTimes
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/key_points.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<path d="M-10,-3 L10,-3 L0,-25z" style="fill: yellow; stroke: red;" >
+  <animateMotion
+    path="M50,125 C 100,25 150,225, 200, 125"
+    rotate="auto"
+    keyPoints="0;0.2;0.8;1"
+    keyTimes="0;0.33;0.66;1"
+    calcMode="linear"
+    dur="6s" fill="freeze"/>
+</path>
+----
+
+====
+
+
+[[animating-with-css-section]]
+=== Animating SVG with CSS
+
+Modern browsers allow you to animate both HTML and SVG elements with CSS.((("SMIL animation", range="endofrange", startref="ix_SMILanimate")))((("CSS", "animating SVG with", id="ix_CSSanimate", range="startofrange"))) This is a two-stage process. In the first stage, you select the element you want to animate and set the properties of the animation as a whole.  In the second stage, you say which properties of the selected element are to change, and at what stages of the animation; these are defined in a +@keyframes+ specifier.((("@keyframes CSS rule")))
+
+Consider the following task: display a green star that fades to a white interior as its border becomes thicker; the effect is that the color is being “drained” into the border. Here is the SVG for the star:
+
+[source,xml]
+----
+<svg width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <g id="starDef">
+      <path d="M 38.042 -12.361 9.405 -12.944 -0.000 -40.000
+        -9.405 -12.944 -38.042 -12.361 -15.217 4.944
+        -23.511 32.361 0.000 16.000 23.511 32.361 15.217 4.944 Z"/>
+    </g>
+  </defs>
+  
+  <use id="star" class="starStyle" xlink:href="#starDef"
+    transform="translate(100, 100)"
+    style="fill: #008000; stroke: #008000"/>
+</svg>
+----
+
+==== Animation Properties
+
+These are properties you’ll set in the CSS for ((("CSS", "animating SVG with", "animation properties")))the element being animated:
+
+* +animation-name+ is the name of +@keyframes+ specifier.
+* +animation-duration+ determines how long the animation should last; this is a number followed by a time unit as described in <<time-measurement-section>>.
+* +animation-timing-function+ tells how intermediate values are calculated (e.g., should an animation ease in or out, or work in discrete steps).
+* +animation-iteration-count+ tells how many times to repeat an animation, with +infinite+ looping continuously.
+* +animation-direction+ determines whether an animation should go in a forward or reverse direction, and whether it should alternate between the two or not.
+* +animation-play-state+ can be set to +running+ or ++paused++.
+* +animation-delay+ tells how long to wait to start the animation after the style is applied.
+* +animation-fill-mode+ tells what properties to use when the animation is not executing. This can be +forwards+ (applies properties for the time the animation ended), +backwards+ (applies properties for the time the animation began), or ++both++.
+
+[NOTE]
+====
+In order to use these properties in a WebKit-based browser, you must, as of this writing, prefix them with +-webkit-+; thus, for example, +-webkit-animation-name+ or +-webkit-animation-duration+.
+====
+
+<<css-anim-setup-example>> shows the CSS to set up the star animation. It will be repeated four times, with 2 seconds per iteration.
+
+[[css-anim-setup-example]]
+.CSS setup for animation
+====
+
+[source,css]
+----
+.starStyle {
+  animation-name: starAnim;
+  animation-duration: 2s;
+  animation-iteration-count: 4;
+  animation-direction: alternate;
+  animation-timing-function: ease;
+  animation-play-state: running;
+}
+----
+
+====
+
+==== Setting Animation Key Frames
+
+You set the properties to change at each stage of the animation by using the +@keyframes+ media type,((("@keyframes CSS rule"))) followed by the name of the animation being controlled.((("key frames, setting for animation")))((("CSS", "animating SVG with", "setting animation key frames"))) Inside the +@keyframes+, you list keyframe selectors, which are percentages that tell when properties should change. For each of those selectors, list the properties and values that the animation should take on. <<css-keyframes-setup-example>> shows the key frames for the star animation. For WebKit-based browsers, use +@-webkit-keyframes+. [offline_only]#<<css-anim-states-figure>> shows three stages of the animation.#
+
+[[css-keyframes-setup-example]]
+.Key frame specification in CSS
+====
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/svg_css_anim1.html[width="100%", height="550px"]
+
+[role="offline_only"]
+[source, css]
+----
+@keyframes starAnim {
+  0% {
+    fill-opacity: 1.0;
+    stroke-width: 0;
+  }
+
+  100% {
+    fill-opacity: 0;
+    stroke-width: 6;
+  }
+}
+----
+
+====
+
+[NOTE]
+====
+You can use +from+ and +to+ as synonyms for +0%+ and ++100%++.
+====
+
+[role="offline_only"]
+[[css-anim-states-figure]]
+.Animation at beginning, middle, and end
+image::images/sve2_1209.png[]
+
+
+==== Animating Movement with CSS
+
+If you want to use pure CSS to animate movement, you can’t use the +transform+ attribute.((("CSS", "animating SVG with", "animating movement")))((("transform style", see="transformations, CSS"))) Instead, you have to use CSS styles to translate, rotate, and scale ((("transformations", "CSS")))your SVG. Luckily, the CSS +transform+ property's value looks very much like the SVG +transform+ attribute, though there are differences, as noted in <<css-vs-svg-transform-section>>. If, for((("translate transformation", "using CSS"))) example, you want an SVG element to be translated to (100,50), scaled by a factor of 1.5, and then rotated 90 degrees, the property would be as follows:
+
+[source,css]
+----
+transform: translate(100px, 50px) scale(1.5) rotate(90deg);
+----
+
+<<css-movement-example>> shows the key frames required for making the star move upward and rotate, and then descend to its starting point. Because the 100% key frame doesn’t specify a +translate+, the star will return to its original position (specified in the SVG). This is why the 50% and 80% key frames, in addition to the 20% key frame, must specify the +translate+ so that the star does not move vertically during that portion of the pass:[<phrase role="keep-together">animation</phrase>].
+
+[[css-movement-example]]
+.Specifying transformations in CSS
+====
+
+[source,css]
+----
+@keyframes starAnim  {
+  0% {
+    fill-opacity: 1.0;
+    stroke-width: 0;
+  }
+
+  20% {
+    transform: translate(100px, 50px)
+  }
+
+  50% {
+    transform: translate(100px, 50px) rotate(180deg)
+  }
+
+  80% {
+    transform: translate(100px, 50px) rotate(360deg)
+  }
+
+  100% {
+    fill-opacity: 0.0;
+    stroke-width: 6;
+  }
+}
+----
+
+====
+
+[role="online_only"]
+Experiment with the animation parameters and key frame settings to see their effect on the star:
+
+[offline_only]#Create your own keyframes, and experiment with the timing properties, with the online example:#
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch12/svg_css_anim2.html[width="100%", height="700px"]
+
+[WARNING]
+====
+At the time of this writing, browsers tend to be buggy and inconsistent when applying CSS animations and transitions to SVG graphics that are duplicated by +<use>+ elements.((("CSS", "animating SVG with", range="endofrange", startref="ix_CSSanimate")))
+====

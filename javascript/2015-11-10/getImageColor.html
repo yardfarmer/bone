@@ -6,9 +6,7 @@
     <script type="text/javascript">
 
         function getPixelColor(context, canvasX, canvasY) {
-            // 获取该点像素的数据
             var imageData = context.getImageData(canvasX, canvasY, 1, 1);
-            // 获取该点像素数据
             var pixel = imageData.data;
             return pixel;
         }
@@ -22,7 +20,7 @@
 
             $("body").css("backgroundColor", pixelColor);
             pixelColor = pixelColor + "<em style='color:"+color+";'>"+color+"</em>";
-            $("#currentColor").html("当前背景颜色为:" + pixelColor);
+            $("#currentColor").html("锟斤拷前锟斤拷锟斤拷锟斤拷色为:" + pixelColor);
         }
 
         function bindEvent(canvas, context) {
@@ -53,9 +51,12 @@
         }
         $(document).ready(function () {
             var img = new Image();
-            img.src = "img2.jpg";
+            img.src = "http://img.china.alibaba.com/img/back_ibank/2015/091/005/2500190_96354.jpg_.webp";
             $(img).load(function () {
-                draw(img);
+                try{
+                    draw(img);
+                }catch(e){}
+
             });
         });
     </script>

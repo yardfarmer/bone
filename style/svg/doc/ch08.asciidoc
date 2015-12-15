@@ -1,0 +1,730 @@
+[[patterns-gradients-chapter]]
+
+== Patterns and Gradients
+
+To this point, you have used only solid colors to fill and outline graphic objects. You are not restricted to using solid colors; you may also use a pattern or a gradient to fill or outline a graphic.((("fill style", "using patterns", id="ix_fillpatterns", range="startofrange")))((("patterns", id="ix_patterns", range="startofrange"))) That’s what we’ll examine in this chapter.
+
+[[patterns-section]]
+
+=== Patterns
+
+To use a pattern, you define a graphic object that is replicated horizontally and vertically to fill another object (or stroke). This graphic object is called a _tile_,((("patterns", "tiles")))((("tiles", seealso="patterns"))) because the act of filling an object with a pattern is very much like covering an area of a floor with tiles. In this section, we will use the quadratic curve drawn by the SVG in <<simple-pattern-example>> as our tile. It’s outlined in gray ((("paths", "for a pattern tile")))to show its area (20 by 20 user units) clearly.
+
+[[simple-pattern-example]]
+.Path for a pattern tile
+
+====
+[source, xml]
+----
+<path d="M 0 0 Q 5 20 10 10 T 20 20"
+    style="stroke: black; fill: none;"/>
+<path d="M 0 0 h20 v20 h-20 z"
+    style="stroke: gray; fill: none;"/>
+----
+
+====
+<<simple-pattern-figure>> is zoomed in so you can see it in detail.
+
+[[simple-pattern-figure]]
+
+.Zoomed-in view of pattern tile
+image::images/sve2_0801.png[]
+
+[[pattern-units-section]]
+
+==== patternUnits
+
+To create a pattern tile, you must enclose the +<path>+ elements that describe your tile in a +<pattern>+ element, and then make several decisions. The first decision is how you wish to space the tiles, and this is reflected in the +patternUnits+ attribute.((("patternUnits attribute")))((("tiles", "spacing in patterns"))) Do you want the tiles spaced to fill a certain percentage of each object they’re applied to, or do you want them spaced at equal intervals, no matter what the size of the object they’re filling?
+
+If you want the tile dimensions on an object-by-object basis, you specify the pattern’s upper-left +x+ and +y+ coordinates, and its +width+ and +height+ as percentages or decimals in the range 0 to 1, and set the +patternUnits+ attribute to +objectBoundingBox+.((("objectBoundingBox units", "with patternUnits"))) An object’s _bounding box_ is the smallest rectangle that completely encloses a particular graphic object. <<pattern-units-boundingbox-example>> creates a sample tile that will be replicated five times horizontally and five times vertically in any object that it fills.
+
+[[pattern-units-boundingbox-example]]
+.Tiles spaced with patternUnits set to objectBoundingBox
+====
+[source,xml]
+----
+<defs>
+<pattern id="tile" x="0" y="0" width="20%" height="20%"
+    patternUnits="objectBoundingBox">
+<path d="M 0 0 Q 5 20 10 10 T 20 20"
+    style="stroke: black; fill: none;"/>
+<path d="M 0 0 h 20 v 20 h -20 z"
+    style="stroke: gray; fill: none;"/>
+</pattern>
+</defs>
+
+<rect x="20" y="20" width="100" height="100"
+    style="fill: url(#tile); stroke: black;"/>
+<rect x="135" y="20" width="70" height="80"
+    style="fill: url(#tile); stroke: black;"/>
+<rect x="220" y="20" width="150" height="130"
+    style="fill: url(#tile); stroke: black;"/>
+----
+====
+
+[offline_only]#In <<pattern-units-boundingbox-figure>>,# [online_only]#When using +objectBoundingBox+,# the leftmost rectangle, which is 100 user units wide and tall, provides an exact fit for five tiles that are each 20 user units wide and tall. In the middle rectangle, the width and height aren’t great enough to show any one pattern tile completely, so they are truncated. In the rightmost rectangle, extra space is added, because the rectangle’s width and height exceeds five times the space required for a single tile. In all cases, because +x+ and +y+ are both set, the upper-left corner of the tile coincides with the upper-left corner of the rectangle.
+
+[[pattern-units-boundingbox-figure]]
+[role="offline_only"]
+.Tiles spaced by objectBoundingBox
+image::images/sve2_0802.png[]
+
+If you’re used to most graphics programs, this behavior comes as somewhat of a shock. Typical graphic editing programs put tiles directly next to one another to fill the area, no matter what its size. There is never extra padding between tiles, and tiles are cut off only by the edge of the object they’re filling. If this is the behavior that you want, you must set the +patternUnits+ attribute to +userSpaceOnUse+, and((("userSpaceOnUse setting", "for patternUnits"))) specify the +x+ and +y+ coordinates, and the +width+ and +height+ of the tile in user units. <<pattern-units-userspace-example>> uses the same sample tile, [offline_only]#set to its exact width and height of 20 user units.# [online_only]#but if you switch to user units, it will be set to its exact width and height of 20 user units (instead of a percentage of the bounding box).#
+
+[role="offline_only"]
+[[pattern-units-userspace-example]]
+.Changing patternUnits to userSpaceOnUse
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch08/patternunits.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<defs>
+<pattern id="tile" x="0" y="0" width="20" height="20"
+    patternUnits="userSpaceOnUse">
+<path d="M 0 0 Q 5 20 10 10 T 20 20"
+    style="stroke: black; fill: none;"/>
+<path d="M 0 0 h 20 v 20 h -20 z"
+    style="stroke: gray; fill: none;"/>
+</pattern>
+</defs>
+
+<rect x="20" y="20" width="100" height="100"
+    style="fill: url(#tile); stroke: black;"/>
+<rect x="135" y="20" width="70" height="80"
+    style="fill: url(#tile); stroke: black;"/>
+<rect x="220" y="20" width="150" height="130"
+    style="fill: url(#tile); stroke: black;"/>
+----
+====
+
+[offline_only]#In <<pattern-units-userspace-figure>>,# [online_only]#With +patternUnits = "userSpaceOnUse"+,# the tiles have constant size in all three rectangles. Their alignment is, however, dependent upon the underlying coordinate system. The middle rectangle, for example, has an _x_-coordinate that is not a multiple of 20, so the rectangle’s upper-left corner doesn’t coincide with a tile’s upper-left corner. (The top edges do align, because the upper _y_-coordinate of all three rectangles was carefully chosen to be a multiple pass:[<phrase role="keep-together">of 20</phrase>].)
+
+[[pattern-units-userspace-figure]]
+.Tiles spaced by userSpaceOnUse
+image::images/sve2_0803.png[]
+
+[WARNING]
+====
+If you do not specify a value for +patternUnits+, the default is set to +objectBoundingBox+.
+====
+
+
+[[pattern-content-units-section]]
+
+==== patternContentUnits
+
+You must next decide what units are to be used to express the pattern data itself.((("patternContentUnits attribute"))) By default, the +patternContentUnits+ attribute is set to +userSpaceOnUse+. ((("userSpaceOnUse setting", "for patternContentUnits")))If you set the attributes to +objectBoundingBox+, the((("objectBoundingBox units", "with patternContentUnits"))) path data points are expressed in terms of the object being filled. <<pattern-content-units-example>> shows the SVG that produces <<pattern-content-units-figure>>.
+
+
+[NOTE]
+====
+If you use +userSpaceOnUse+ for your +patternContentUnits+, you should draw any objects to be filled with the upper-left corner of their bounding boxes at the origin (0,0). 
+
+If you use +objectBoundingBox+, you will have to reduce the +stroke-width+ in the pattern data. The width will also be scaled proportionally to the bounding box, not measured in user units, so a ++stroke-width++ of 1 would cover the entire tile. In the example, the stroke is set to 0.01, or 1% of the average of the object bounding box’s height and width.
+====
+
+
+[[pattern-content-units-example]]
+.patternContentUnits set to objectBoundingBox
+
+====
+[source,xml]
+----
+<defs>
+<pattern id="tile"
+    patternUnits="objectBoundingBox"
+    patternContentUnits="objectBoundingBox"
+     x="0" y="0" width=".2" height=".2">
+    <path d="M 0 0 Q .05 .20 .10 .10 T .20 .20"
+        style="stroke: black; fill: none; stroke-width: 0.01;"/>
+    <path d="M 0 0 h 0.2 v 0.2 h-0.2z"
+        style="stroke: black; fill: none; stroke-width: 0.01;"/>
+</pattern>
+
+</defs>
+
+<g transform="translate(20,20)">
+<rect x="0" y="0" width="100" height="100"
+    style="fill: url(#tile); stroke: black;"/>
+</g>
+
+<g transform="translate(135,20)">
+<rect x="0" y="0" width="70" height="80"
+    style="fill: url(#tile); stroke: black;"/>
+</g>
+
+<g transform="translate(220,20)">
+<rect x="0" y="0" width="150" height="130"
+    style="fill: url(#tile); stroke: black;"/>
+</g>
+----
+====
+
+[[pattern-content-units-figure]]
+
+.patternContentUnits set to objectBoundingBox
+image::images/sve2_0804.png[]
+
+If you want to reduce an existing graphic object for use as a tile, it’s easier to use the +viewBox+ attribute to scale it.((("viewBox attribute", "using to scale a pattern"))) Specifying +viewBox+ will override any +patternContentUnits+ information. Another possible option is to use the +preserveAspectRatio+ attribute,((("preserveAspectRatio attribute", "using to scale a pattern"))) as described in <<preserve-aspect-ratio-section>>. <<pattern-viewbox-example>> uses a scaled-down version of the cubic poly-Bézier curve from <<cubic-polybezier-figure>> as a tile. The +stroke-width+ is set to 5; otherwise, when scaled down, the pattern you see in <<pattern-viewbox-figure>> would not be visible.
+
+[[pattern-viewbox-example]]
+.Using viewBox to scale a pattern
+
+====
+[source,xml]
+----
+<defs>
+<pattern id="tile"
+    patternUnits="userSpaceOnUse"
+    x="0" y="0" width="20" height="20"
+    viewBox="0 0 150 150">
+    <path d="M30 100 C 50 50, 70 20, 100 100, 
+                      110, 130, 45, 150, 65, 100"
+        style="stroke: black; stroke-width: 5; fill: none;"/>
+</pattern>
+</defs>
+
+<rect x="20" y="20" width="100" height="100"
+    style="fill: url(#tile); stroke: black;"/>
+----
+====
+
+[[pattern-viewbox-figure]]
+
+.Pattern scaled with viewBox
+image::images/sve2_0805.png[]
+
+[[nested-patterns-section]]
+
+==== Nested Patterns
+
+Again, this may have occurred to you: “If an object can be filled with a ((("nested patterns")))((("patterns", "nested")))pattern, can _that_ pattern be filled with a pattern as well?” The answer is yes. As opposed to nested markers, which are rarely necessary, there are some effects you can’t easily achieve without nested patterns. <<nested-patterns-example>> creates a rectangle filled with circles, all filled with horizontal stripes. This produces the unusual, but valid, striped polka-dot effect shown in <<nested-patterns-figure>>.
+
+
+[[nested-patterns-example]]
+.Nested patterns
+====
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<defs>
+  <pattern id="stripe"
+    patternUnits="userSpaceOnUse"
+    x="0" y="0" width="6" height="6">
+    <path d="M 0 0 6 0"
+      style="stroke: black; fill: none;"/>
+  </pattern>
+
+  <pattern id="polkadot"
+    patternUnits="userSpaceOnUse"
+    x="0" y="0" width="36" height="36">
+    <circle cx="12" cy="12" r="12"
+      style="fill: url(#stripe);  stroke: black;"/>
+  </pattern>
+</defs>
+
+<rect x="36" y="36" width="100" height="100"
+    style="fill: url(#polkadot); stroke: black;"/>
+----
+====
+
+[[nested-patterns-figure]]
+
+.Patterns within patterns
+image::images/sve2_0806.png[]
+
+[[gradient-section]]
+
+=== Gradients
+
+Rather than filling an object with((("fill style", "using patterns", range="endofrange", startref="ix_fillpatterns")))((("patterns", range="endofrange", startref="ix_patterns"))) a solid color, you can fill it with a _gradient_,((("colors", "gradients", id="ix_colorgrad", range="startofrange")))((("gradients", id="ix_gradients", range="startofrange")))((("fill style", "using gradients", id="ix_fillgrad", range="startofrange"))) a smooth color transition from one shade to another. Gradients can be _linear_, where the color transition occurs along a straight line, or _radial_, where the transition occurs as you radiate outward from a center point.
+
+[[linear-gradient-section]]
+
+==== The linearGradient Element
+
+A linear gradient is a transition through a series of colors along a straight line.((("linear gradients")))((("gradients", "linear"))) You specify the colors you want at specific locations, called _gradient stops_. The stops are part of the structure of the gradient; the colors are part of the presentation. <<linear-gradient-example>> shows the SVG for a gradient that fills a rectangle with a smooth transition from gold to cyan. [offline_only]#The result is in <<linear-gradient-figure>>.#
+
+[[linear-gradient-example]]
+.Simple two-color gradient
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch08/linear_gradient.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<defs>
+  <linearGradient id="two_hues">
+    <stop offset="0%" style="stop-color: #ffcc00;"/>
+    <stop offset="100%" style="stop-color: #0099cc;"/>
+  </linearGradient>
+</defs>
+
+<rect x="20" y="20" width="200" height="100"
+  style="fill: url(#two_hues);  stroke: black;"/>
+----
+====
+
+[[linear-gradient-figure]]
+[role="offline_only"]
+.Simple two-color gradient
+image::images/sve2_0807.png[]
+
+
+[[stop-element-section]]
+
+===== The <stop> element
+
+Let’s examine the +<stop>+ element more closely.((("gradients", "linear", "stop element")))((("stop element")))((("linear gradients", "stop element in"))) It has two required attributes: +offset+ and +stop-color+. The +offset+ tells((("offset attribute, stop element"))) the point along the line at which the color should be equal to the +stop-color+.((("stop-color attribute"))) The +offset+ is expressed as a percentage from 0 to 100% or as a decimal value from 0 to 1.0. While you don’t need to place stops at 0% and 100%, you usually will. The +stop-color+ is specified here in a +style+, but you may also specify it as an attribute. <<three-stop-gradient-example>> is a slightly more complex linear gradient, with stops for gold at 0%, reddish-purple at 33.3%, and light green at 100%. [offline_only]#The result is shown in <<three-stop-gradient-figure>>.#
+
+[[three-stop-gradient-example]]
+.Three-color gradient
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch08/three_stop_gradient.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<defs>
+  <linearGradient id="three_stops">
+    <stop offset="0%" style="stop-color: #ffcc00;"/>
+    <stop offset="33.3%" style="stop-color: #cc6699"/>
+    <stop offset="100%" style="stop-color: #66cc99;"/>
+  </linearGradient>
+</defs>
+
+<rect x="20" y="20" width="200" height="100"
+    style="fill: url(#three_stops); stroke: black;"/>
+----
+====
+
+[[three-stop-gradient-figure]]
+[role="offline_only"]
+.Three-stop gradient
+image::images/sve2_0808.png[]
+
+
+You can also use a +stop-opacity+ attribute when specifying a stop color,((("linear gradients", "specifying stop-opacity")))((("opacity", "stop-opacity style, gradient stops")))((("stop-opacity style"))) with 1 being totally opaque and 0 being totally transparent. <<stop-opacity-example>> creates a gradient that fades out dramatically up to the halfway point, then fades slightly toward the end.  [offline_only]#The result is shown in <<stop-opacity-figure>>.#
+
+[[stop-opacity-example]]
+.Three-opacity gradient
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch08/stop_opacity.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<defs>
+  <linearGradient id="three_opacity_stops">
+    <stop offset="0%" style="stop-color: #906; stop-opacity: 1.0"/>
+    <stop offset="50%" style="stop-color: #906; stop-opacity: 0.3"/>
+    <stop offset="100%" style="stop-color: #906; stop-opacity: 0.10"/>
+  </linearGradient>
+</defs>
+
+<rect x="20" y="20" width="200" height="100"
+    style="fill: url(#three_opacity_stops); stroke: black;"/>
+----
+====
+
+[[stop-opacity-figure]]
+[role="offline_only"]
+.Gradient using stop-opacity
+image::images/sve2_0809.png[]
+
+
+[[transition-line-section]]
+
+===== Establishing a transition line for a linear gradient
+
+The default behavior of a linear gradient is to transition along a horizontal line from the left side((("gradients", "linear", "establishing a transition line")))((("linear gradients", "establishing a transition line"))) of an object to its right side.((("transition limits, in gradients", "transition line for linear gradients"))) If you want the transition of colors to occur across a vertical line or a line at an angle, you must specify the line’s starting point with the +x1+ and +y1+ attributes and its ending points with the +x2+ and +y2+ attributes. By default, these are also expressed as percentages from 0% to 100% or decimals from 0 to 1. <<transition-line-example>> uses the same color stops in a horizontal, vertical, and diagonal gradient.((("xlink:href attribute", "linearGradient and radialGradient elements")))
+[offline_only]#Rather than duplicate the stops into each +<linearGradient>+ element, the example uses the +xlink:href+ attribute to refer to the original left-to-right gradient.#
+[online_only]#The example shows that a linear gradient can refer to another one (useful if you need to use the same set of stops for a large number of objects).#
+The stops will be inherited, but the _x_- and _y_-coordinates will be overridden by [offline_only]#each individual# [online_only]#the referencing# gradient. [offline_only]#The arrows in <<transition-line-figure>> do not appear in the SVG of <<transition-line-example>>.#
+
+[[transition-line-example]]
+.Defining vectors for a linear gradient
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch08/transition_line.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<defs>
+<linearGradient id="three_stops">
+  <stop offset="0%" style="stop-color: #ffcc00;"/>
+  <stop offset="33.3%" style="stop-color: #cc6699"/>
+  <stop offset="100%" style="stop-color: #66cc99;"/>
+</linearGradient>
+
+<linearGradient id="right_to_left"
+  xlink:href="#three_stops"
+  x1="100%" y1="0%" x2="0%" y2="0%"/>
+
+<linearGradient id="down"
+  xlink:href="#three_stops"
+  x1="0%" y1="0%" x2="0%" y2="100%"/>
+
+<linearGradient id="up"
+  xlink:href="#three_stops"
+  x1="0%" y1="100%" x2="0%" y2="0%"/>
+
+<linearGradient id="diagonal"
+  xlink:href="#three_stops"
+  x1="0%" y1="0%" x2="100%" y2="100%"/>
+</defs>
+
+<rect x="40" y="20" width="200" height="40"
+  style="fill: url(#three_stops); stroke: black;"/>
+
+<rect x="40" y="70" width="200" height="40"
+  style="fill: url(#right_to_left); stroke: black;"/>
+
+<rect x="250" y="20" width="40" height="200"
+  style="fill: url(#down); stroke: black;"/>
+
+<rect x="300" y="20" width="40" height="200"
+  style="fill: url(#up); stroke: black;"/>
+
+<rect x="40" y="120" width="200" height="100"
+  style="fill: url(#diagonal); stroke: black;"/>
+----
+====
+
+[[transition-line-figure]]
+[role="offline_only"]
+.Defining vectors for a linear gradient
+image::images/sve2_0810.png[]
+
+[NOTE]
+====
+If you wish to establish the transition line using user space coordinates instead of percentages,((("objectBoundingBox units", "with gradientUnits")))((("gradientUnits attribute")))((("userSpaceOnUse setting", "for gradientUnits"))) set the +gradientUnits+ to +userSpaceOnUse+ instead of the default value, which is +objectBoundingBox+.
+====
+
+[[spread-method-section]]
+
+===== The spreadMethod attribute
+
+The transition line does not have to go from one corner of an object to another.((("spreadMethod attribute")))((("gradients", "linear", "spreadMethod attribute")))((("spreadMethod attribute", "for linear gradients")))((("linear gradients", "establishing a transition line", "using spreadMethod attribute")))((("transition limits, in gradients", "and spreadMethod attribute"))) What happens if you say that the transition line goes from (20%,30%) to (40%,80%)? What happens to the part of the object outside that line? You can set the +spreadMethod+ attribute to one of these values:
+
++pad+:: The beginning and ending stop colors will be extended to the edges of the object.
+
++repeat+:: The gradient will be repeated start-to-end until it reaches the edges of the object being filled.
+
++reflect+:: The gradient will be reflected end-to-start, start-to-end until it reaches the edges of the object being filled.
+
+[offline_only]#<<spread-method-figure>> shows the leftmost square’s gradient padded, the middle square’s gradient repeated, and the right square’s gradient reflected. The original transition line has been added to the SVG for each square in <<spread-method-example>> to make the effect easier to detect.# [online_only]#<<spread-method-example>> shows how these work.#
+
+
+[[spread-method-example]]
+.Effects of spreadMethod values on a linear gradient
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch08/spread_method.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<defs>
+<linearGradient id="partial"
+  x1="20%" y1="30%" x2="40%" y2="80%">
+  <stop offset="0%" style="stop-color: #ffcc00;"/>
+  <stop offset="33.3%" style="stop-color: #cc6699"/>
+  <stop offset="100%" style="stop-color: #66cc99;"/>
+</linearGradient>
+
+<linearGradient id="padded"
+  xlink:href="#partial"
+  spreadMethod="pad"/>
+
+<linearGradient id="repeated"
+  xlink:href="#partial"
+  spreadMethod="repeat"/>
+
+<linearGradient id="reflected"
+  xlink:href="#partial"
+  spreadMethod="reflect"/>
+
+<line id="show-line" x1="20" y1="30" x2="40" y2="80"
+  style="stroke: white;"/>
+</defs>
+
+<rect x="20" y="20" width="100" height="100"
+  style="fill: url(#padded); stroke: black;"/>
+<use xlink:href="#show-line" transform="translate (20,20)"/>
+
+<rect x="130" y="20" width="100" height="100"
+  style="fill: url(#repeated); stroke: black;"/>
+<use xlink:href="#show-line" transform="translate (130,20)"/>
+
+<rect x="240" y="20" width="100" height="100"
+  style="fill: url(#reflected); stroke: black;"/>
+<use xlink:href="#show-line" transform="translate (240,20)"/>
+----
+====
+
+[[spread-method-figure]]
+[role="offline_only"]
+.spreadMethod values pad, repeat, and reflect for a linear gradient
+image::images/sve2_0811.png[]
+
+[[radial-gradient-section]]
+
+==== The radialGradient Element
+
+
+The other type of gradient you can use is the radial gradient,((("gradients", "radial")))((("radialGradient element"))) where each color stop represents a circular path, radiating outward from a focus point.footnote:[If the bounding box of the object being filled is not square, the transition path will become elliptical to match the aspect ratio of the bounding box.] It’s set up in much the same way as a linear gradient. <<three-stop-radial-example>> sets three stops: orange, green, and purple. [offline_only]#The result is shown in <<three-stop-radial-figure>>.#
+
+[[three-stop-radial-example]]
+.Radial gradient with three stops
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch08/three_stop_radial.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<defs>
+  <radialGradient id="three_stops">
+    <stop offset="0%" style="stop-color: #f96;"/>
+    <stop offset="50%" style="stop-color: #9c9;"/>
+    <stop offset="100%" style="stop-color: #906;"/>
+  </radialGradient>
+</defs>
+
+<rect x="20" y="20" width="100" height="100"
+  style="fill: url(#three_stops); stroke: black;"/>
+----
+====
+
+[[three-stop-radial-figure]]
+[role="offline_only"]
+.Radial gradient with three stops
+image::images/sve2_0812.png[]
+
+[[radial-limits-section]]
+
+===== Establishing transition limits for a radial gradient
+
+Instead of using a line to((("transition limits, in gradients", "for radial gradients")))((("gradients", "radial", "transition limits for")))((("radialGradient element", "establishing transition limits for"))) determine where the 0% and 100% stop points should be, a radial gradient’s limits are determined by a circle; the center is the 0% stop point, and the outer circumference defines the 100% stop point. You define the outer circle with the +cx+ (center _x_), +cy+ (center _y_), and +r+ (radius) attributes. All of these are in terms of percentages of the object’s bounding box. The default value for all these attributes is 50%. <<radial-limits-example>> draws a square with a radial gradient with the zero point centered at the upper left of the square and the outer edge at the lower right. [offline_only]#The result is shown in <<radial-limits-figure>>.#
+
+[[radial-limits-example]]
+.Setting limits for a radial gradient
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch08/radial_limits.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<defs>
+  <radialGradient id="center_origin"
+    *cx="0%" cy="0%" r="141%*">
+      <stop offset="0%" style="stop-color: #f96;"/>
+      <stop offset="50%" style="stop-color: #9c9;"/>
+      <stop offset="100%" style="stop-color: #906;"/>
+  </radialGradient>
+</defs>
+
+<rect x="20" y="20" width="100" height="100"
+  style="fill: url(#center_origin); stroke: black;"/>
+----
+====
+
+[[radial-limits-figure]]
+[role="offline_only"]
+.Setting limits for a radial gradient
+image::images/sve2_0813.png[]
+
+[NOTE]
+====
+In the preceding example, [offline_only]#the ++radialGradient++’s +r+ was set to 141% instead of 100%.# [online_only]#to make the final (100%) stop reach the far corner exactly, use +r="141%"+.# This is because the unit used to measure the radius is the average of the height and width of the object's bounding box, not the box's diagonal. The ratio of the diagonal to the side of a square is the square root of two, or 1.41.
+====
+
+
+The 0% stop point, also called the focal point, ((("focal point (radial gradients)")))is by default placed at the center of the circle that defines the 100% stop point. If you wish to have the 0% stop point at some point other than the center of the limit circle, you must change the +fx+ and +fy+ attributes. The focal point should be within the circle established for the 100% stop point. If it’s not, the SVG viewer program will automatically move the focal point to the outer circumference of the end circle.
+
+In <<radial-focus-example>>, the circle is centered at the origin with a radius of 100%, but the focal point is at (50%,50%). [offline_only]#As you see in <<radial-focus-figure>>, this has the visual effect of moving the “center.”# [online_only]#This has the visual effect of moving the “center.”#
+
+[[radial-focus-example]]
+.Setting focal point for a radial gradient
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch08/radial_focus.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<defs>
+  <radialGradient id="focal_set"
+    cx="0%" cy="0%" fx="50%" fy="50%" r="100%">
+      <stop offset="0%" style="stop-color: #f96;"/>
+      <stop offset="50%" style="stop-color: #9c9;"/>
+      <stop offset="100%" style="stop-color: #906;"/>
+  </radialGradient>
+</defs>
+
+<rect x="20" y="20" width="100" height="100"
+  style="fill: url(#focal_set); stroke: black;"/>
+----
+====
+
+[[radial-focus-figure]]
+[role="offline_only"]
+.Setting focal point for a radial gradient
+image::images/sve2_0814.png[]
+
+The default values for the limit-setting attributes of a +<radialGradient>+ are as pass:[<phrase role="keep-together">follows</phrase>]:
+
+[options="header"]
+|===============
+|Attribute|Default value
+| +cx+ |50% (horizontal center of object bounding box)
+| +cy+ |50% (vertical center of object bounding box)
+| +r+ |50% (half the width/height of object bounding box)
+| +fx+ |Same as +cx+
+| +fy+ |Same as +cy+
+
+|===============
+
+
+[NOTE]
+====
+If you wish to establish the circle limits using user space coordinates instead of percentages, set((("gradientUnits attribute"))) the +gradientUnits+ to +userSpaceOnUse+ instead((("userSpaceOnUse setting", "for gradientUnits"))) of the default value, which is +objectBoundingBox+.
+====
+
+
+[[radial-spread-method-section]]
+
+===== The spreadMethod attribute for radial gradients
+
+In the event that the limits you’ve described don’t reach to the edges of the object,((("radialGradient element", "spreadMethod attribute")))((("gradients", "radial", "spreadMethod attribute")))((("spreadMethod attribute", "for radial gradients"))) you can set the +spreadMethod+ attribute to one of the values +pad+, +repeat+, or +reflect+ as described earlier in <<spread-method-section>> to fill up the remaining space as you wish.  [offline_only]#<<radial-spread-method-example>> has all three effects; <<radial-spread-method-figure>> shows the leftmost square’s gradient padded, the middle square’s gradient repeated, and the right square’s gradient reflected.# [online_only]#You can see these in action in <<radial-spread-method-example>>.#
+
+[[radial-spread-method-example]]
+.Effects of spreadMethod values on a radial gradient
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch08/radial_spread_method.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<defs>
+  <radialGradient id="three_stops"
+    cx="0%" cy="0%" r="70%">
+      <stop offset="0%" style="stop-color: #f96;"/>
+      <stop offset="50%" style="stop-color: #9c9;"/>
+      <stop offset="100%" style="stop-color: #906;"/>
+  </radialGradient>
+
+  <radialGradient id="padded" xlink:href="#three_stops"
+    spreadMethod="pad"/>
+  <radialGradient id="repeated" xlink:href="#three_stops"
+    spreadMethod="repeat"/>
+  <radialGradient id="reflected" xlink:href="#three_stops"
+    spreadMethod="reflect"/>
+</defs>
+
+<rect x="20" y="20" width="100" height="100"
+  style="fill: url(#padded); stroke: black;"/>
+<rect x="130" y="20" width="100" height="100"
+  style="fill: url(#repeated); stroke: black;"/>
+<rect x="240" y="20" width="100" height="100"
+  style="fill: url(#reflected); stroke: black;"/>
+----
+====
+
+[[radial-spread-method-figure]]
+[role="offline_only"]
+.spreadMethod values pad, repeat, and reflect for a radial gradient
+image::images/sve2_0815.png[]
+
+[[gradient-reference-section]]
+
+==== Gradient Reference Summary
+
+Linear and radial gradients describe a smooth transition of colors used to fill an object.((("gradients", "reference summary"))) The object in question has a bounding box, defined as the smallest rectangle that entirely contains the object. The +<linearGradient>+ and +<radialGradient>+ elements are both containers for a series of +<stop>+ elements. Each of these +<stop>+ elements specifies a +stop-color+, an +offset+, and optionally a +stop-opacity+. For linear gradients, the offset is a percentage of the distance along the gradient’s linear vector. For radial gradients, it is a percentage of the distance along the gradient’s radius.
+
+For a linear gradient, the starting point of the vector (which has the 0% stop color) is defined by the attributes +x1+ and +y1+; the ending point (which has the 100% stop color) by the attributes +x2+ and +y2+.
+
+For a radial gradient, the focal point (which has the 0% stop color) is defined by the attributes +fx+ and +fy+; the circle that has the 100% stop color is defined by its center coordinates +cx+ and +cy+ and its radius +r+.
+
+If the +gradientUnits+ attribute has((("gradientUnits attribute"))) the value +objectBoundingBox+, the coordinates are taken as a percentage of the bounding box’s dimensions (this is the default).((("objectBoundingBox units", "with gradientUnits"))) If the value is set to +userSpaceOnuse+, the coordinates are taken to be in the coordinate system used by the object being filled.((("userSpaceOnUse setting", "for gradientUnits")))
+
+If the vector for a linear gradient or the circle for a radial gradient does not reach to the boundaries of the object being filled, the remaining space will be colored as determined by the value of ((("spreadMethod attribute")))the +spreadMethod+ attribute: +pad+, the default, extends the start and end colors to the boundaries; +repeat+ repeats the gradient start-to-end until it reaches the boundaries; and +reflect+ replicates the gradient end-to-start and start-to-end until it reaches the object boundaries.((("fill style", "using gradients", range="endofrange", startref="ix_fillgrad")))((("gradients", range="endofrange", startref="ix_gradients")))((("colors", "gradients", range="endofrange", startref="ix_colorgrad")))
+
+[[pattern-gradient-transform-section]]
+
+=== Transforming Patterns and Gradients
+
+Sometimes you may need to skew, stretch, or rotate a pattern or gradient.((("transformations", "of patterns and gradients")))((("patterns", "transforming")))((("gradients", "transforming"))) You’re not transforming the object being filled; you’re transforming the pattern or the color spectrum used to fill the object. The +gradientTransform+ and +patternTransform+ attributes ((("patternTransform attribute")))((("gradientTransform attribute")))let you do just that, [offline_only]#as written in <<pattern-gradient-transform-example>> and shown in <<pattern-gradient-transform-figure>>.# [online_only]#as shown in <<pattern-gradient-transform-example>>.#
+
+[[pattern-gradient-transform-example]]
+.Transforming patterns and gradients
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch08/pattern_gradient_transform.html[width="100%", height="600px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<defs>
+  <pattern id="tile" x="0" y="0" width="20%" height="20%"
+      patternUnits="objectBoundingBox">
+  <path d="M 0 0 Q 5 20 10 10 T 20 20"
+      style="stroke: black; fill: none;"/>
+  <path d="M 0 0 h 20 v 20 h -20 z"
+      style="stroke: gray; fill: none;"/>
+  </pattern>
+
+  <pattern id="skewed-tile"
+    patternTransform="skewY(15)"
+    xlink:href="#tile"/>
+
+  <linearGradient id="plain">
+    <stop offset="0%" style="stop-color: #ffcc00;"/>
+    <stop offset="33.3%" style="stop-color: #cc6699"/>
+    <stop offset="100%" style="stop-color: #66cc99;"/>
+  </linearGradient>
+
+  <linearGradient id="skewed-gradient"
+    gradientTransform="skewX(10)"
+    xlink:href="#plain"/>
+</defs>
+
+<rect x="20" y="10" width="100" height="100"
+    style="fill: url(#tile); stroke: black;"/>
+<rect x="135" y="10" width="100" height="100"
+    style="fill: url(#skewed-tile); stroke: black;"/>
+
+<rect x="20" y="120" width="200" height="50"
+    style="fill: url(#plain); stroke: black;"/>
+<rect x="20" y="190" width="200" height="50"
+    style="fill: url(#skewed-gradient); stroke: black;"/>
+----
+====
+
+[[pattern-gradient-transform-figure]]
+[role="offline_only"]
+.Transformation of a pattern and gradient
+image::images/sve2_0816.png[]
+
+
+One final note about gradients and patterns—although these examples have applied them to only the filled area of a shape, you may also apply them to the +stroke+.((("stroke style", "using gradients and patterns"))) This lets you produce a multicolored or patterned outline for an object. You’ll usually set the +stroke-width+ to a number greater than 1 in order to make the effect more clearly visible. 
+
+[WARNING]
+====
+The +objectBoundingBox+ is based on the extent of the shape _before_ adding the stroke.((("objectBoundingBox units", "stroke and"))) Because straight vertical and horizontal lines have a zero-width or zero-height bounding box, a gradient or pattern using +objectBoundingBox+ units will be ignored when used as the stroke value for these lines. This means that the line won’t be drawn at all unless you specify a fallback stroke value like +stroke:&#160;url(#rainbow)&#160;red;+ in your style.((("files, external", "for patterns and gradients")))  
+
+Fallback fill and stroke options are also a good idea if your pattern or gradient is defined in a separate file, in case that file cannot be loaded or the SVG viewer doesn't support external references.
+====
+

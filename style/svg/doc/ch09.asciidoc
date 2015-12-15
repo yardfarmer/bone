@@ -1,0 +1,736 @@
+[[text-chapter]]
+
+== Text
+
+While it may be true that every picture tells a story, it’s perfectly all right to use words to help tell the story.((("text", id="ix_text", range="startofrange"))) Thus, SVG has several elements that let you add text to your graphics.
+
+[[text-terminology-section]]
+
+=== Text Terminology
+
+Before investigating the primary method of ((("text", "terminology")))adding text, the +<text>+ element, we should define some terms you’ll see if you read the SVG specification or if you work with text in any graphic environment:
+
+Character:: A character, as far as an XML document is concerned,((("characters, defined"))) is a byte or bytes with a numeric value according to the Unicode standard. For example, what we call the letter _g_ is the character with Unicode value 103.
+
+Glyph:: A glyph is the visible representation of a character or characters.((("glyphs"))) A single character can have many different glyphs to represent it. <<text-glyphs-figure>> shows the word _glyphs_ written with two different sets of glyphs—look particularly at the initial __g__—it’s the same character, but the glyphs are markedly different.
++
+[[text-glyphs-figure]]
+.Two sets of glyphs
+image::images/sve2_0901.png[]
++
+Multiple characters can reduce to a single glyph; some fonts have separate glyphs for the letter combinations _fl_ and _ff_ to make their spacing look better (these are called __ligatures__). Other times, a single character can be composed of multiple glyphs; a print program might create the character _é_ (which has Unicode value 233) by combining the _e_ glyph with a nonspacing accent mark (´).
++
+Font:: A font is a collection of glyphs((("fonts", "defined"))) representing a certain set of characters. 
+
+All the glyphs in a font will normally have the following characteristics in common:
+
+Baseline, ascent, and descent::   All the glyphs in a font line up on the baseline.((("baseline"))) The distance from the baseline to the top of the tallest character in the font is the ascent;((("ascent, in typography"))) the distance from the baseline to the bottom of the deepest character is the descent.((("descent, in typography"))) The total height of the character, which is the sum of the ascent and descent, is also called the em-height. The em-box is a square that has a width as large as an em-height.
+
+Cap-height, ex-height::  The cap-height is the height of a capital letter above the baseline.((("cap-height")))((("ex-height"))) The ex-height is, logically enough, the distance from the baseline to the top of a lowercase letter __x__.  The ex-height is often a better measure of the subjective size (and readability) of a font than the em-height.
+
+The baseline, ascent, and descent of a typical Roman-letter font are marked in <<text-glyph-measurement-figure>>. The upper dotted line shows the cap-height, while the lower dotted line marks the ex-height.
+
+[[text-glyph-measurement-figure]]
+
+.Glyph measurements
+image::images/sve2_0902.png[]
+
+[[text-attributes-section]]
+
+=== Simple Attributes and Properties of the <text> Element
+
+The simplest form of the +<text>+ element requires only two attributes, +x+ and +y+, which((("text", "overview"))) define the point where the baseline of the first character of the element’s content is placed. The default style for text, as with all objects, is to have a fill color of black and no outline.((("fill style", "for text")))((("stroke style", "for text"))) This, as it turns out, is precisely what you want for text. If you set the outline as well as the fill, the text looks uncomfortably thick. If you set only the outline, you can get a fairly pleasant set of outlined glyphs, especially if you lower the stroke width. <<text-placement-example>> uses the placement and stroke/fill characteristics for +<text>+; the result is <<text-placement-figure>>.
+
+[[text-placement-example]]
+.Text placement and outlining
+
+
+====
+[source,xml]
+----
+<!-- guide lines -->
+<path d="M 20 10, 20 120 M 10 30 100 30 M 10 70 100 70
+   M 10 110 100 110" style="stroke: gray;"/>
+
+<text x="20" y="30">Simplest Text</text>
+<text x="20" y="70" style="stroke: black;">Outlined/filled</text>
+<text x="20" y="110" style="stroke: black; stroke-width: 0.5;
+    fill: none;">Outlined only</text>
+----
+
+====
+
+[[text-placement-figure]]
+
+.Text placement and outlining
+image::images/sve2_0903.png[]
+
+Many of the other properties that apply to text are the same as they are in the Cascading Style Sheets standard.((("CSS", "properties", "for text")))((("text", "CSS styles and values for"))) Here are some of the CSS properties and values that are implemented in the Apache Batik viewer version 1.7. They also work in most (but not all) browsers:
+
++font-family+:: The value is a whitespace-separated list of ((("font-family style")))font family names or generic family names. This is a list of fallback values; the SVG viewer will use the first family name it recognizes. The generic names must be the last in the list. The SVG viewer is required to recognize generic names and have fonts available for them. The generic family names are  +serif+, +sans-serif+, +monospace+, +fantasy+, and +cursive+. Serif fonts have little “hooks” at the ends of the strokes; sans-serif fonts don’t. In <<text-glyphs-figure>>, the word at the left is in a serif font and the word on the right is in a sans-serif font. Both serif and sans-serif fonts are proportional; the width of a capital M is not the same as the width of a capital I. A monospace font, which may or may not have serifs, is one where all the glyphs have the same width, like the letters of a typewriter. The +fantasy+ and +cursive+ default fonts can vary considerably from one browser or SVG viewer to another.
+
++font-size+::  The value is the baseline-to-baseline distance((("font-size style"))) of glyphs if you were to have more than one line of text. (In SVG, you must position multiline +<text>+ content yourself, so the concept is somewhat abstract.) If you use units on this attribute, as in +style="font-size: 12pt"+, the size will be converted to user units before being rendered, so it can be affected by transformations and the SVG ++viewBox++.  If you use relative units (+em+, +ex+, or percentages), they are calculated relative to the inherited font size.
+
++font-weight+::  The two most commonly used values of this property ((("font-weight style")))are +bold+ and +normal+. You need the +normal+ value in case you want to place nonbold text in a group that has been set to +style="font-weight: bold"+.
+
++font-style+:: The two most commonly used values ((("font-style style")))of this property are +italic+ and +normal+.
+
++text-decoration+:: Possible values of this ((("text-decoration style")))property are +none+, +underline+, +overline+, and +line-through+.
+
++word-spacing+:: The value of this property is a length, ((("word-spacing style")))either in explicit units such as +pt+ or in user units. Make this a positive number to increase the space between words, set it to +normal+ to keep normal space, or make it negative to tighten up the space between words. The length you specify is _added_ to the normal spacing.
+
++letter-spacing+:: The value of this property is((("letter-spacing style"))) a length, either in explicit units such as +pt+ or in user units. Make this a positive number to increase the space between individual letters, set it to +normal+ to keep normal space, or make it negative to tighten up the space between letters. The length you specify is _added_ to the normal spacing.
+
+<<text-attributes-example>> uses these styles to produce <<text-attributes-figure>>, with effects you’d expect from any competent text application.
+
+[[text-attributes-example]]
+.Text weight, style, decoration, and spacing attributes
+
+====
+[source, xml]
+----
+<g style="font-size: 18pt">
+<text x="20" y="20" style="font-weight:bold;">bold</text>
+<text x="120" y="20" style="font-style:italic;">italic</text>
+<text x="20" y="60" style="text-decoration:underline;">under</text>
+<text x="120" y="60" style="text-decoration:overline;">over</text>
+<text x="200" y="60" style="text-decoration:line-through;">through</text>
+<text x="20" y="90" style="word-spacing: 10pt;">more word space</text>
+<text x="20" y="120" style="word-spacing: -3pt;">less word space</text>
+<text x="20" y="150" style="letter-spacing: 5pt;">wide letter space</text>
+<text x="20" y="180" 
+      style="letter-spacing: -6pt;">narrow letter space</text>
+</g>
+----
+
+====
+
+[[text-attributes-figure]]
+
+.Text weight, style, decoration, and spacing
+image::images/sve2_0904.png[]
+
+
+
+[[text-alignment-section]]
+
+=== Text Alignment
+
+The +<text>+ element lets you specify the starting point, but you don’t know, _a priori_, its ending point.((("alignment", "text")))((("text", "alignment"))) This would make it difficult to center or right-align text, were it not for the +text-anchor+ property.((("text-anchor style"))) You set it to a value of +start+, +middle+, or +end+. For fonts that are drawn left-to-right, these are equivalent to left, center, and right alignment. For fonts that are drawn in other directions (see <<text-i18n-section>>), these have a different effect. [offline_only]#<<text-anchor-example>> shows three text strings, all starting at an _x_-location of 100, but with differing values of +text-anchor+. A guide line is drawn to show the effect more clearly in the result, <<text-anchor-figure>>.# [online_only]#<<text-anchor-example>> lets you experiment with the values of this property. A guide line is drawn to show the effect more clearly in the result.# 
+
+[[text-anchor-example]]
+.Use of text-anchor
+
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch09/text_alignment.html[width="100%", height="250px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<g style="font-size: 14pt;">
+  <path d="M 100 10 100 100" style="stroke: gray; fill: none;"/>
+  <text x="100" y="30" style="text-anchor: start">Start</text>
+  <text x="100" y="60" style="text-anchor: middle">Middle</text>
+  <text x="100" y="90" style="text-anchor: end">End</text>
+</g>
+----
+====
+
+[role="offline_only"]
+[[text-anchor-figure]]
+.Result of using text-anchor
+image::images/sve2_0905.png[]
+
+[[tspan-section]]
+
+=== The <tspan> Element
+
+Another consequence of not knowing a text string’s length in advance is that it is ((("text", "tspan element", seealso="tspan element")))((("tspan element")))difficult to construct a string with varying text attributes, such as this sentence, which switches among _italic_, normal, and *bold* text. If you had only the +<text>+ element, you’d need to experiment to find where each differently styled segment of text ended in order to space them properly. To solve this problem, SVG provides the +<tspan>+, or text span element.((("styles", "text, changing with tspan element"))) Analogous to the (X)HTML +<span>+ element, +<tspan>+ is a _tabula rasa_ that may be embedded in text content, and upon which you may impose style changes. The +<tspan>+ remembers the text position, so you don’t have to. Thus, <<tspan-style-example>>, which produces the display in <<tspan-style-figure>>.
+
+[[tspan-style-example]]
+.Using tspan to change styles
+
+====
+[source,xml]
+----
+<text x="10" y="30" style="font-size:12pt;">
+  Switch among
+  <tspan style="font-style:italic">italic</tspan>, normal,
+  and <tspan style="font-weight:bold">bold</tspan> text.
+</text>
+----
+
+====
+
+[[tspan-style-figure]]
+
+.Styles changed with tspan
+image::images/sve2_0906.png[]
+
+In addition to changing presentation properties such as font size, color, weight, etc., you can also use attributes with +<tspan>+ to change the positioning of individual letters or sets of letters. If, for example, you want superscripts or subscripts, you can use the +dy+ attribute to offset characters within a span.((("subscripts and superscripts", "using dy attribute of tspan"))) The value you assign to this attribute is added to the vertical position of the characters, and continues to affect text even outside the span.((("tspan element", "vertical positioning with dy attribute"))) Negative values are allowed. A similar attribute, +dx+, offsets characters horizontally. <<tspan-offset-example>> uses vertical offsets to create the “falling letters” in <<tspan-offset-figure>>.
+
+[[tspan-offset-example]]
+.Using dy to change vertical positioning within text
+
+====
+[source,xml]
+----
+<text x="10" y="30" style="font-size:12pt;">
+  F <tspan dy="4">a</tspan>
+  <tspan dy="8">l</tspan>
+  <tspan dy="12">l</tspan>
+</text>
+----
+====
+
+[[tspan-offset-figure]]
+
+.Vertical positioning with dy
+image::images/sve2_0907.png[]
+
+If you wish to express the offsets in absolute terms rather than relative terms, use the +x+ and +y+ attributes. This is handy for doing multiline runs of text.((("tspan element", "using absolute positioning with"))) As you will see in <<text-whitespace-section>>, SVG never displays newline characters in text, so you need to manually reset the +x+ value for each line, and use +y+ or +dy+ to position it vertically. You should always use ++<tspan>++s within a +<text>+ element to group related lines, not only to allow them to be selected as a unit, but also because it adds structure to your document. <<tspan-positioning-example>> presents a verse of Edward Lear's _The Owl and the Pussycat_ using +<tspan>+ elements with absolute __x__-coordinates and a mix of +y+ and +dy+ values.
+
+[[tspan-positioning-example]]
+.Use of absolute positioning with tspan
+
+====
+[source,xml]
+----
+<text x="10" y="30" style="font-size:12pt;">
+  They dined on mince, and slices of quince,
+  <tspan x="20" y="50">Which they ate with a
+    runcible spoon;</tspan>
+  <tspan x="10" y="70">And hand in hand, on the edge
+    of the sand,</tspan>
+  <tspan x="20" dy="20">They danced by the light of the moon.</tspan>
+</text>
+----
+
+====
+
+There’s no visual evidence in <<tspan-positioning-figure>> that all the text is in one +<text>+ element, but trust us—they’re all connected.
+
+[[tspan-positioning-figure]]
+
+.Absolutely positioned poetry
+image::images/sve2_0908.png[]
+
+You may also rotate a letter or series of letters within a +<tspan>+ by using the +rotate+ attribute,((("tspan element", "rotate attribute"))) whose value is an angle in degrees.
+
+If you have to modify the positions of several characters, you can do it easily by specifying a series of numbers for any of the +x+, +y+, +dx+, +dy+, and +rotate+ attributes.((("tspan element", "using multiple values for dx, dy, and rotate attributes"))) The numbers you specified will be applied, one after another, to the characters within the +<tspan>+. This is shown in <<tspan-multi-example>>.
+
+[[tspan-multi-example]]
+.Use of multiple values for dx, dy, and rotate in a text span
+
+====
+[source,xml]
+----
+<text x="30" y="30" style="font-size:14pt">It’s
+<tspan dx="0 4 -3 5 -4 6" dy="0 -3 7 3 -2 -8"
+  rotate="5 10 -5 -20 0 15">shaken</tspan>,
+not stirred.
+</text>
+----
+
+====
+
+Notice in <<tspan-multi-figure>> that the effects of +dx+ and +dy+ persist after the +<tspan>+ ends. The text after the closing +</tspan>+ is at the same offsets as the letter +n+ in +shaken+. The text does not return to the baseline established by the first letter in the +<tspan>+.
+
+[[tspan-multi-figure]]
+
+.Multiple horizontal and vertical offsets
+image::images/sve2_0909.png[]
+
+Although you can use the +dy+ attribute to produce superscripts and subscripts, it’s easier to use the +baseline-shift+ style,((("subscripts and superscripts", "using baseline-shift with tspan element")))((("baseline-shift style"))) as in <<baseline-shift-example>>.((("tspan element", "using baseline-shift"))) This style property has values of +super+ and +sub+. You may also specify a length, such as +0.5em+, or a percentage, which is calculated in terms of the font size. ++baseline-shift++’s effects are restricted to the span in which it occurs.
+
+[[baseline-shift-example]]
+.Use of baseline-shift
+
+====
+[source,xml]
+----
+<text x="20" y="25" style="font-size: 12pt;">
+C<tspan style="baseline-shift: sub;">12</tspan>
+H<tspan style="baseline-shift: sub;">22</tspan>
+O<tspan style="baseline-shift: sub;">11</tspan> (sugar)
+</text>
+
+<text x="20" y="70" style="font-size: 12pt;">
+6.02 x 10<tspan baseline-shift="super">23</tspan>
+(Avogadro's number)
+</text>
+----
+
+====
+In <<baseline-shift-figure>>, the subscripted numbers appear too large. In an ideal case, you’d set the +font-size+ as well, but we wanted this example to concentrate on only one concept.
+
+[[baseline-shift-figure]]
+
+.Subscripts and superscripts
+image::images/sve2_0910.png[]
+
+[[textlength-section]]
+
+=== Setting textLength
+
+Although, as mentioned previously, there’s no _a priori_ way to determine the endpoint of a segment of text, you can explicitly specify the length of text as the value of the +textLength+ attribute.((("text", "textLength attribute"))) SVG will then fit the text into the given space. It does so by adjusting the space between glyphs and leaving the glyphs themselves untouched, or it can fit the words by adjusting both the spacing and glyph size.((("text", "lengthAdjust attribute"))) If you want to adjust space only, set the value of the +lengthAdjust+ to +spacing+ (this is the default). If you want SVG to fit the words into a given length by adjusting both spacing and glyph size, set +lengthAdjust+ to +spacingAndGlyphs+. [online_only]#<<textlength-example>> uses these attributes.# [offline_only]#<<textlength-example>> uses these attributes to achieve the results of <<textlength-figure>>.#
+
+[[textlength-example]]
+.Use of textLength and lengthAdjust
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch09/text_length.html[width="100%", height="350px"]
+
+[role="offline_only"]
+[source, xml]
+----
+<g style="font-size: 14pt;">
+<path d="M 20 10 20 70 M 220 10 220 70" style="stroke: gray;"/>
+<text x="20" y="30"
+  textLength="200" lengthAdjust="spacing">Two words</text>
+<text x="20" y="60"
+  textLength="200" lengthAdjust="spacingAndGlyphs">Two words</text>
+
+<text x="20" y="90">Two words
+  <tspan style="font-size: 10pt;">(normal length)</tspan></text>
+
+<path d="M 20 100 20 170 M 100 100 100 170" style="stroke: gray;"/>
+<text x="20" y="120"
+  textLength="80" lengthAdjust="spacing">Two words</text>
+<text x="20" y="160"
+  textLength="80" lengthAdjust="spacingAndGlyphs">Two words</text>
+</g>
+----
+====
+
+[role="offline_only"]
+[[textlength-figure]]
+.Effects of varying textLength and lengthAdjust
+image::images/sve2_0911.png[]
+
+[[vertical-text-section]]
+
+=== Vertical Text
+
+When you use SVG to create charts, graphs, or tables, you will often want labels running down the vertical axes.((("text", "vertical"))) One way to achieve vertically oriented text is to use a transformation to +rotate+ the text 90 degrees. Another way to achieve the same effect is to change the value of the +writing-mode+ style property((("writing-mode style"))) to the value +tb+ (meaning __t__op to __b__ottom).
+
+Sometimes, though, you want the letters to appear in a vertical column with no rotation.
+
+<<vertical-text-example>> does this by setting the +glyph-orientation-vertical+ property((("glyph-orientation-vertical style"))) with a value of 0. (Its default value is 90, which is what rotates top-to-bottom text 90 degrees.) In <<vertical-text-figure>>, this setting tends to display the inter-letter spacing as unnaturally large.((("letter-spacing style"))) Setting a small negative value for +letter-spacing+ solves this problem.
+
+[[vertical-text-example]]
+.Producing vertical text
+
+====
+[source,xml]
+----
+<text x="10" y="20" transform="rotate(90,10,20)">Rotated 90</text>
+<text x="50" y="20" style="writing-mode: tb;">Writing Mode tb</text>
+<text x="90" y="20" style="writing-mode: tb;
+   glyph-orientation-vertical: 0;">Vertical zero</text>
+----
+====
+
+If you have been trying out these examples, you may have noticed that a number of features (such as +baseline-shift+, spacing, and vertical text) are poorly supported in some browsers. It’s always a good idea to test out your designs in any SVG viewers that you want to support.
+
+[[vertical-text-figure]]
+.Vertical text
+image::images/sve2_0912.png[]
+
+[[text-i18n-section]]
+
+=== Internationalization and Text
+
+If your graphic has text that needs to be translated into multiple languages,((("internationalization, text and", id="ix_intltext", range="startofrange")))((("text", "internationalization"))) SVG’s support for Unicode and ability to display many languages in a single document will save you the trouble of creating separate documents for each language.
+
+[[unicode-text-section]]
+
+==== Unicode and Bidirectionality
+
+XML is based on the ((("Unicode")))((("text", "internationalization", "Unicode and bidirectionality")))Unicode standard (fully documented at link:$$http://www.unicode.org$$[the Unicode Consortium’s website]).((("languages", "Unicode and bidirectional text"))) This lets text display in any language the underlying viewer software can display, as you can see in <<bidirectional-text-figure>>.((("bidirectional text"))) Some languages such as Arabic and Hebrew are written right to left, so when text in these languages is mixed with text written left to right, as English is, the text is bidirectional, or _bidi_ for short. The system software knows which characters go in which direction and works out their positions accordingly. <<bidirectional-text-example>> also overrides the implicit directionality of a segment of text by setting its +direction+ style property to +rtl+, which stands for __r__ight-__t__o-__l__eft. If you wish to change the direction of Hebrew or Arabic text, set it to +ltr+, which is __l__eft-__t__o-__r__ight. You must also explicitly override the underlying Unicode bidirectionality algorithm by setting the +unicode-bidi+ style property to +bidi-override+.
+
+[[bidirectional-text-example]]
+.International text using Unicode
+
+====
+[source,xml]
+----
+<g style="font-size: 14pt;">
+
+<text x="10" y="30">Greek: </text>
+<text x="100" y="30">
+  αβγδε
+</text>
+
+<text x="10" y="50">Russian:</text>
+<text x="100" y="50">
+  абвгд
+</text>
+
+<text x="10" y="70">Hebrew:</text>
+<text x="100" y="70">
+    אבגדה (written right to left)
+</text>
+
+<text x="10" y="90">Arabic:</text>
+<text x="100" y="90">
+  ا ب ج د(written right to left)
+</text>
+
+<text x="10" y="130">
+  This is
+    <tspan style="direction: rtl; unicode-bidi: bidi-override;
+      font-weight: bold;">right-to-left</tspan>
+  writing.
+</text>
+</g>
+----
+====
+
+[[bidirectional-text-figure]]
+
+.Multilingual text
+image::images/sve2_0913.png[]
+
+[[switch-language-section]]
+
+==== The <switch> Element
+
+The ability to display multiple languages in a single document is useful ((("text", "internationalization", "switching languages with switch element")))((("languages", "switching")))for such things as a brochure for an event that receives international visitors. Sometimes, though, you would like to create one document with content in two languages—say, Spanish and Russian. People viewing the document with Spanish system software would see the Spanish text, and Russians would see Russian text.((("switch element")))
+
+SVG provides this capability with the +<switch>+ element. This element searches through all its children until it finds one whose +systemLanguage+ attribute((("systemLanguage attribute"))) has a value that matches the language the user has chosen in the viewer software’s preferences.footnote:[The +<switch>+ element can also be used for other tests; in <<svg-with-html-mixed-doc-foreignObject>>, we showed how to use a switch to test for support for specific features.  If you use multiple test attributes on the children of a +<switch>+ element, all of them must match for the content to be displayed.] 
+The value of +systemLanguage+ is a single value or comma-separated list of language names. A language name is either a two-letter language code, such as +ru+ for Russian, or a language code followed by a country code, which specifies a sublanguage. For instance, +fr-CA+ denotes Canadian French, while +fr-CH+ denotes Swiss French.
+
+Once a matching child element is found, all its children will be displayed. All the other children of the +<switch>+ will be bypassed. <<switch-language-example>> shows text in UK English, US English, Spanish, and Russian. A match of language code alone is considered a match, and country codes are used only to “break a tie,” so the text for UK English must come first.
+
+[[switch-language-example]]
+.Use of the switch element
+
+====
+[source,xml]
+----
+<circle cx="40" cy="60" r="20" style="fill: none; stroke: black;"/>
+<g font-size="12pt">
+  <switch>
+    <g systemLanguage="en-UK">
+      <text x="10" y="30">A circle</text>
+      <text x="10" y="100">without colour.</text>
+    </g>
+    <g systemLanguage="en">
+      <text x="10" y="30">A circle</text>
+      <text x="10" y="100">without color.</text>
+    </g>
+    <g systemLanguage="es">
+      <text x="10" y="30">Un círculo</text>
+      <text x="10" y="100">sin color.</text>
+    </g>
+    <g systemLanguage="ru">
+      <text x="10" y="30">Круг</text>
+      <text x="10" y="100">без света.</text>
+    </g>
+  </switch>
+</g>
+----
+====
+
+<<switch-language-figure>> is a combination of screenshots taken with the language set to each of the choices in <<switch-language-example>>. You should normally provide a fallback (a group without any +systemLanguage+ attribute, as the last element in the +<switch>+ block) to display _something_ in case none of the languages match. Ideally, you would like to give users a way of selecting a language from the ones you have available.
+
+[[switch-language-figure]]
+
+.Combined screenshots as seen with different language preferences
+image::images/sve2_0914.png[]
+
+[[custom-font-section]]
+
+==== Using a Custom Font
+
+Sometimes you need special symbols that are not represented in Unicode, or you want a subset of the Unicode characters without having to install an entire font.((("fonts", "using a custom font")))((("text", "internationalization", "custom font"))) An example is <<custom-font-figure>>, which needs only a few of the over 2,000 Korean syllables. You can create a custom font as described in <<svg-font-appendix>> and give its starting +<font>+ tag a unique +id+. Here is the relevant portion of a file  containing six of the Korean syllables exported from the Batang TrueType font.((("font-face element"))) The file is called _kfont.svg_:
+
+[source,xml]
+----
+<font id="kfont-defn" horiz-adv-x="989" vert-adv-y="1200"
+  vert-origin-y="0">
+  <font-face font-family="bakbatn"
+    units-per-em="1000"
+    panose-1="2 3 6 0 0 1 1 1 1 1"
+    ascent="800" descent="-200" baseline="0" />
+    <missing-glyph horiz-adv-x="500" />
+    <!-- glyph definitions go here -->
+  </font-face>
+</font>
+----
+
+[[custom-font-figure]]
+
+.Korean syllables from an external font
+image::images/sve2_0915.png[]
+
+Once that is done, <<custom-font-example>> can reference the font in that external file. For the sake of consistency, the value of the +font-family+ you use ((("files, external", "for SVG fonts")))((("font-family style", "matching value in external font file")))in this SVG file should match the value in the external file.
+
+
+[[custom-font-example]]
+.Use of an external font
+
+====
+[source,xml]
+----
+<defs>
+  <font-face font-family="bakbatn">
+    <font-face-src>
+      <font-face-uri xlink:href="kfont.svg#kfont-defn">
+        <font-face-format string="svg" />
+      </font-face-uri>
+    </font-face-src>
+  </font-face>
+</defs>
+
+<text font-size="28" x="20" y="40"
+  style="font-family: bakbatn, serif;">
+    서울 - 대한민국
+</text>
+----
+====
+
+[WARNING]
+====
+SVG fonts are currently not supported in Internet Explorer browsers (including version 11) or Firefox browsers (version 30).((("web browsers", "SVG fonts and")))  For these browsers, you can include a second +<font-face-src>+ element, ((("font-face-src element")))with the URI of an alternate font file in a different format.  Alternatively, you can use a +<font-face-name>+ element((("font-face-name element"))) with the single attribute +name+, containing the name of a system font to use.  All of these elements have the same interpretation as their equivalent CSS font-face properties.
+
+If none of your specified fonts can be used, the browser will try to find any font on its system that can display the Unicode characters used in the text.((("internationalization, text and", range="endofrange", startref="ix_intltext")))
+====
+
+[[text-path-section]]
+
+=== Text on a Path
+
+Text does not have to go in a straight horizontal or vertical line.((("text", "on a path")))((("paths", "text on"))) It can follow any arbitrary path; simply enclose the text in a +<textPath>+ element that uses((("textPath element"))) an +xlink:href+ attribute to refer to a previously defined +<path>+ element.((("xlink:href attribute", "textPath element"))) Letters will be rotated to stand “perpendicular” to the curve (i.e., the letter’s baseline will be tangent to the curve). Text along a gently curving and continuous path is easier to read than text that follows a sharply angled or discontinuous path.
+
+
+[WARNING]
+====
+Referencing a +<path>+ within a +<textPath>+ element does ((("textPath element", "referencing a path element in")))not automatically display that path. In <<text-path-example>>, the ++<path>++s are defined in a +<defs>+ section, so they wouldn’t normally be displayed. The example has +<use>+ elements to draw the visible lines.
+====
+
+[[text-path-example]]
+.Examples of textPath
+====
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch09/text_path.html[width="100%", height="250px"]
+
+[source,xml]
+----
+<defs>
+<path id="curvepath"
+    d="M30 40 C 50 10, 70 10, 120 40 S 150 0, 200 40"
+    style="stroke: gray; fill: none;"/>
+
+<path id="round-corner"
+    d="M250 30 L 300 30 A 30 30 0 0 1 330 60 L 330 110"
+    style="stroke: gray; fill: none;"/>
+
+<path id="sharp-corner"
+    d="M 30 110 100 110 100 160"
+    style="stroke: gray; fill: none;"/>
+
+<path id="discontinuous"
+    d="M 150 110 A 40 30 0 1 0 230 110 M 250 110 270 140"
+    style="stroke: gray; fill: none;"/>
+</defs>
+
+<g style="font-family: 'Liberation Sans';
+  font-size: 10pt;">
+  <use xlink:href="#curvepath"/>
+  <text>
+    <textPath xlink:href="#curvepath">
+    Following a cubic Bézier curve.
+    </textPath>
+  </text>
+
+  <use xlink:href="#round-corner"/>
+  <text>
+    <textPath xlink:href="#round-corner">
+    Going 'round the bend
+    </textPath>
+  </text>
+
+  <use xlink:href="#sharp-corner"/>
+  <text>
+    <textPath xlink:href="#sharp-corner">
+    Making a quick turn
+    </textPath>
+  </text>
+
+  <use xlink:href="#discontinuous"/>
+  <text>
+      <textPath xlink:href="#discontinuous">
+      Text along a broken path
+      </textPath>
+  </text>
+</g>
+----
+====
+
+[role="offline_only"]
+<<text-path-example>> produces <<text-path-showing-path-figure>>; <<text-path-figure>> shows you what it looks like if we draw the text without the underlying paths.
+
+[role="offline_only"]
+[[text-path-showing-path-figure]]
+.Text along a path (with paths shown)
+image::images/sve2_0916.png[]
+
+[role="offline_only"]
+[[text-path-figure]]
+.Text along a path (paths not shown)
+image::images/sve2_0917.png[]
+
+You may adjust the beginning point of the text along its path by setting the +startOffset+ attribute((("startOffset attribute, textPath element")))((("textPath element", "startOffset attribute"))) to a percentage or to a length. For example, +startOffset="25%"+ will start the text one-fourth of the distance along the path, and +startOffset="30"+ will start the text at a distance of 30 user units from the beginning of the path.((("text-anchor style"))) If you wish to center text on a path, as in <<start-offset-example>>, set +textanchor="middle"+ on the +<text>+ element and +startOffset="50%"+ on the +<textPath>+ element. [offline_only]#Text falling beyond the ends of the path will not be displayed, as shown in the left half of <<start-offset-figure>>.# [online_only]#Text falling beyond the ends of the path will not be displayed.#
+
+[[start-offset-example]]
+.Text length and startOffset
+====
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch09/start_offset.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<defs>
+  <path id="short-corner" transform="translate(40,40)"
+      d="M0 0 L 30 0 A 30 30 0 0 1 60 30 L 60 60"
+    style="stroke: gray; fill: none;"/>
+
+  <path id="long-corner" transform="translate(140,40)"
+      d="M0 0 L 50 0 A 30 30 0 0 1 80 30 L 80 80"
+    style="stroke: gray; fill: none;"/>
+</defs>
+
+<g style="font-family: 'Liberation Sans'; font-size: 12pt">
+  <use xlink:href="#short-corner"/> 
+  <text>
+    <textPath xlink:href="#short-corner">
+      This text is too long for the path.
+      </textPath>
+  </text>
+
+  <use xlink:href="#long-corner"/>  
+  <text style="text-anchor: middle;">
+    <textPath xlink:href="#long-corner" startOffset="50%">
+      centered
+    </textPath>
+  </text>
+</g>
+----
+====
+
+[role="offline_only"]
+[[start-offset-figure]]
+.Effects of long text and startOffset
+image::images/sve2_0918.png[]
+
+
+[[text-whitespace-section]]
+
+=== Whitespace and Text
+
+You may change the way SVG handles whitespace (blanks, tabs, and newline characters) within((("whitespace", "SVG handling of, in text")))((("text", "whitespace and"))) text by changing the value of the +xml:space+ attribute.((("xml:space attribute"))) If you specify a value of +default+ (which, coincidentally, is the default value), SVG will ((("newlines, SVG handling of")))handle whitespace as follows:
+
+
+* Remove all newline characters
+
+* Change all ((("tabs, SVG handling of")))tabs to blanks
+
+* Remove all leading and((("blanks, SVG handling of"))) trailing blanks
+
+* Change any run of intermediate blanks to a single blank
+
+Thus, this string, where _\t_ represents a tab and _\n_ represents a newline, and an underscore represents a blank:
+
+----
+   \n\n___abc_\t\t_def_\n\n__ghi
+----
+
+will render as:
+
+----
+   abc_def_ghi
+----
+
+The other setting of +xml:space+ is +preserve+. With this setting, SVG will simply convert all newline and tab characters to blanks, and then display the result, including leading and trailing blanks. The same text:
+
+----
+   \n\n___abc_\t\t_def_\n\n__ghi
+----
+
+then renders as:
+
+----
+   _____abc____def_____ghi
+----
+
+[WARNING]
+====
+SVG’s handling of whitespace is not like that of HTML.((("HTML", "handling of whitespace"))) SVG’s default handling eliminates all newlines; HTML changes internal newlines to a space. SVG’s +preserve+ method converts newlines to blanks; HTML’s +<pre>+ element does not. There is no newline in SVG 1.0; this bothers people until they realize that SVG text is oriented toward graphic display, not textual content (as in XHTML).
+====
+
+[[text-case-study-section]]
+
+=== Case Study: Adding Text to a Graphic
+
+<<text-case-study-figure>> adds Korean and English text to the Korean national symbol shown in <<arc-path-figure>>. The text is centered along an elliptical path.((("text", "adding to a graphic", id="ix_textadd", range="startofrange"))) The additional SVG in <<text-case-study-example>> is shown in boldface.
+
+[[text-case-study-example]]
+.Text case study
+====
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+*<defs>
+  <font-face font-family="bakbatn">
+    <font-face-src>
+      <font-face-uri xlink:href="kfont.svg#kfont-defn">
+        <font-face-format string="svg" />
+      </font-face-uri>
+    </font-face-src>
+  </font-face>
+
+  <path id="upper-curve" d="M -8 154 A 162 130 0 1 1 316 154"/>
+  <path id="lower-curve" d="M -21 154 A 175 140 0 1 0 329 154"/>
+</defs>*
+
+<ellipse cx="154" cy="154" rx="150" ry="120" style="fill: #999999;"/>
+<ellipse cx="152" cy="152" rx="150" ry="120" style="fill: #cceeff;"/>
+
+<!--
+  large light red semicircle fills upper half,
+  followed by small light red semicircle that dips into
+  lower-left half of symbol
+-->
+<path d="M 302 152 A 150 120, 0, 1, 0, 2 152
+  A 75 60, 0, 1, 0, 152 152" style="fill: #ffcccc;"/>
+
+<!--
+  light blue semicircle rises
+  into upper-right half of symbol
+-->
+<path d="M 152 152 A 75 60, 0, 1, 1, 302 152"
+  style="fill: #cceeff;"/>
+
+*<text font-family="bakbatn, serif"
+  style="font-size: 24pt; text-anchor: middle;">
+  <textPath xlink:href="#upper-curve" startOffset="50%">
+    서울 - 대한민국
+  </textPath>
+</text>
+
+<text style="font-size: 14pt; text-anchor: middle;">
+  <textPath xlink:href="#lower-curve" startOffset="50%">
+  Seoul - Republic of Korea
+  </textPath>
+</text>*
+----
+====
+
+[[text-case-study-figure]]
+
+.Text along path added to graphic
+image::images/sve2_0919.png[]
+
+((("text", "adding to a graphic", range="endofrange", startref="ix_textadd")))((("text", range="endofrange", startref="ix_text")))

@@ -18,21 +18,14 @@
 
 <script>
 
-    /**
-     * 调试时放慢运行速度
-     */
 //    $.Velocity.mock = 1;
 
-
-    /**
-     * 1. 参数
-     */
         // Velocity takes a map of CSS properties
         // and values as its first argument.
         // An options object can optionally be passed in as a second argument:-
 
-        //  1. 第一组参数是 css 属性,
-        //  2. 第二个参数是 velocity 属性
+        //  1. ?????????? css ????,
+        //  2. ??????????? velocity ????
 
     $element.velocity({
         width: "300px",
@@ -61,14 +54,14 @@
         // Simply pass in a single object with
         // properties (or p) and options (or o) members:
 
-        // 也支持单个参数, 如
+        // ???????????, ??
 
         //    $element.velocity({
         //        properties: {opacity: 1},
         //        options: {duration: 500}
         //    });
 
-        // 或者是
+        // ??????
 
     $element.velocity({
         p: {opacity: 1},
@@ -77,11 +70,11 @@
 
 
     /**
-     *  逗号分隔参数
+     *  ??????????
      */
 
-        // 除了这些, velocity 也支持向 jquery 那样的以逗号分隔的参数
-        // 但是仅限于
+        // ??????些, velocity ?????? jquery ??????????????????
+        // ?????????
         // but only for the
         // duration, easing, and complete properties:
         // $element.velocity(propertyMap [, duration] [, easing] [, complete]).
@@ -95,12 +88,12 @@
 
 
     /**
-     * 2. 属性 map
+     * 2. ???? map
      */
-        // 属性值支持数值型, 一个属性一个单数值
-        // { paddingLeft: 1} 如 But you cannot pass in { padding: "1 1 1 1" }
+        // ?????????????, ???????????????
+        // { paddingLeft: 1} ?? But you cannot pass in { padding: "1 1 1 1" }
 
-        // 单位: Velocity supports the px, em, rem, %, deg, and vw/vh units.
+        // ??位: Velocity supports the px, em, rem, %, deg, and vw/vh units.
 
     $element.velocity({
         top: 20, // Defaults to the px unit type
@@ -111,12 +104,12 @@
 
 
     /**
-     * 链式执行, 如上面的例子所示,
-     * 当一个元素身上调用多次 velocity 方法时, 按照队列来, 前边的完事后边的才开始
+     * ??????, ??????????????,
+     * ????????????????? velocity ?????, ?????????, ??????????????
      *
      * When multiple Velocity calls are stacked onto an element
      * (or a series of elements),
-     * they automatically queue onto one another —
+     * they automatically queue onto one another ??
      * with each one firing once its prior animation has completed:
      */
 
@@ -128,11 +121,11 @@
             .velocity({height: 0});
 
 
-    // durations 支持毫秒级
+    // durations ??????
     $element.velocity({width: "*=2", height: 100}, {duration: 1000});
 
     /**
-     *  css 的支持见: http://julian.com/research/velocity/#cssSupport
+     *  css ??????: http://julian.com/research/velocity/#cssSupport
      */
 
     /* Use one of the jQuery UI easings. */
@@ -145,8 +138,8 @@
     /**
      * Spring physics:
      * Pass a two-item array in the form of [ tension, friction ].
-     * tension: 速度,活泼, A higher tension (default: 500) increases total speed and bounciness.
-     * friction: 结束时的速度, 摩擦力大结束时的速度就大 A lower friction (default: 20) increases ending vibration speed.
+     * tension: ???,????, A higher tension (default: 500) increases total speed and bounciness.
+     * friction: ??????????, ?????????????????? A lower friction (default: 20) increases ending vibration speed.
      */
     $element.velocity({width: 250, height: 300}, [800, 10]);
 
@@ -228,8 +221,8 @@
 
     /**
      * http://julian.com/research/velocity/#beginAndComplete
-     * hook, 提供了一个类似 $.css() 的方法,第一个参数事 dom 节点,
-     * 后面是设置的属性和相应的值
+     * hook, ??????????? $.css() ?????,??????????? dom ???,
+     * ??????????????????????
      */
 //    $.Velocity.hook($element, "translateX", "-500px"); // Must provide unit type
     $.Velocity.hook($element, "textShadowBlur", "10px"); // Must provide unit type

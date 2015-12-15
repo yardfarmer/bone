@@ -1,0 +1,388 @@
+[[clipping-masking-chapter]]
+
+== Clipping and Masking
+
+Sometimes you don’t want to see an entire picture.((("clipping graphics", id="ix_clipping", range="startofrange"))) For example, you might wish to draw a picture as though it were seen through binoculars or a keyhole; everything outside the boundary of the eyepieces or keyhole will be invisible. Or, you might want to set a mood by showing an image as though viewed through a translucent curtain. SVG accomplishes such effects with clipping and masking.
+
+[[clip-path-section]]
+
+=== Clipping to a Path
+
+When you create an SVG document, you establish its viewport by specifying the width and height((("paths", "clipping to"))) of the area you’re interested in.((("viewport", "clipping area"))) This becomes by default your clipping area; ((("clipping area")))anything drawn outside these limits will not be displayed.footnote:[You can change this behavior by setting the +overflow+ style property to +visible+.] You can establish a clipping area of your own with the +<clipPath>+ element.((("clipPath element"))) 
+
+Here’s the simplest case: establishing a rectangular clip path. Inside the +<clipPath>+ element will be the +<rect>+ you want to clip to. The rectangle itself is not displayed; we only love it for its coordinates. Thus, you are free to add any fill or stroke styles you wish to the elements within the +<clipPath>+. On the object to be clipped, you add a +clip-path+ style property((("clip-path style"))) whose value references the +<clipPath>+ element. Note that the property is hyphenated and not capitalized; the element is capitalized and not hyphenated. In <<clip-path-example>>, the object being clipped is a small version of the cat picture from <<getting-started-chapter>>. [offline_only]#The result is in <<clip-path-figure>>.#
+
+[[clip-path-example]]
+.Clipping to a rectangular path
+
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch10/clip_path.html[width="100%", height="160px"]
+
+[source, xml]
+----
+<svg width="350" height="200" viewBox="0 0 350 200"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+  <clipPath id="rectClip">
+    <rect id="rect1" x="15" y="15"
+      width="40" height="45"
+      style="stroke: gray; fill: none;"/>
+  </clipPath>
+  </defs>
+
+  <!-- clip to rectangle -->
+  <use xlink:href="minicat.svg#cat"
+    style="clip-path: url(#rectClip);"/>
+
+  <!--
+    for reference, show entire picture
+    with clipping area outlined
+  -->
+  <g transform="translate(100,0)">
+    <use xlink:href="#rect1"/>    <!-- show clip rectangle -->
+    <use xlink:href="minicat.svg#cat"/>
+  </g>
+</svg>
+----
+====
+
+[[clip-path-figure]]
+.Simple rectangular clipping
+[role="offline_only"]
+image::images/sve2_1001.png[]
+
+
+As the name +<clipPath>+ implies, you can clip to any arbitrary path. Indeed, the +<clipPath>+ element can contain any number of basic shapes, +<path>+ elements, or +<text>+ elements. <<complex-clip-path-example>> shows a group of shapes clipped to a curved path and the same group of shapes clipped by text.((("text", "text elements in clipPath element")))((("shapes", "in clipPath element")))((("clipPath element", "basic shapes, path elements, or text elements in")))
+
+[[complex-clip-path-example]]
+.Complex clip paths
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch10/complex_clip_path.html[width="100%", height="200px"]
+
+[source, xml]
+----
+<defs>
+  <clipPath id="curveClip">
+    <path id="curve1"
+      d="M5 55 C 25 5, 45 -25, 75 55, 85 85, 20 105, 40 55 Z"
+      style="stroke: black; fill: none;"/>
+  </clipPath>
+
+  <clipPath id="textClip">
+    <text id="text1" x="20" y="20" transform="rotate(60)"
+      style="font-family: 'Liberation Sans';
+        font-size: 48pt; stroke: black; fill: none;">
+      CLIP
+    </text>
+  </clipPath>
+
+  <g id="shapes">
+    <rect x="0" y="50" width="90" height="60" style="fill: #999;"/>
+    <circle cx="25" cy="25" r="25" style="fill: #666;"/>
+    <polygon points="30 0 80 0 80 100" style="fill: #ccc;"/>
+  </g>
+</defs>
+
+<!-- draw with curved clip-path -->
+<use xlink:href="#shapes" style="clip-path: url(#curveClip);" />
+
+<!-- draw with text as clip-path -->
+<use transform="translate(100, 0)"
+  xlink:href="#shapes" style="clip-path: url(#textClip);"/>
+
+<g transform="translate(0, 150)">
+  <use xlink:href="#shapes"/>
+  <use xlink:href="#curve1"/>   <!-- show clip path -->
+</g>
+
+<g transform="translate(100,150)">
+  <use xlink:href="#shapes"/>
+  <use xlink:href="#text1"/>
+</g>
+----
+====
+
+[role="offline_only"]
+To help you see the areas better, the preceding SVG draws the clipping path above the entire figure; you see this in the right half of <<complex-clip-path-figure>>.
+
+[[complex-clip-path-figure]]
+
+.Complex path clipping
+[role="offline_only"]
+image::images/sve2_1002.png[]
+
+The coordinates for the preceding clip paths have been specified in user coordinates. If you wish to express coordinates in terms of the object bounding box, then((("objectBoundingBox units", "with clipPathUnits")))((("clipPathUnits attribute"))) set +clipPathUnits+ to +objectBoundingBox+ (the default is +userSpaceOnUse+). <<clip-path-bounding-example>> uses a clip path that will produce a circular (or oval) window on any object it’s pass:[<phrase role="keep-together">applied to</phrase>].((("userSpaceOnUse setting", "for clipPathUnits")))
+
+[[clip-path-bounding-example]]
+.clipPathUnits using objectBoundingBox
+
+====
+[source,xml]
+----
+<defs>
+ <clipPath id="circularPath" clipPathUnits="objectBoundingBox">
+   <circle cx="0.5" cy="0.5" r="0.5"/>
+ </clipPath>
+
+  <g id="shapes">
+    <rect x="0" y="50" width="100" height="50" style="fill: #999;"/>
+    <circle cx="25" cy="25" r="25" style="fill: #666;"/>
+    <polygon points="30 0 80 0 80 100" style="fill: #ccc;"/>
+  </g>
+
+  <g id="words">
+    <text  x="0"  y="19" style="font-family: 'Liberation Sans';
+      font-size: 14pt;">
+    <tspan x="0"  y="19">If you have form'd a circle</tspan>
+    <tspan x="12" y="35">to go into,</tspan>
+    <tspan x="0"  y="51">Go into it yourself</tspan>
+    <tspan x="12" y="67">and see how you would do.</tspan>
+    <tspan x="50" y="87">&#8212;William Blake</tspan>
+    </text>
+  </g>
+</defs>
+
+<use xlink:href="#shapes" style="clip-path: url(#circularPath);" />
+<use xlink:href="#words" transform="translate(110,0)"
+    style="clip-path: url(#circularPath);"/>
+----
+====
+
+In <<clip-path-bounding-figure>>, the geometric figures happen to have a square bounding box, so the clipping appears circular. The text is bounded by a rectangular area, so the clipping area appears to be an oval.
+
+[NOTE]
+====
+For +<marker>+, +<symbol>+, and +<svg>+ elements, which define their own viewport, you can also clip content to the viewport by using a style((("overflow style"))) of +overflow: hidden+. ((("viewport", "clipping content to")))However, if the content has a +meet+ value for +preserveAspectRatio+, the viewport may be larger than the +viewBox+.((("viewBox attribute", "clipping content to"))) To clip to the +viewBox+, create a +<clipPath>+ element containing a rectangle that matches the minimum _x_, minimum _y_, width, and height of the +viewBox+.
+====
+
+[[clip-path-bounding-figure]]
+.Use of a circular/oval clipping path
+image::images/sve2_1003.png[]
+
+[[masking-section]]
+
+=== Masking
+
+A mask in SVG is the exact((("clipping graphics", range="endofrange", startref="ix_clipping"))) opposite of((("masking graphics", id="ix_masking", range="startofrange"))) the mask you wear to a costume party. With a costume party mask, the parts that are opaque hide your face; the parts that are translucent let people see your face dimly, and the holes (which are transparent) let people see your face clearly. An SVG mask, on the other hand, transfers its transparency to the object it masks. Where the mask is opaque, the pixels of the masked object are opaque. Where the mask is translucent, so is the object, and the transparent parts of the mask make the corresponding parts of the masked object invisible.
+
+You use the +<mask>+ element to create a mask.((("mask element"))) You may specify the mask’s dimensions with the +x+, +y+, +width+, and +height+ attributes. These dimensions are in terms of the masked +objectBoundingBox+.((("maskUnits attribute")))((("objectBoundingBox units", "with maskUnits")))((("userSpaceOnUse setting", "for maskUnits"))) If you want the dimensions to be in terms of user space coordinates, set +maskUnits+ to +userSpaceOnUse+.
+
+Between the beginning +<mask>+ and ending +</mask>+ tags are any basic shapes, text, images, or paths you wish to use as the mask. The coordinates on these elements are expressed in user coordinate space by default. If you wish to use the object bounding box for the contents of the ((("userSpaceOnUse setting", "for maskContentUnits")))((("maskContentUnits attribute")))mask, set +maskContentUnits+ to +objectBoundingBox+.((("objectBoundingBox units", "with maskContentUnits"))) (The default is +userSpaceOnUse+.)
+
+The question then becomes: how does SVG determine the transparency, or alpha value, of the mask?((("alpha value", "determining for masks")))((("colors", "mask color values and transparency"))) We know each pixel is described by four values: its red, green, and blue color value, and its opacity. While at first glance it would seem logical to use only the opacity value, SVG decides to use all the information available to it rather than throwing away three-fourths of a pixel’s information. SVG uses this formula:
+
+
+++++
+<simplelist><member><literal>(0.2125 &#x2a;</literal> <replaceable>red value</replaceable> <literal>&#x2b; 0.7154 &#x2a;</literal> <replaceable>green value</replaceable> <literal>&#x2b;
+0.0721 &#x2a;</literal> <replaceable>blue value</replaceable><literal>) &#x2a;</literal> <replaceable>opacity value</replaceable></member></simplelist>
+++++
+
+where all of the values are floating-point numbers in the range 0 to 1. You may be surprised that the proportions aren’t equal, but if you look at fully saturated red, green, and blue, the green appears to be the brightest, red darker, and blue the darkest. (You can see this in <<color-mask-figure>>.) The darker the color, the smaller the resulting alpha value will be, and the less opaque the masked object will be.
+
+[[color-mask-figure]]
+
+.Effect of mask color values on transparency
+image::images/sve2_1004.png[]
+
+<<color-mask-figure>> was drawn with <<color-mask-example>>, which creates black text and a black circle masked by a totally opaque red, green, blue, and white square. The text and circle are grouped together, and the group uses a +mask+ style property((("mask style"))) to reference the appropriate mask.((("colors", "masking with opaque colors"))) The yellow horizontal bars in the background show you that, indeed, the text and circles are partially transparent.
+
+
+[[color-mask-example]]
+.Masking with opaque colors
+====
+[source,xml]
+----
+<defs>
+  <mask id="redmask" x="0" y="0" width="1" height="1"
+    maskContentUnits="objectBoundingBox">
+    <rect x="0" y="0" width="1" height="1" style="fill: #f00;"/>
+  </mask>
+
+  <mask id="greenmask" x="0" y="0" width="1" height="1"
+    maskContentUnits="objectBoundingBox">
+    <rect x="0" y="0" width="1" height="1" style="fill: #0f0;"/>
+  </mask>
+
+  <mask id="bluemask" x="0" y="0" width="1" height="1"
+    maskContentUnits="objectBoundingBox">
+    <rect x="0" y="0" width="1" height="1" style="fill: #00f;"/>
+  </mask>
+
+  <mask id="whitemask" x="0" y="0" width="1" height="1"
+    maskContentUnits="objectBoundingBox">
+    <rect x="0" y="0" width="1" height="1" style="fill: #fff;"/>
+  </mask>
+</defs>
+
+<!-- display the colors to show relative brightness (luminance) -->
+<rect x="10" y="10" width="50" height="50" style="fill: #f00;"/>
+<rect x="70" y="10" width="50" height="50" style="fill: #0f0;"/>
+<rect x="130" y="10" width="50" height="50" style="fill: #00f;"/>
+<rect x="190" y="10" width="50" height="50"
+    style="fill: #fff; stroke: black;"/>
+
+<!-- background content to show transparency -->
+<rect x="10" y="72" width="250" height="5" style="fill: yellow"/>
+<rect x="10" y="112" width="250" height="5" style="fill: yellow"/>
+
+<g style="mask: url(#redmask);
+    font-size: 14pt; text-anchor: middle;">
+  <circle cx="35" cy="115" r="25"  style="fill: black;"/>
+  <text x="35" y="80">Red</text>
+</g>
+
+<g style="mask: url(#greenmask);
+    font-size: 14pt; text-anchor: middle;">
+  <circle cx="95" cy="115" r="25" style="fill: black;"/>
+  <text x="95" y="80">Green</text>
+</g>
+
+<g style="mask: url(#bluemask);
+    font-size: 14pt; text-anchor: middle;">
+  <circle cx="155" cy="115" r="25" style="fill: black;"/>
+  <text x="155" y="80">Blue</text>
+</g>
+
+<g style="mask: url(#whitemask);
+    font-size: 14pt; text-anchor: middle;">
+  <circle cx="215" cy="115" r="25" style="fill: black;"/>
+  <text x="215" y="80">White</text>
+</g>
+----
+====
+
+Figuring out the interaction between color, opacity, and final alpha value is not exactly intuitive.((("alpha value", "final, interaction with color and opacity in masks")))((("opacity", "interaction between color, opacity, and final alpha value in masks")))((("colors", "interaction with opacity and final alpha value in masks"))) If you fill and/or stroke the mask contents in white, the “color factor” adds up to 1.0, and the opacity will then be the only factor that controls the mask’s alpha value. [offline_only]#<<alpha-opacity-mask-example>> is written this way, and the result is in <<alpha-opacity-mask-figure>>.# [online_only]#<<alpha-opacity-mask-example>> demonstrates this.#
+
+[role="offline_only"]
+[[alpha-opacity-mask-figure]]
+.Alpha value equal to opacity
+image::images/sve2_1005.png[]
+
+[[alpha-opacity-mask-example]]
+.Mask alpha using opacity only
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch10/alpha_opacity_mask.html[width="100%", height="600px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<defs>
+<mask id="fullmask" x="0" y="0" width="1" height="1"
+    maskContentUnits="objectBoundingBox">
+    <rect x="0" y="0" width="1" height="1"
+        style="fill-opacity: 1.0; fill: white;"/>
+</mask>
+
+<mask id="three-fourths" x="0" y="0" width="1" height="1"
+    maskContentUnits="objectBoundingBox">
+    <rect x="0" y="0" width="1" height="1"
+        style="fill-opacity: 0.75; fill: white;"/>
+</mask>
+
+<mask id="one-half" x="0" y="0" width="1" height="1"
+    maskContentUnits="objectBoundingBox">
+    <rect x="0" y="0" width="1" height="1"
+        style="fill-opacity: 0.5; fill: white;"/>
+</mask>
+
+<mask id="one-fourth" x="0" y="0" width="1" height="1"
+    maskContentUnits="objectBoundingBox">
+    <rect x="0" y="0" width="1" height="1"
+        style="fill-opacity: 0.25; fill: white;"/>
+</mask>
+</defs>
+
+<g style="font-size: 14pt; text-anchor:middle; fill:black;">
+    <g style="mask: url(#fullmask);">
+    <circle cx="35" cy="35" r="25"/>
+    <text x="35" y="80">100%</text>
+    </g>
+
+    <g style="mask: url(#three-fourths);">
+    <circle cx="95" cy="35" r="25"/>
+    <text x="95" y="80">75%</text>
+    </g>
+
+    <g style="mask: url(#one-half);">
+    <circle cx="155" cy="35" r="25"/>
+    <text x="155" y="80">50%</text>
+    </g>
+
+    <g style="mask: url(#one-fourth);">
+    <circle cx="215" cy="35" r="25"/>
+    <text x="215" y="80">25%</text>
+    </g>
+</g>
+----
+====
+
+
+
+[[masking-graphic-section]]
+
+=== Case Study: Masking a Graphic
+
+<<unmasked-graphic-example>> adds a JPG image to the graphic((("images", "masking"))) that was constructed in <<text-case-study-section>>. As you can see in <<unmasked-graphic-figure>> (reduced to save space), the image obscures the curve inside the main ellipse, and the blue sky intrudes horribly on the pale red section.
+
+[[unmasked-graphic-example]]
+.Unmasked <image> inside a graphic
+
+====
+[source,xml]
+----
+<defs>
+  <font-face font-family="bakbatn">
+    <font-face-src>
+      <font-face-uri xlink:href="kfont.svg#kfont-defn"/>
+    </font-face-src>
+  </font-face>
+</defs>
+
+<!-- draws ellipse and text -->
+<use xlink:href="ksymbol.svg#ksymbol"/>
+
+<image xlink:href="kwanghwamun.jpg" x="72" y="92"
+    width="160" height="120"/>
+----
+====
+
+[[unmasked-graphic-figure]]
+
+.Unmasked <image> inside a graphic
+image::images/sve2_1006.png[]
+
+The solution is to fade out the edges of the picture, which is easily done by using a radial gradient as a mask.((("radialGradient element", "using as a mask")))((("gradients", "radial", "using as a mask"))) Here’s the code to be added to the +<defs>+ section of the document:
+
+[source,xml]
+----
+<radialGradient id="fade">
+  <stop offset="0%" style="stop-color: white; stop-opacity: 1.0;"/>
+  <stop offset="85%" style="stop-color: white; stop-opacity: 0.5;"/>
+  <stop offset="100%" style="stop-color: white; stop-opacity: 0.0;"/>
+</radialGradient>
+<mask id="fademask" maskContentUnits="objectBoundingBox">
+  <rect x="0" y="0" width="1" height="1"
+    style="fill: url(#fade);"/>
+</mask>
+----
+
+Then add a mask reference to the +<image>+ tag, resulting in <<masked-graphic-figure>>:
+
+[source,xml]
+----
+<image xlink:href="kwanghwamun.jpg" x="72" y="92"
+  width="160" height="120"
+  style="mask: url(#fademask);"/>
+----
+
+[[masked-graphic-figure]]
+
+.Masked image
+image::images/sve2_1007.png[]
+
+Using less of the picture can substantially improve the graphic as a whole.
+((("masking graphics", range="endofrange", startref="ix_masking")))

@@ -1,0 +1,1625 @@
+[[svg-dom-chapter]]
+
+== Using the SVG DOM
+
+The methods and properties used in the scripting examples in <<scripting-chapter>>—creating and selecting elements, getting and setting styles and attributes—are part of((("DOM (Document Object Model)", "SVG DOM methods and properties", id="ix_DOMSVG", range="startofrange"))) the Document Object Model (DOM) specification, and are not unique to SVG. The SVG 1.1 specifications define numerous additional methods to make it easier to work with the two-dimensional graphical layout of SVG. These methods allow you to figure out exactly where your text or path elements have been drawn, control the timing of your animation elements, and convert between transformed coordinate systems.
+
+=== Determining the Value of Element Attributes
+
+In <<scripting-svg-section>>, we used `getAttribute` and `setAttribute` to access element attributes.((("DOM (Document Object Model)", "SVG DOM methods and properties", "determining value of element attributes")))((("attributes", "accessing and changing using the DOM"))) Those methods treat the attributes as simple strings, without worrying about what they represent. If you need to calculate the difference in width between an element with `width="10em"` and an element with `width="100px"`, you would need to extract the numbers from the strings, find out the font size, and convert the measurements.
+
+To make things easier, SVG element objects have properties((("properties", "of SVG element objects")))((("objects, in scripting", "object interfaces for SVG elements"))) representing the key attributes for that element type. ((("circles", "SVGCircleElement object and &lt;circle&gt; element")))An +SVGCircleElement+ object,((("SVGCircleElement object"))) which represents a `<circle>` in your SVG code, has properties `cx`, `cy`, and `r`. An +SVGRectElement+ (a `<rect>` in markup) has properties `x`, `y`, `width`, and `height`.((("rectangles", "SVGRectElement object")))((("SVGRectElement object")))
+
+These properties don't store simple numbers, however.  In most cases, the properties each contain two subproperties: `baseVal` and `animVal`. The `animVal` object is read-only, and is updated as an object is animated, so it always gives the current displayed state of the attribute.((("DOM (Document Object Model)", "SVG DOM methods and properties", "animVal and baseVal properties")))((("JavaScript/ECMAScript", "animation with", "animVal property")))((("animVal and baseVal properties")))((("baseVal and animVal properties")))
+
+Equally important, the `baseVal` and `animVal` subproperties are themselves complex data objects designed to make it easy to deal with attributes specified in different units. For lengths and angles, `baseVal.value` and `animVal.value` always contain the value of the property in user units (degrees for angles), regardless of what unit was used to set the attribute. The `baseVal` and `animVal` objects also have methods to convert between units.
+
+<<baseval-animval-example>> shows different ways of accessing information about the __x__- and __y__-radii of an animated ellipse. [offline_only]#The output is shown in <<baseval-animval-figure>> (the exact output will depend on the default font size of your system).#
+
+[role="offline_only"]
+[[baseval-animval-figure]]
+.Screenshot of animation with baseVal and animVal
+image::images/sve2_1401.png[]
+
+++++
+<example id="baseval-animval-example">
+<title>Using the baseVal and animVal properties</title>
+<?iframe src="http://oreillymedia.github.io/svg-essentials-examples/ch14/baseval_animval.svg" width="100%" height="450px"?>
+<simpara><emphasis role="strong">Animation markup</emphasis></simpara>
+<programlisting language="xml">&lt;ellipse id="el" cx="50%" cy="20" rx="40%" ry="1em"&gt;
+    &lt;animate id="animation" attributeName="rx" to="20%"
+             begin="indefinite" dur="2s" fill="freeze"/&gt;
+&lt;/ellipse&gt;</programlisting>
+<simpara><emphasis role="strong">Markup for text output</emphasis></simpara>
+<programlisting language="xml">&lt;text y="3em"&gt;
+    &lt;tspan x="1em" dy="1.5em"&gt;getAttribute("rx"):&lt;/tspan&gt;
+        &lt;tspan x="50%" id="getRx"/&gt;
+    &lt;tspan x="1em" dy="1.5em"&gt;getAttribute("ry"):&lt;/tspan&gt;
+        &lt;tspan x="50%" id="getRy"/&gt;
+    &lt;tspan x="1em" dy="1.5em"&gt;rx.baseVal.value:&lt;/tspan&gt;
+        &lt;tspan x="50%" id="rxBase"/&gt;
+    &lt;tspan x="1em" dy="1.5em"&gt;ry.baseVal.value:&lt;/tspan&gt;
+        &lt;tspan x="50%" id="ryBase"/&gt;
+    &lt;tspan x="1em" dy="1.5em"&gt;rx.baseVal.valueAsString:&lt;/tspan&gt;
+        &lt;tspan x="50%" id="rxBaseString"/&gt;
+    &lt;tspan x="1em" dy="1.5em"&gt;ry.baseVal.valueInSpecifiedUnits:&lt;/tspan&gt;
+        &lt;tspan x="50%" id="ryBaseUnits"/&gt;
+
+    &lt;tspan style="font-weight:bold;" x="1em" dy="2.5em"&gt;After
+        rx.baseVal.convertToSpecifiedUnits():&lt;/tspan&gt;
+    &lt;tspan x="1em" dy="1.5em"&gt;rx.baseVal.valueAsString:&lt;/tspan&gt;
+        &lt;tspan x="50%" id="rxBaseUnits"/&gt;
+
+    &lt;tspan style="font-weight:bold;" x="1em" dy="2.5em"&gt;After
+        approx. 1 second of animation:&lt;/tspan&gt;
+    &lt;tspan x="1em" dy="1.5em"&gt;rx.animVal.value:&lt;/tspan&gt;
+        &lt;tspan x="50%" id="rxAnim"/&gt;
+    &lt;tspan x="1em" dy="1.5em"&gt;ry.animVal.value:&lt;/tspan&gt;
+        &lt;tspan x="50%" id="ryAnim"/&gt;
+&lt;/text&gt;</programlisting>
+<simpara><emphasis role="strong">Script</emphasis></simpara>
+<screen language="javascript">var doc = document;
+var el = doc.getElementById("el"); <co id="script1"/>
+doc.getElementById("getRx").textContent = el.getAttribute("rx"); <co id="script2"/>
+doc.getElementById("getRy").textContent = el.getAttribute("ry");
+doc.getElementById("rxBase").textContent = el.rx.baseVal.value; <co id="script3"/>
+doc.getElementById("ryBase").textContent = el.ry.baseVal.value;
+doc.getElementById("rxBaseString").textContent =
+ el.rx.baseVal.valueAsString; <co id="script4"/>
+doc.getElementById("ryBaseUnits").textContent =
+ el.ry.baseVal.valueInSpecifiedUnits; <co id="script5"/>
+
+el.rx.baseVal.convertToSpecifiedUnits(SVGLength.SVG_LENGTHTYPE_EMS); <co id="script6"/>
+doc.getElementById("rxBaseUnits").textContent =
+  el.rx.baseVal.valueAsString;
+
+var animate = doc.getElementById("animation"); <co id="script7"/>
+try {
+  animate.beginElement(); //start the animation
+} catch(e){/* catch exception if animation not supported */}
+setTimeout(getAnimatedValue, 1000); <co id="script8"/>
+
+function getAnimatedValue() { <co id="script9"/>
+  try {
+    animate.endElement(); //freeze the animation
+  } catch(e){}
+  doc.getElementById("rxAnim").textContent = el.rx.animVal.value;
+  doc.getElementById("ryAnim").textContent = el.ry.animVal.value;
+}</screen>
+<calloutlist>
+<callout arearefs="script1">
+<para>
+<literal>el</literal> is the "<literal>SVGEllipseElement</literal> object" representing<indexterm>
+  <primary>SVGEllipseElement object</primary>
+</indexterm> the ellipse in the markup.
+</para>
+</callout>
+<callout arearefs="script2">
+<para>
+<literal>el.getAttribute("rx")</literal> returns the string value of the attribute with the units used in the markup.
+</para>
+</callout>
+<callout arearefs="script3">
+<para>
+<literal>el.rx.baseVal.value</literal> is the <literal>rx</literal> value converted to a number in user units.
+</para>
+</callout>
+<callout arearefs="script4">
+<para>
+<literal>el.rx.baseVal.valueAsString</literal> is the complete string, with units.
+</para>
+</callout>
+<callout arearefs="script5">
+<para>
+<literal>el.ry.baseVal.valueInSpecifiedUnits</literal> is the value of the attribute as a number, but in the units used when the attribute was set.
+</para>
+</callout>
+<callout arearefs="script6">
+<para>
+The <literal>convertToSpecifiedUnits(<replaceable>unitConstant</replaceable>)</literal> method can be used to convert the value to any unit you choose (in this case, <literal>em</literal>s).  The method doesn&#8217;t return anything directly, but the data object&#8217;s <literal>valueAsString</literal> and <literal>valueInSpecifiedUnits</literal> properties will be changed.  The <literal>value</literal> property (which is always in user units) isn&#8217;t affected.
+</para>
+</callout>
+<callout arearefs="script7">
+<para>
+The markup defines an animation element that modifies the <literal>rx</literal> attribute of the ellipse, but which has <literal>begin="indefinite"</literal>, preventing it from starting automatically.  Instead, we start it by calling the <literal>beginElement()</literal> method.  The method is put in a try/catch block to avoid errors in browsers that don&#8217;t support animation.
+</para>
+</callout>
+<callout arearefs="script8">
+<para>
+The <literal>setTimeout()</literal> function call tells the computer to wait 1 second (1000ms), and then run the <literal>getAnimatedValue</literal> function.
+</para>
+</callout>
+<callout arearefs="script9">
+<para>
+<literal>getAnimatedValue()</literal> halts the animation with <literal>animate.endElement()</literal>, then queries the <literal>animVal</literal> properties for each attribute.  Although <literal>ry</literal> is not being animated, <literal>ry.animVal</literal> still exists; it is exactly equal to <literal>ry.baseVal</literal>.
+</para>
+</callout>
+</calloutlist>
+</example>
+++++
+
+The +rx+ and +ry+ properties used in <<baseval-animval-example>> are both instances of +SVGAnimatedLength+ objects.((("SVGAnimatedLength object")))((("objects, in scripting", "SVG data objects (table)")))((("data objects in SVG DOM, table of")))((("DOM (Document Object Model)", "SVG DOM methods and properties", "data objects and methods, table of")))  To describe different types of geometrical data, SVG defines a variety of custom objects. <<data-objects-table>> lists some of the most important objects and what you can do with them.
+
+////
+[[data-objects-table]]
+.SVG data objects
+[cols="10%,25%,60%asciidoc",options="header,landscape"]
+|=================
+|Object name |Description |Properties and methods
+
+|+SVGLength+ |
+A length with units.
++
+The units are defined as constants of the form ++SVGLength.SVG_LENGTHTYPE++__++&#x5f;unit++__, where _unit_ is one of +NUMBER+ (for user units), +PERCENTAGE+, +EMS+ (em units), +EXS+ (ex units), +PX+, +CM+, +MM+, +IN+, +PT+, +PC+. |
+
+*Properties:*
++
++unitType+: one of the constants defining allowed units;
++
++value+: the length in user units;
++
++valueInSpecifiedUnits+: the length in +unitType+ units;
++
++valueAsString+: the value and units together as a string.
+
+*Methods:*
++
+++newValueSpecifiedUnits(++ __++unitType++__++,++ __++valueInSpecifiedUnits++__++)++: sets the value and the units;
++
+++convertToSpecifiedUnits(++ _++unitType++_ ++)++: changes the unit type, while maintaining the same value in user units.
+
+
+|+SVGAngle+ |
+An angle with units.
++
+The unit constants are of the form ++SVGAngle.SVG_ANGLETYPE++__++&#x5f;unit++__++, where _unit_ is one of +UNSPECIFIED+ (degrees by default) +DEG+, +RAD+, or +GRAD+. |
+
+Same as for +SVGLength+.
+
+
+|+SVGRect+ |
+A rectanglular area in user coordinates.
++
+The ++SVGRect++ object is not the same as a +<rect>+ element (which is represented by the +SVGRectElement+ interface). |
+
+*Properties:*
++
++x+, +y+, +width+ and +height+: all numbers in user coordinates.
+
+|+SVGPoint+ |A point in user space.|
+*Properties:*
++
++x+, +y+: both numbers in user coordinates.
+
+*Method:*
++
++matrixTransform(matrix)+: returns the value of the point transformed by the given matrix, which must be an +SVGMatrix+ object.
+
+
+|+SVGMatrix+ |
+A matrix in the form used for transformations, as described in <<matrix-algebra-appendix>>. |
+
+*Properties:*
++
++a+,+b+,+c+,+d+,+e+,+f+: all numbers, representing the variable values of the matrix in top-to-bottom, left-to-right order.
+
+*Methods:*
++
++multiply(_secondMatrix_)+: returns a matrix equal to the two matrixes multiplied together;
++
++inverse()+: creates the invert matrix if possible, or throws an exception if the matrix is not invertable (for example, if it represents a +scale(0)+ operation);
++
+++translate(++__++x++__++,++ __++y++__++)++, ++scale(++__++scaleFactor++__++)++, ++scaleNonUniform(++__++scaleFactorX++__++,++ __++scaleFactorY++__++)++, ++rotate(++__++angle++__++)++, ++rotateFromVector(++__++x++__++,++ __++y++__++)++, +flipX()+, +flipY()+, ++skewX(++__++angle++__++)++, ++skewY(++__++angle++__++)++: returns a new matrix that is this matrix multiplied by the specified transformation; +rotateFromVector+ calculates the angle required to rotate the __x__-axis to align with that vector; +flipX+ and +flipY+ are equivalent to scaling by an _x_ or _y_ factor of –1.
+
+
+|+SVGTransform+ |
+A single transformation command.
++
+The type of command is defined as a constant of the form ++SVG_TRANSFORM++__++&#x5f;type++__, where _type_ is one of +MATRIX+, +TRANSLATE+, +SCALE+, +ROTATE+, +SKEWX+, or +SKEWY+. |
+
+*Properties:*
++
++type+: one of the type constants;
++
++matrix+: the +SVGMatrix+ object representing this transformation;
++
++angle+: the angle of rotation or skew in degrees, if applicable, or zero.
+
+*Methods:*
++
+++setMatrix(++__++matrix++__++)++, ++setTranslate(++__++x++__++,++ __++y++__++)++, ++setScale(++__++scaleFactorX++__, __++scaleFactorY++__++)++, ++setRotate(++__++angle++__, __++cx++__, __++cy++__++)++, ++setSkewX(++__++angle++__++)++, ++setSkewY(++__++angle++__++)++: change this +SVGTransform+ object to the specified transformation.
+
+
+|+SVGTransformList+ |
+A list of transformations (+SVGTransform+ objects), in the order they would be specified in a +transform+ attribute.
++
+In addition to the specific methods for transform lists, these objects also implement the +numberOfItems+ property and all the methods described next for generic lists. |
+
+*Methods:*
++
++createSVGTransformFromMatrix(_matrix_)+: creates a new +SVGTransform+ object from an +SVGMatrix+ object;
++
++consolidate()+: combines all the transformations in this list into a single matrix transformation, and then returns that +SVGTransform+ object.
+
+
+|+SVG__Xxx__List+ |
+For any data type that might be used in a list or an array (and most animated data types), there is an +SVG__Datatype__List+.  Most JavaScript implementations of the SVG DOM use arrays to represent these lists, so you may also be able to use array notation to set or retrieve items. |
+
+*Property:*
++
++numberOfItems+: the length of the list.
+
+*Methods:*
++
++clear()+: removes all elements from the list;
++
++initialize(_newItem_)+: clears all existing items from the list, so that it contains only the one new item;
++
++getItem(_index_)+: accesses the list item at _index_ (the first index is +0+);
++
++insertItemBefore(_newItem_, _index_)+, +replaceItem(_newItem_, _index_)+, +removeItem(_index_)+, +appendItem(_newItem_)+: self-explanatory methods for modifying the list.
+
+
+|+SVGAnimated__Xxx__+ |
+For nearly every data type, there is an +SVGAnimated__Datatype__+ interface, which is used as the value of a property representing an animatable attribute.
++
+For example, the +cx+ property of an +SVGCircleElement+ object is an +SVGAnimatedLength+ object, while a +transform+ property is of type +SVGAnimatedTransformList+. |
+
+*Properties:*
++
++baseVal+: an object containing the official value of the attribute or property;
++
++animVal+: a read-only object containing the current displayed value of the attribute or property, after adjusting for animation.
+|==========================
+////
+
+++++
+<table id="data-objects-table" orient="land">
+<title>SVG Data Objects</title>
+<tgroup cols="3">
+<colspec colname="col_1" colwidth="10%"/>
+<colspec colname="col_2" colwidth="25%"/>
+<colspec colname="col_3" colwidth="50%"/>
+<thead>
+<row>
+<entry>Object Name </entry>
+<entry>Description </entry>
+<entry>Properties and Methods</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><simpara><literal>SVGLength</literal></simpara></entry>
+<entry><simpara>A length with<indexterm>
+  <primary>SVGLength object</primary>
+</indexterm> units.
+The units are defined as constants of the form <literal>SVGLength.SVG_LENGTHTYPE<replaceable>_unit</replaceable></literal>, where <emphasis>unit</emphasis> is one of <literal>NUMBER</literal> (for user units), <literal>PERCENTAGE</literal>, <literal>EMS</literal> (em units), <literal>EXS</literal> (ex units), <literal>PX</literal>, <literal>CM</literal>, <literal>MM</literal>, <literal>IN</literal>, <literal>PT</literal>, <literal>PC</literal>.</simpara></entry>
+<entry><simpara><emphasis role="strong">Properties:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>unitType</literal>
+</term>
+<listitem>
+<simpara>
+one of the constants defining allowed units;
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>value</literal>
+</term>
+<listitem>
+<simpara>
+the length in user units;
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>valueInSpecifiedUnits</literal>
+</term>
+<listitem>
+<simpara>
+the length in <literal>unitType</literal> units;
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>valueAsString</literal>
+</term>
+<listitem>
+<simpara>
+the value and units together as a string.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+<simpara><emphasis role="strong">Methods:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>newValueSpecifiedUnits(</literal> <emphasis><literal>unitType</literal></emphasis>, <emphasis><literal>valueInSpecifiedUnits</literal></emphasis><literal>)</literal>
+</term>
+<listitem>
+<simpara>
+sets the value and the units;
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>convertToSpecifiedUnits(</literal> <emphasis><literal>unitType</literal></emphasis> <literal>)</literal>
+</term>
+<listitem>
+<simpara>
+change the unit type, while maintaining the same value in user units.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist></entry>
+</row>
+<row>
+<entry><simpara><literal>SVGAngle</literal></simpara></entry>
+<entry><simpara>An angle with <indexterm>
+  <primary>SVGAngle object</primary>
+</indexterm>units.
+The unit constants are of the form <literal>SVGAngle.SVG_ANGLETYPE</literal><emphasis><literal>&#x5f;unit</literal></emphasis>, where <emphasis>unit</emphasis> is one of <literal>UNSPECIFIED</literal> (degrees by default) <literal>DEG</literal>, <literal>RAD</literal>, or <literal>GRAD</literal>.</simpara></entry>
+<entry><simpara>Same as for <literal>SVGLength</literal>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>SVGRect</literal></simpara></entry>
+<entry><simpara>A rectanglular area in user<indexterm>
+  <primary>SVGRect object</primary>
+</indexterm> coordinates.
+The SVGRect object is not the same as a <literal>&lt;rect&gt;</literal> element (which is represented by the <literal>SVGRectElement</literal> interface).</simpara></entry>
+<entry><simpara><emphasis role="strong">Properties:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>x</literal>, <literal>y</literal>, <literal>width</literal> and <literal>height</literal>
+</term>
+<listitem>
+<simpara>
+all numbers in user coordinates.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist></entry>
+</row>
+<row>
+<entry><simpara><literal>SVGPoint</literal></simpara></entry>
+<entry><simpara>A point in<indexterm>
+  <primary>SVGPoint object</primary>
+</indexterm> user space.</simpara></entry>
+<entry><simpara><emphasis role="strong">Properties:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>x</literal>, <literal>y</literal>
+</term>
+<listitem>
+<simpara>
+both numbers in user coordinates.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+<simpara><emphasis role="strong">Method:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>matrixTransform(matrix)</literal>
+</term>
+<listitem>
+<simpara>
+returns the value of the point transformed by the given matrix, which must be an <literal>SVGMatrix</literal> object.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist></entry>
+</row>
+<row>
+<entry><simpara><literal>SVGMatrix</literal></simpara></entry>
+<entry><simpara>A matrix in the form used for transformations,<indexterm>
+  <primary>transformations</primary><secondary>matrix used for</secondary>
+</indexterm><indexterm>
+  <primary>SVGMatrix object</primary>
+</indexterm> as described in <xref linkend="matrix-algebra-appendix"/>.</simpara></entry>
+<entry><simpara><emphasis role="strong">Properties:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>a</literal>,<literal>b</literal>,<literal>c</literal>,<literal>d</literal>,<literal>e</literal>,<literal>f</literal>
+</term>
+<listitem>
+<simpara>
+all numbers, representing the variable values of the matrix in top-to-bottom, left-to-right order.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+<simpara><emphasis role="strong">Methods:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>multiply(<replaceable>secondMatrix</replaceable>)</literal>
+</term>
+<listitem>
+<simpara>
+returns a matrix equal to the two matrixes multiplied together;
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>inverse()</literal>
+</term>
+<listitem>
+<simpara>
+creates the invert matrix if possible, or throws an exception if the matrix is not invertable (for example if it represents a <literal>scale(0)</literal> operation);
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>translate(</literal><emphasis><literal>x</literal></emphasis><literal>,</literal> <emphasis><literal>y</literal></emphasis><literal>)</literal>, <literal>scale(</literal><emphasis><literal>scaleFactor</literal></emphasis><literal>)</literal>, <literal>scaleNonUniform(</literal><emphasis><literal>scaleFactorX</literal></emphasis><literal>,</literal> <emphasis><literal>scaleFactorY</literal></emphasis><literal>)</literal>, <literal>rotate(</literal><emphasis><literal>angle</literal></emphasis><literal>)</literal>, <literal>rotateFromVector(</literal><emphasis><literal>x</literal></emphasis><literal>,</literal> <emphasis><literal>y</literal></emphasis><literal>)</literal>, <literal>flipX()</literal>, <literal>flipY()</literal>, <literal>skewX(</literal><emphasis><literal>angle</literal></emphasis><literal>)</literal>, <literal>skewY(</literal><emphasis><literal>angle</literal></emphasis><literal>)</literal>
+</term>
+<listitem>
+<simpara>
+returns a new matrix that is this matrix multiplied by the specified transformation; <literal>rotateFromVector</literal> calculates the angle required to rotate the <emphasis>x</emphasis>-axis to align with that vector; <literal>flipX</literal> and <literal>flipY</literal> are equivalent to scaling by an <emphasis>x</emphasis> or <emphasis>y</emphasis> factor of -1.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist></entry>
+</row>
+<row>
+<entry><simpara><literal>SVGTransform</literal></simpara></entry>
+<entry><simpara>A single transformation<indexterm>
+  <primary>SVGTransform object</primary>
+</indexterm> command.
+The type of command is defined as a constant of the form <literal>SVG_TRANSFORM</literal><emphasis><literal>&#x5f;type</literal></emphasis>, where <emphasis>type</emphasis> is one of <literal>MATRIX</literal>, <literal>TRANSLATE</literal>, <literal>SCALE</literal>, <literal>ROTATE</literal>, <literal>SKEWX</literal> or <literal>SKEWY</literal>.</simpara></entry>
+<entry><simpara><emphasis role="strong">Properties:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>type</literal>
+</term>
+<listitem>
+<simpara>
+one of the type constants;
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>matrix</literal>
+</term>
+<listitem>
+<simpara>
+the <literal>SVGMatrix</literal> object representing this transformation;
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>angle</literal>
+</term>
+<listitem>
+<simpara>
+the angle of rotation or skew in degrees, if applicable, or zero.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+<simpara><emphasis role="strong">Methods:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>setMatrix(</literal><emphasis><literal>matrix</literal></emphasis><literal>)</literal>, <literal>setTranslate(</literal><emphasis><literal>x</literal></emphasis><literal>,</literal> <emphasis><literal>y</literal></emphasis><literal>)</literal>, <literal>setScale(</literal><emphasis><literal>scaleFactorX</literal></emphasis><literal>,</literal> <emphasis><literal>scaleFactorY</literal></emphasis><literal>)</literal>, <literal>setRotate(</literal><emphasis><literal>angle</literal></emphasis><literal>,</literal> <emphasis><literal>cx</literal></emphasis><literal>,</literal> <emphasis><literal>cy</literal></emphasis><literal>)</literal>, <literal>setSkewX(</literal><emphasis><literal>angle</literal></emphasis><literal>)</literal>, <literal>setSkewY(</literal><emphasis><literal>angle</literal></emphasis><literal>)</literal>
+</term>
+<listitem>
+<simpara>
+change this <literal>SVGTransform</literal> object to the specified transformation.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist></entry>
+</row>
+<row>
+<entry><simpara><literal>SVGTransformList</literal></simpara></entry>
+<entry><simpara>A list of transformations (<literal>SVGTransform</literal> objects), in<indexterm>
+  <primary>SVGTransformList object</primary>
+</indexterm> the order they would be specified in a <literal>transform</literal> attribute.
+In addition to the specific methods for transform lists, these objects also implement the <literal>numberOfItems</literal> property and all the methods described below for generic lists.</simpara></entry>
+<entry><simpara><emphasis role="strong">Methods:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>createSVGTransformFromMatrix(<replaceable>matrix</replaceable>)</literal>
+</term>
+<listitem>
+<simpara>
+create a new <literal>SVGTransform</literal> object from an <literal>SVGMatrix</literal> object;
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>consolidate()</literal>
+</term>
+<listitem>
+<simpara>
+combine all the transformations in this list into a single matrix transformation, and then return that <literal>SVGTransform</literal> object.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist></entry>
+</row>
+<row>
+<entry><simpara><literal>SVG</literal><emphasis><literal>Xxx</literal></emphasis><literal>List</literal></simpara></entry>
+<entry><simpara>For any data type that might be used in a list or an array (and most animated data types), there is a <literal>SVG<replaceable>Datatype</replaceable>List</literal>.  Most Javascript implementations of the SVG DOM use arrays to represent these lists, so you may also be able to use array notation to set or retrieve items.</simpara></entry>
+<entry><simpara><emphasis role="strong">Property:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>numberOfItems</literal>
+</term>
+<listitem>
+<simpara>
+the length of the list.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist>
+<simpara><emphasis role="strong">Methods:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>clear()</literal>
+</term>
+<listitem>
+<simpara>
+removes all elements from the list;
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>initialize(<replaceable>newItem</replaceable>)</literal>
+</term>
+<listitem>
+<simpara>
+clears all existing items from the list, so that it only contains the one new item;
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>getItem(<replaceable>index</replaceable>)</literal>
+</term>
+<listitem>
+<simpara>
+accesses the list item at <emphasis>index</emphasis> (the first index is <literal>0</literal>);
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>insertItemBefore(</literal><emphasis><literal>newItem</literal></emphasis><literal>,</literal> <emphasis><literal>index</literal></emphasis><literal>)</literal>, <literal>replaceItem(</literal><emphasis><literal>newItem</literal></emphasis><literal>,</literal> <emphasis><literal>index</literal></emphasis><literal>)</literal>, <literal>removeItem(</literal><emphasis><literal>index</literal></emphasis><literal>)</literal>, <literal>appendItem(</literal><emphasis><literal>newItem</literal></emphasis><literal>)</literal>
+</term>
+<listitem>
+<simpara>
+self-explanatory methods for modifying the list.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist></entry>
+</row>
+<row>
+<entry><simpara><literal>SVGAnimated</literal><emphasis><literal>Xxx</literal></emphasis></simpara></entry>
+<entry><simpara>For nearly every data type, there is an <literal>SVGAnimated</literal><emphasis><literal>Datatype</literal></emphasis> interface, which is used as the value of a property representing an animatable attribute.<indexterm>
+  <primary>SVGAnimatedLength object</primary>
+</indexterm>
+For example, the <literal>cx</literal> property of an <literal>SVGCircleElement</literal> object is an <literal>SVGAnimatedLength</literal> object, while a <literal>transform</literal> property is of type <literal>SVGAnimatedTransformList</literal>.</simpara></entry>
+<entry><simpara><emphasis role="strong">Properties:</emphasis></simpara>
+<variablelist>
+<varlistentry>
+<term>
+<literal>baseVal</literal>
+</term>
+<listitem>
+<simpara>
+an object containing the official value of the attribute or property;
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<literal>animVal</literal>
+</term>
+<listitem>
+<simpara>
+a read-only object containing the current displayed value of the attribute or property, after adjusting for animation.
+</simpara>
+</listitem>
+</varlistentry>
+</variablelist></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+++++
+
+[[svg-interface-methods-section]]
+=== SVG Interface Methods
+
+Sometimes when scripting SVG, you want to calculate a geometric property ((("DOM (Document Object Model)", "SVG DOM methods and properties", "SVG interface methods")))that isn’t defined directly by an attribute.  For example, you might want to draw a rectangle around a text label that will fit neatly, regardless of what font is used for the text.  Or you might want to find out where you are in the timing cycle of an animation at the time the JavaScript code is run.  Other times, you might want to manipulate part of a complex attribute: one curve segment within a path, or one command within a transform pass:[<phrase role="keep-together">attribute</phrase>].
+
+There are a variety of useful properties and methods that can be called on element objects—the objects returned by ++document.getElementById(id)++—to perform these sorts of calculations and manipulations.  The specifications define these in terms of interfaces, descriptions of common functionality that are implemented by specific object types.
+
+<<elements-interface-table>> lists some of the interface features available for the elements described in this book.  The list is not exhaustive, but it should get you started.((("elements", "reference tables", "DOM interfaces")))((("interfaces for SVG elements")))
+
+
+++++
+<table id="elements-interface-table" orient="land">
+<title>Interfaces for SVG elements</title>
+<tgroup cols="3">
+<colspec colname="col_1" colwidth="15%"/>
+<colspec colname="col_2" colwidth="21%"/>
+<colspec colname="col_3" colwidth="34%"/>
+<thead>
+<row>
+<entry>Applies to<indexterm>
+  <primary>objects, in scripting</primary><secondary>object interfaces for SVG elements</secondary>
+</indexterm> </entry>
+<entry>Method or property </entry>
+<entry>Result</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry morerows="1"><simpara><literal>SVGElement</literal></simpara>
+<simpara>(any element in the SVG namespace)</simpara></entry>
+<entry><simpara><literal>.ownerSVGElement()</literal></simpara></entry>
+<entry><simpara>Returns a reference to the nearest ancestor <literal>&lt;svg&gt;</literal> in the hierarchy; returns null if called on a top-level SVG element.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>.viewportElement()</literal></simpara></entry>
+<entry><simpara>Returns a reference to the <literal>&lt;svg&gt;</literal>, <literal>&lt;pattern&gt;</literal>, <literal>&lt;symbol&gt;</literal>, or <literal>&lt;marker&gt;</literal> element that establishes the viewport for this element.</simpara></entry>
+</row>
+<row>
+<entry morerows="2"><simpara><literal>SVGLocatable</literal></simpara>
+<simpara>(any element that takes up coordinate space or takes a transform attribute: graphics elements, <literal>&lt;g&gt;</literal> or <literal>&lt;svg&gt;</literal>)</simpara></entry>
+<entry><simpara><literal>.nearestViewportElement</literal></simpara></entry>
+<entry><simpara>The <literal>&lt;svg&gt;</literal>, <literal>&lt;pattern&gt;</literal>, <literal>&lt;symbol&gt;</literal>, or <literal>&lt;marker&gt;</literal> element that establishes the viewport for this element.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>.farthestViewportElement</literal></simpara></entry>
+<entry><simpara>The top-level <literal>&lt;svg&gt;</literal> element that contains this element.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>.getBBox()</literal></simpara></entry>
+<entry><simpara>Returns the object bounding box as an <literal>SVGRect</literal> object with properties <literal>x</literal>, <literal>y</literal>, <literal>width</literal>, and <literal>height</literal>, representing the coordinates and extent of the smallest rectangle in the current user coordinate system that can contain the graphic.  The bounding box is not affected by stroke width, clipping, masking, or filter effects.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getCTM()</literal></simpara></entry>
+<entry><simpara>Returns a cumulative transformation matrix, an <literal>SVGMatrix</literal> object representing the net transformation from the coordinate system of this element to the coordinate system of the <literal>nearestViewportElement</literal>.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getScreenCTM()</literal></simpara></entry>
+<entry><simpara>Returns a cumulative transformation matrix to convert from the user coordinate system of this element to the “screen” or client coordinates used to represent points on the root-level document.  This method is useful in event handlers when converting between mouse/pointer coordinates and the coordinate system of your graphics.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getTransformToElement(</literal><replaceable>SVGElement</replaceable><literal>)</literal></simpara></entry>
+<entry><simpara>Returns an <literal>SVGMatrix</literal> representing the net transformations required to convert between the coordinate system for this element and the coordinate system for the other element.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>SVGTransformable</literal></simpara>
+<simpara>(any element that can take a <literal>transform</literal> attribute)</simpara></entry>
+<entry><simpara><literal>.transform</literal></simpara></entry>
+<entry><simpara>The <literal>SVGAnimatedTransformList</literal> representing the base and animated values of the transformations defined on this element.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>SVGStylable</literal></simpara>
+<simpara>(any element that can take a <literal>style</literal> attribute)</simpara></entry>
+<entry><simpara><literal>.style</literal></simpara></entry>
+<entry><simpara>A <literal>CSSStyleDeclaration</literal> object representing any inline styles set on this element.  See <xref linkend="scripting-svg-section"/> in <xref linkend="scripting-chapter"/> for methods of the <literal>style</literal> object.</simpara></entry>
+</row>
+<row>
+<entry morerows="2"><simpara><literal>SVGSVGElement</literal></simpara>
+<simpara>(<literal>&lt;svg&gt;</literal>)</simpara></entry>
+<entry><simpara><literal>.suspendRedraw(</literal><replaceable>maxWaitTimeInMilliseconds</replaceable><literal>)</literal></simpara></entry>
+<entry><simpara>Tells the browser to hold off on redrawing the graphic for the specified wait time (max one minute).  Useful if you are going to be making a lot of changes and you want them all to apply at once.  The method returns an ID number which you can then pass to <literal>unsuspendRedraw</literal> function.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>.unsuspendRedraw(<replaceable>suspendID</replaceable>)</literal></simpara></entry>
+<entry><simpara>Cancels the specific <literal>suspendRedraw</literal> call associated with the ID value.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>.unsuspendRedrawAll()</literal></simpara></entry>
+<entry><simpara>Cancels all <literal>suspendRedraw</literal> calls on the SVG, causing the graphic to refresh again.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.pauseAnimations()</literal></simpara></entry>
+<entry><simpara>Pauses the time clock for all SMIL animations within the SVG.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.unpauseAnimations()</literal></simpara></entry>
+<entry><simpara>Resumes the time clock for all SMIL animations within the SVG.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.animationsPaused()</literal></simpara></entry>
+<entry><simpara>Returns true or false, depending on whether animations have been paused using the above methods.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getCurrentTime()</literal></simpara></entry>
+<entry><simpara>Returns the value of the time clock used for SMIL animations.  Normally, this is the number of seconds since the document was loaded, but it can be affected by pausing or unpausing animations or setting the time directly.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.setCurrentTime(</literal><replaceable>timeInSeconds</replaceable><literal>)</literal></simpara></entry>
+<entry><simpara>Sets the SMIL time clock to the specified value, affecting all animations</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getIntersectionList(</literal> <emphasis><literal>rectangle</literal></emphasis><literal>,</literal> <emphasis><literal>referenceElement</literal></emphasis><literal>)</literal></simpara></entry>
+<entry><simpara>Returns a list of elements that (a) overlap the specified rectangle (an <literal>SVGRect</literal> object) based on the current <literal>&lt;svg&gt;</literal> element&#8217;s coordinate system, and that (b) are children of the reference element.  Only parts of the element that are sensitive to pointer events (based on the <literal>pointer-events</literal> property, by default any visible painted areas) are considered when determining overlap.  The reference element can be null, in which case all children of this <literal>&lt;svg&gt;</literal> are included.<footnote><simpara>At the time of writing, Firefox (version 30) does not support the methods <literal>getIntersectionList</literal>, <literal>getEnclosureList</literal>, <literal>checkIntersection</literal>, or <literal>checkEnclosure</literal>.</simpara></footnote></simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getEnclosureList(</literal> <emphasis><literal>rectangle</literal></emphasis><literal>,</literal> <emphasis><literal>referenceElement</literal></emphasis><literal>)</literal></simpara></entry>
+<entry><simpara>Similar to <literal>getIntersectionList()</literal>, except that it only returns elements that are entirely within the rectangle</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.checkIntersection(</literal><replaceable>element</replaceable><literal>, </literal><replaceable>rectangle</replaceable><literal>)</literal></simpara></entry>
+<entry><simpara>Returns <literal>true</literal> or <literal>false</literal>, depending on whether the given element intersects the given <literal>SVGRect</literal> object, in this <literal>&lt;svg&gt;</literal> element&#8217;s coordinate system.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.checkEnclosure(</literal><replaceable>element</replaceable><literal>, </literal><replaceable>rectangle</replaceable><literal>)</literal></simpara></entry>
+<entry><simpara>Returns <literal>true</literal> or <literal>false</literal>, depending on whether the given element is completely contained in the given <literal>SVGRect</literal> object, in this <literal>&lt;svg&gt;</literal> element&#8217;s coordinate system.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.createSVG</literal><emphasis><literal>Xxx</literal></emphasis><literal>()</literal></simpara></entry>
+<entry><simpara>The <literal>SVGSVGElement</literal> supports methods to create new instances of each of the data object types (<literal>SVGPoint</literal>, <literal>SVGAngle</literal>, <literal>SVGMatrix</literal>, etc.) from <xref linkend="data-objects-table"/>.  The methods don&#8217;t take any parameters; the resulting objects are initialized with their properties set to 0 (except for <literal>createSVGMatrix()</literal>, which returns an identity matrix).</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>SVGUseElement</literal></simpara>
+<simpara>(<literal>&lt;use&gt;</literal>)</simpara></entry>
+<entry><simpara><literal>.instanceRoot</literal></simpara></entry>
+<entry><simpara>Contains the top-level node of a shadow DOM tree representing the graphics drawn by the <literal>&lt;use&gt;</literal> element.  The elements in the shadow DOM (<literal>SVGElementInstance</literal> objects) have limited function: you cannot manipulate attributes or styles directly, but they can be targets of user events.  Each <literal>SVGElementInstance</literal> has a <literal>correspondingElement</literal> attribute that links to the source graphics element that it duplicates, and a <literal>correspondingUseElement</literal> property that links back to the <literal>&lt;use&gt;</literal> element.<footnote><simpara>Firefox (as of version 30) also does not make the shadow DOM tree of a <literal>&lt;use&gt;</literal> element accessible to scripts, and does not implement the <literal>SVGElementInstance</literal> interface.</simpara></footnote></simpara></entry>
+</row>
+<row>
+<entry morerows="1"><simpara><literal>SVGPathElement</literal></simpara>
+<simpara>(<literal>&lt;path&gt;</literal>)</simpara></entry>
+<entry><simpara><literal>.getTotalLength()</literal></simpara></entry>
+<entry><simpara>Returns the computed length, in user units, of the entire path (not counting any move-to commands).  This value may not be exactly the same in every agent because approximations may be used for some curves.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>.getPointAtLength(</literal><literal>distance)</literal></simpara></entry>
+<entry><simpara>Returns an <literal>SVGPoint</literal> object with properties <literal>x</literal> and <literal>y</literal>, representing the coordinates of the point on the path that is <literal>distance</literal> user units from the start, using the same method of calculating path length as for <literal>getTotalLength()</literal>.</simpara></entry>
+</row>
+<row>
+<entry morerows="1"><simpara><literal>SVGPathData</literal></simpara>
+<simpara>(<literal>&lt;path&gt;</literal> elements and any other elements that support a path data attribute, such as <literal>&lt;animateMotion&gt;</literal> elements)</simpara></entry>
+<entry><simpara><literal>.pathSegList</literal></simpara></entry>
+<entry><simpara>Contains a list of object representing each segment of the path.  The list can then be modified or queried in an object-oriented manner; see <ulink url="http://www.w3.org/TR/SVG11/paths.html#DOMInterfaces">the SVG specifications</ulink> for methods. The <literal>pathSegList</literal> property returns the path corresponding to the actual <literal>d</literal> attribute value; use the <literal>animatedPathSegList</literal> property to access the current state of the path in case the <literal>d</literal> attribute is being animated.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>.normalizedPathSegList</literal></simpara></entry>
+<entry><simpara>A simplified version of the path segment list, where each segment has been converted to either a move, line-to, cubic curve, or close path command in absolute coordinates.  There is also an <literal>animatedNormalizedPathSegList</literal> property.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>SVGAnimatedPoints</literal></simpara>
+<simpara>(<literal>&lt;polygon&gt;</literal> and <literal>&lt;polyline&gt;</literal> elements)</simpara></entry>
+<entry><simpara><literal>.points</literal></simpara></entry>
+<entry><simpara>Returns the points associated with this element as an <literal>SVGPointList</literal>.  The property <literal>animatedPoints</literal> is similar but is updated when the points attribute is animated.</simpara></entry>
+</row>
+<row>
+<entry morerows="2"><simpara><literal>SVGTextContentElement</literal></simpara>
+<simpara>(any text element, including <literal>&lt;text&gt;</literal>, <literal>&lt;tspan&gt;</literal>, and <literal>&lt;textPath&gt;</literal>)</simpara></entry>
+<entry><simpara><literal>.getNumberOfChars()</literal></simpara></entry>
+<entry><simpara>Returns the total number of characters in this element, including text in all child <literal>&lt;tspan&gt;</literal> elements.  Multibyte unicode characters are counted according to the number of UTF-16 characters required to represent them.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>.getComputedTextLength()</literal></simpara></entry>
+<entry><simpara>Returns the length, in user coordinate units, required to write out the text after applying all CSS properties and <literal>dx</literal> and <literal>dy</literal> attributes.  Does not include any adjustments made based on a <literal>textLength</literal> attribute.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>.getSubStringLength(</literal><replaceable>charNum</replaceable><literal>, </literal><replaceable>nChars</replaceable><literal>)</literal></simpara></entry>
+<entry><simpara>Returns the computed text length for a substring of the text, starting with the character that is <literal>charNum</literal> number of characters into the text (the first character is numbered 0), and continuing for <literal>nChars</literal> or until the end of the text, whichever comes first.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getStartPositionOfChar(</literal><replaceable>charNum</replaceable><literal>)</literal></simpara></entry>
+<entry><simpara>Returns an <literal>SVGPoint</literal> object with properties <literal>x</literal> and <literal>y</literal>, representing the position of the specified character within user coordinate space.
+How the character is drawn relative to this point depends on the writing mode (vertical or horizontal, left-to-right or right-to-left) and the baseline-alignment property.  For default properties on left-to-right text, the point will be where the left edge of the character intercepts the baseline.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getEndPositionOfChar(</literal><replaceable>charNum</replaceable><literal>)</literal></simpara></entry>
+<entry><simpara>Similar to <literal>getStartPositionOfChar</literal> but returns the point where the baseline meets the end edge of the character.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getExtentOfChar(</literal><replaceable>charNum</replaceable><literal>)</literal></simpara></entry>
+<entry><simpara>Returns an <literal>SVGRect</literal> object, similar to <literal>getBBox()</literal>, except that it only represents the boundaries for a single character.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getRotationOfChar(</literal><replaceable>charNum</replaceable><literal>)</literal></simpara></entry>
+<entry><simpara>Returns the rotation value (angle in degrees) for the specified character, after taking into consideration any <literal>rotate</literal> attribute and any rotation from text on a path, but not including any transformation of the coordinate system.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getCharNumAtPosition(</literal><replaceable>point</replaceable><literal>)</literal></simpara></entry>
+<entry><simpara>Returns the index number for the character that includes the specified point, or returns -1 if no characters in the string contain that point.  The point is specified as an <literal>SVGPoint</literal> object, either one returned from another interface method, or one created by calling <literal>createSVGPoint()</literal> on an <literal>&lt;svg&gt;</literal> element and then setting the returned object&#8217;s <literal>x</literal> and <literal>y</literal> properties.</simpara></entry>
+</row>
+<row>
+<entry morerows="2"><simpara><literal>ElementTimeControl</literal> and <literal>SVGAnimationElement</literal></simpara>
+<simpara>(any of the SVG animation elements: <literal>&lt;animate&gt;</literal>, <literal>&lt;set&gt;</literal>, <literal>&lt;animateTransform&gt;</literal>, and <literal>&lt;animateMotion&gt;</literal>)<footnote><simpara>None of the animation-related properties and methods are implemented in Internet Explorer (version 11), which does not support SMIL animation. The Apache Batik SVG viewer, version 1.7, throws errors when using <literal>beginElement</literal> and <literal>beginElementAt</literal>.</simpara></footnote></simpara></entry>
+<entry><simpara><literal>.targetElement</literal></simpara></entry>
+<entry><simpara>The <literal>SVGElement</literal> that this animation element modifies.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>.beginElement()</literal></simpara></entry>
+<entry><simpara>Start the specified animation immediately, if it isn&#8217;t prevented by a <literal>restart</literal> attribute of <literal>never</literal> or <literal>whenNotActive</literal>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>.beginElementAt(<replaceable>offset</replaceable>)</literal></simpara></entry>
+<entry><simpara>Start the specified animation after <emphasis>offset</emphasis> number of seconds; if offset is negative, the animation will start immediately but be calculated as if it had started that many seconds previously.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.endElement()</literal></simpara></entry>
+<entry><simpara>End the current run of the animation (including all repeats) immediately.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.endElementAt(<replaceable>offset</replaceable>)</literal></simpara></entry>
+<entry><simpara>End the animation after <emphasis>offset</emphasis> number of seconds.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getStartTime()</literal></simpara></entry>
+<entry><simpara>If the animation is running, returns the start time at which it began, in seconds relative to the time clock for the SVG.  If the animation is waiting to begin, returns the time at which it will begin.  Otherwise, throws an exception.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getCurrentTime()</literal></simpara></entry>
+<entry><simpara>Returns the time in seconds of the animation time clock for the SVG that this element is part of, the same as calling <literal>getCurrentTime()</literal> on that SVG.</simpara></entry>
+</row>
+<row>
+<entry></entry>
+<entry><simpara><literal>.getSimpleDuration()</literal></simpara></entry>
+<entry><simpara>Returns the number of seconds for the duration of each cycle of the animation (the value of the <literal>dur</literal> attribute); throws an exception if the duration is undefined.</simpara></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+++++
+
+[[constructing-svg-section]]
+=== Constructing SVG with ECMAScript/JavaScript
+
+The next example is a simple analog clock, ((("DOM (Document Object Model)", "SVG DOM methods and properties", "constructing SVG with ECMAScript/JavaScript")))as shown in <<basic-clock-figure>>; <<basic-clock-example>> gives the SVG code.
+
+[[basic-clock-figure]]
+.Analog clock
+image::images/sve2_1402.png[]
+
+[[basic-clock-example]]
+.SVG for a basic analog clock
+====
+[source,xml]
+----
+<svg xmlns="http://www.w3.org/2000/svg"
+    id="clock" width="250" height="250" viewBox="0 0 250 250">
+<title>SVG Analog Clock</title>
+
+<circle id="face" cx="125" cy="125" r="100"
+        style="fill: white; stroke: black"/>
+<g id="ticks" transform="translate(125,125)">
+    <path d="M95,0 L100,-5 L100,5 Z" transform="rotate(30)"  />
+    <path d="M95,0 L100,-5 L100,5 Z" transform="rotate(60)"  />
+    <path d="M95,0 L100,-5 L100,5 Z" transform="rotate(90)"  />
+    <path d="M95,0 L100,-5 L100,5 Z" transform="rotate(120)" />
+    <path d="M95,0 L100,-5 L100,5 Z" transform="rotate(150)" />
+    <path d="M95,0 L100,-5 L100,5 Z" transform="rotate(180)" />
+    <path d="M95,0 L100,-5 L100,5 Z" transform="rotate(210)" />
+    <path d="M95,0 L100,-5 L100,5 Z" transform="rotate(240)" />
+    <path d="M95,0 L100,-5 L100,5 Z" transform="rotate(270)" />
+    <path d="M95,0 L100,-5 L100,5 Z" transform="rotate(300)" />
+    <path d="M95,0 L100,-5 L100,5 Z" transform="rotate(330)" />
+    <path d="M95,0 L100,-5 L100,5 Z" transform="rotate(360)" />
+</g>
+
+<g id="hands" style="stroke: black;
+                     stroke-width: 5px;
+                     stroke-linecap: round;">
+  <path id="hour" d="M125,125 L125,75"
+        transform="rotate(0, 125, 125)"/>
+  <path id="minute" d="M125,125 L125,45"
+        transform="rotate(0, 125, 125)"/>
+  <path id="second" d="M125,125 L125,30"
+        transform="rotate(0, 125, 125)"
+        style="stroke: red; stroke-width: 2px" />
+</g>
+<circle id="knob" r="6" cx="125" cy="125" style="fill: #333;"/>
+</svg>
+----
+====
+
+The code isn’t particularly complicated, but it is rather redundant.  Each of the 12 hour-marker elements has nearly the exact same syntax, just a different +rotation+ attribute.  You could use +<use>+ elements to avoid repeating the path data, but it really wouldn’t simplify things very much.  If you wanted to add numbers for the hours, you’d have 12 +<text>+ elements, too.  And if you wanted to add minute markers, you’d need 60 separate elements for the marks.
+
+In programming, whenever you’re doing the same thing many times, you really ought to be using a loop or function to do it.  In <<creating-elements-section>> in <<scripting-chapter>>, JavaScript was used to create an arbitrary number of SVG elements based on user input.  The same methods can also be used to create the initial graphic, and they can be especially helpful if your graphic is repetitive and geometrical.
+
+<<basic-clock-js-example>> creates the same output as the previous one in an SVG viewer that supports JavaScript.  It uses both the basic DOM methods and the SVG DOM features introduced in this chapter.  The +<svg>+ contains only two markup elements: a +<title>+ and a +<script>+.
+
+++++
+<example id="basic-clock-js-example">
+<title>Basic analog clock created with ECMAScript</title>
+<programlisting language="xml">&lt;!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"&gt;
+&lt;svg xmlns="http://www.w3.org/2000/svg"
+    id="clock" width="250" height="250" viewBox="0 0 250 250"
+     onload="init()" &gt;
+&lt;title&gt;Scripted Analog Clock&lt;/title&gt;
+
+&lt;script type="application/ecmascript"&gt; &lt;![CDATA[</programlisting>
+<screen language="javascript">  /* the &lt;svg&gt; object that will contain the drawing */
+  var clock; <co id="ecmascript1"/>
+
+  function init() { <co id="ecmascript2"/>
+    /* select the empty &lt;svg&gt; */
+    clock = document.getElementById("clock");
+    var svgns = clock.namespaceURI,
+        doc   = document;
+
+    clock.suspendRedraw(1000); <co id="ecmascript3"/>
+
+    /* create the clock face */ <co id="ecmascript4"/>
+    var face = doc.createElementNS(svgns, "circle");
+    face.cx.baseVal.value = 125;
+    face.cy.baseVal.value = 125;
+    face.r.baseVal.value = 100;
+    face.style.cssText = "fill: white; stroke: black";
+    clock.appendChild( face );
+
+    /* create a group for the ticks */
+    var ticks = clock.appendChild(
+          doc.createElementNS(svgns, "g") );
+    ticks.setAttribute("transform", "translate(125,125)" );
+
+    /* create the tick marks */
+    var tickMark;
+    for (var i = 1; i &lt;= 12; i++) { <co id="ecmascript5"/>
+      tickMark = doc.createElementNS(svgns, "path");
+      tickMark.setAttribute( "d",
+                              "M95,0 L100,-5 L100,5 Z" );
+      tickMark.setAttribute( "transform",
+                              "rotate(" + (30*i) + ")" );
+      ticks.appendChild( tickMark );
+    }
+
+    /* create the hands */
+    var hands = clock.appendChild(
+                    doc.createElementNS(svgns, "g") );
+    hands.style.cssText =
+      "stroke: black; stroke-width:5px; stroke-linecap: round;";
+
+    var hourHand = hands.appendChild(
+                    doc.createElementNS(svgns, "path") );
+    hourHand.id = "hour";
+    hourHand.setAttribute("d", "M125,125 L125,75"); <co id="ecmascript6"/>
+    hourHand.setAttribute("transform", "rotate(0, 125, 125)");
+
+    /* similar code for minute and second hands
+      omitted to save space */
+
+    /* add the center knob */ <co id="ecmascript7"/>
+    var knob = doc.createElementNS(svgns, "circle");
+    knob.setAttribute("cx", "125");
+    knob.setAttribute("cy", "125");
+    knob.setAttribute("r", "6");
+    knob.style.setProperty("fill", "#333", null);
+    clock.appendChild( knob );
+
+    clock.unsuspendRedrawAll(); <co id="ecmascript8"/>
+  }
+
+  // ]]&gt;</screen>
+<programlisting language="xml">&lt;/script&gt;
+&lt;/svg&gt;</programlisting>
+<calloutlist>
+<callout arearefs="ecmascript1">
+<para>
+The script declares a global variable to hold the <literal>&lt;svg&gt;</literal> element; the bulk of the code, however, is in an initialization function (<literal>init()</literal>), which will run when the SVG loads.
+</para>
+</callout>
+<callout arearefs="ecmascript2">
+<para>
+The <literal>init()</literal> function starts by selecting the <literal>&lt;svg&gt;</literal> element.  It also declares convenience variables; accessing the <literal>.namespaceURI</literal> property on any existing SVG element is a good way to avoid retyping the URL each time you create a new element.
+</para>
+</callout>
+<callout arearefs="ecmascript3">
+<para>
+Although not required, suspending drawing updates on your SVG before making a lot of DOM changes can improve performance in some viewers.
+</para>
+</callout>
+<callout arearefs="ecmascript4">
+<para>
+The clock face <literal>&lt;circle&gt;</literal> is created, styles and attributes are set using SVG DOM properties, and then it is added to the SVG.
+</para>
+</callout>
+<callout arearefs="ecmascript5">
+<para>
+Here&#8217;s the magic of looping.  The <literal>for</literal> loop runs the same code 12 times to create each hour marker, and calculates the rotation angle for each.  Note that for initializing complex attributes like <literal>d</literal> or <literal>transform</literal>, passing a string to <literal>setAttribute()</literal> is generally easier than manipulating the complex DOM objects that represent the values.
+</para>
+</callout>
+<callout arearefs="ecmascript6">
+<para>
+The clock hands are initialized pointing to midnight, with zero-rotation transformation attributes to make it easier to later change the rotation.
+</para>
+</callout>
+<callout arearefs="ecmascript7">
+<para>
+For comparison with the face circle, the knob <literal>&lt;circle&gt;</literal> is initialized using setter methods instead of DOM properties.  It still requires six lines of code.
+</para>
+</callout>
+<callout arearefs="ecmascript8">
+<para>
+Don&#8217;t forget to cancel any <literal>suspendRedraw()</literal> calls when you&#8217;re finished building the DOM!
+</para>
+</callout>
+</calloutlist>
+</example>
+++++
+
+Using scripting shortened the code required to make the tick-marks, but it considerably increased the amount of code required to draw simple elements like the circles for the clock face and knob.  This is the main reason why JavaScript libraries like Snap.svg are so popular; they have shortcut functions for the most common operations, like creating elements and setting attributes.
+
+We’ll get to that in a moment, but until we get to a discussion of libraries (the easy way to do it), we'll continue to draw the clock face using plain SVG. After all, there’s a more pressing issue: our clock doesn’t tell time.
+
+[[animation-via-scripting-section]]
+
+=== Animation via Scripting
+
+One option to get the clock ticking is to use +<animateTransform>+ elements on the hands.((("animation", "via scripting", id="ix_animatescript", range="startofrange")))((("JavaScript/ECMAScript", "animation with", id="ix_JSECMAanimate", range="startofrange")))  You can set the second hand to rotate 360 degrees every minute, the minute hand to rotate 360 degrees every hour, and the hour hand to rotate 360 degrees every 12 hours.  What +<animateTransform>+ cannot do is get the hands to show the correct time.footnote:[The SMIL specifications do define a format for synchronizing the start time of animations with the system clock, but it isn’t implemented in most browsers or SVG viewers.]
+
+There are other things animation elements can’t do easily. They can’t keep track of past user events and change the way they respond to new events accordingly.  If your animation relies on logic, data, or complex user interactions, it makes more sense to control it from a script (with the other application functionality) than to try to define it in the XML (the document structure).
+
+To create an animation with JavaScript, you repeatedly modify the attribute or style property to change it from the starting value to the ending value.  If you’re just starting out in programming, you might think that you could create a loop to continually update the attributes by wrapping the update code in a +while(true)+ block.
+
+This would ensure your clock is always up-to-date, but we wouldn't recommend it.  The +while(true)+ technique is akin to constantly looking at your watch and asking, “Is it time yet?” It gives you no time to sleep or do anything else. In an SVG script, it gives the computer no chance to attend to other tasks.
+
+It takes your computer only a tiny fraction of a millisecond to run through a simple loop like the one in the preceding script; each increment of the clock hands will be essentially meaningless. In comparison, most film and video consists of images that are updated 30–60 times per second. That speed is called the _frame rate_ of the video, and it is sufficient to convince your eyes that you’re watching smooth motion.
+
+Computer displays have a frame rate,((("animation", "frame rate")))((("frame rate"))) too. As content changes, part or all of the display will be updated to match.  However, the effective frame rate of the computer display depends on how much other work the computer is doing in the background. If you bog down the computer with endless loops, it won’t have time to repaint the screen, and your animation will become slow and choppy, regardless of how often you update the attributes.
+
+To persuade your computer to create smooth animations, you have to be polite.((("JavaScript/ECMAScript", "animation with", "requestAnimationFrame function")))((("requestAnimationFrame function")))  By calling the method +requestAnimationFrame(_animationfunction_)+, you are effectively saying, “Computer, next time you’re ready to repaint the screen, please run this function first."  The function will be passed a timestamp value, which will be the same for all functions being called for a given frame, allowing you to coordinate multiple animation functions.  (The timestamp is based on the document time clock, not the system clock, so we won’t be using it to set the time.)
+
+If the last line of your animation function also calls +requestAnimationFrame+ and passes itself as the function to run, then it will be called as often as the computer can draw the material to the screen, allowing you to create a smooth animation without exhausting your computer’s resources.footnote:[You may have heard of a programming technique called _recursion_, which happens when a function calls itself. This is not recursion, because your function calls +requestAnimationFrame()+, not itself.] Importantly, if the window that contains this script is pass:[<phrase role="keep-together">currently</phrase>] minimized or hidden, then the function won’t be called at all until there is something visible to animate.
+
+[[animation-via-setTimeout-sidebar]]
+.Mimicking requestAnimationFrame with setTimeout
+****
+The +requestAnimationFrame()+ method is a relatively new((("setTimeout function"))) addition to the DOM specifications, and is not supported in older browsers or Batik. To allow your script to run smoothly, you can test whether the function exists, and create a substitute method if it doesn't, as shown here. The substitute method makes use of the pass:[<literal>setTimeout(</literal><replaceable>function</replaceable><literal>,</literal><replaceable>waitTime</replaceable><literal>)</literal>] method, which tells the computer to run your function after the specified +waitTime+ (in milliseconds). This code should go at the very beginning of your +<script>+:
+
+++++
+<screen language="javascript">if (!window.requestAnimationFrame) { <co id="mimicking1"/>
+
+  window.requestAnimationFrame = function(animationFunction) { <co id="mimicking2"/>
+
+    function wrapperFunction() { <co id="mimicking3"/>
+      animationFunction(Date.now());
+    }
+
+    setTimeout(wrapperFunction, 30); <co id="mimicking4"/>
+  }
+}</screen>
+<calloutlist>
+<callout arearefs="mimicking1">
+<para>
+If a <literal>requestAnimationFrame</literal> method doesn’t exist&#8230;
+</para>
+</callout>
+<callout arearefs="mimicking2">
+<para>
+Create your own function and save it as the <literal>requestAnimationFrame</literal> property of the global object. Your new function must accept an animation callback function as a parameter.
+</para>
+</callout>
+<callout arearefs="mimicking3">
+<para>
+Take the passed-in animation function, and wrap it in a function that can be run without parameters.  The wrapper function calls the animation function with a timestamp value as a parameter.  The timestamp returned by <literal>Date.now()</literal> is just the system timestamp as an integer.
+</para>
+</callout>
+<callout arearefs="mimicking4">
+<para>
+The <literal>setTimeout</literal> method calls the animation function when the computer is free, but no sooner than 30 milliseconds, which works out as approximately 33 frames per second.
+</para>
+</callout>
+</calloutlist>
+++++
+
+The +setTimeout()+ function is not as polite as +requestAnimationFrame()+, because it doesn’t adjust for anything else your computer might be doing, and it will run regardless of whether the animation will be visible.  This sample code also does not replace all the functionality of +requestAnimationFrame()+; specifically, it does not synchronize multiple animation calls, synchronize with the SMIL animation clock, or provide a way to cancel an animation frame request.  Nonetheless, with a sensible wait time, it should provide acceptably smooth animation for simple programs.  Just insert it at the top of your script (or in its own script tag at the top of your file).
+****
+
+<<js-animated-clock-example>> presents the code for updating the clock’s hands, the polite way, using +requestAnimationFrame()+.
+
+++++
+<example id="js-animated-clock-example">
+<title>Animating your scripted SVG clock</title>
+<simpara><emphasis role="strong">Global variables</emphasis></simpara>
+<programlisting language="javascript">/* references to the SVGPathElements for the clock hands */
+var hourHand,
+    minuteHand,
+    secondHand;
+/* references to SVGTransform object that rotates each hand*/
+var secondTransform,
+    minuteTransform,
+    hourTransform;
+/* time conversion constants */
+var secPerMinute  = 60,
+    secPerHour    = 60*60,
+    secPer12Hours = 60*60*12;</programlisting>
+<simpara><emphasis role="strong">Variable initialization (in the <literal>init()</literal> function)</emphasis></simpara>
+<programlisting language="javascript">function init() {
+  /*
+    Access the SVGPathElements for the clock hands
+  */
+  hourHand = document.getElementById("hour");
+  minuteHand = document.getElementById("minute");
+  secondHand = document.getElementById("second");
+
+  /* Access the SVGTransform objects that represent
+     the current rotate(0, 125, 125) transform on each hand:
+  */
+  secondTransform = secondHand.transform.baseVal.getItem(0);
+  minuteTransform = minuteHand.transform.baseVal.getItem(0);
+  hourTransform   = hourHand.transform.baseVal.getItem(0);
+  updateClock(); /* start the clock going */
+}</programlisting>
+<simpara><emphasis role="strong"><literal>updateClock</literal> function</emphasis></simpara>
+<screen language="javascript">function updateClock() {
+    /* get the system time */ <co id="animatingyourclock1"/>
+    var date = new Date();
+    /* calculate the number of seconds since midnight */
+    var time = date.getMilliseconds()/1000 +
+               date.getSeconds() +
+               date.getMinutes()*60 +
+               date.getHours()*60*60; <co id="animatingyourclock2"/>
+
+    /* calculate the rotation angles */ <co id="animatingyourclock3"/>
+    var s = 360*( time % secPerMinute )/secPerMinute,
+        m = 360*( time % secPerHour )/secPerHour,
+        h = 360*( time % secPer12Hours )/secPer12Hours;
+
+    /* use SVGTransform.setRotate(angle, cx, cy)
+       to update the rotation angle:
+    */
+    secondTransform.setRotate( s, 125, 125); <co id="animatingyourclock4"/>
+    minuteTransform.setRotate( m, 125, 125);
+    hourTransform.setRotate( h, 125, 125);
+
+    window.requestAnimationFrame( updateClock ); <co id="animatingyourclock5"/>
+    // repeat for the next frame
+}</screen>
+<calloutlist>
+<callout arearefs="animatingyourclock1">
+<para>
+The constructor <literal>new Date()</literal> returns the local system date and time (with precision of thousandths of a second) as a JavaScript object.
+</para>
+</callout>
+<callout arearefs="animatingyourclock2">
+<para>
+The <emphasis><literal>date</literal></emphasis><literal>.get</literal><emphasis><literal>Part</literal></emphasis><literal>()</literal> functions return part of the date as an integer.  Using these methods, the time of day is calculated as the number of seconds since midnight.
+</para>
+</callout>
+<callout arearefs="animatingyourclock3">
+<para>
+Using the predefined constants, the rotational position of each clock hand (in number of degrees past midnight) is calculated.  The <literal>%</literal> is the <emphasis>modulus</emphasis> operator, which returns the remainder part of integer division.
+</para>
+</callout>
+<callout arearefs="animatingyourclock4">
+<para>
+In the initialization function, we access the first (and only) item in the <literal>SVGTransformList</literal> in the <literal>baseVal</literal> of each hand’s <literal>transform</literal> attribute, and store that <literal>SVGTransform</literal> object in a variable.  At each update, we directly change the rotation of each transform.  By modifying the objects directly, instead of using <literal>setAttribute</literal>, we skip the time required for the browser to parse the attribute string.
+</para>
+</callout>
+<callout arearefs="animatingyourclock5">
+<para>
+The final line of <literal>updateClock</literal> uses <literal>requestAnimationFrame</literal> to schedule itself to be run again the next time the screen refreshes.
+</para>
+</callout>
+</calloutlist>
+</example>
+++++
+
+The animation cycle is started by the +updateClock()+ call at the end of the initialization function. The initialization function is called by adding an +onload="init()"+ attribute to the opening +<svg>+ tag. The final, working clock can be seen [online_only]#here:# [offline_only]#on the book's website:#
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch14/animated_clock_js.svg[width="100%", height="250px"]
+
+[[javascript-libraries-section]]
+
+=== Using JavaScript Libraries
+
+In <<basic-clock-js-example>>, we created((("JavaScript/ECMAScript", "animation with", range="endofrange", startref="ix_JSECMAanimate")))((("animation", "via scripting", range="endofrange", startref="ix_animatescript")))((("DOM (Document Object Model)", "SVG DOM methods and properties", "with JavaScript libraries")))((("JavaScript/ECMAScript", "using code libraries", id="ix_JSECMAlibs", range="startofrange"))) the entire clock by constructing each element “by hand” with JavaScript calls.  As we noted at the time, building elements this way can be painfully slow. There must be  a better way, and, indeed, there is. You can use free, open source JavaScript libraries such as link:$$http://d3js.org$$[D3.js], link:$$http://raphaeljs.com$$[Raphaël], or link:$$http://snapsvg.io$$[Snap.svg] to simplify the task.((("Snap.svg library (JavaScript)")))  These libraries are all just external script files as far as the web browser is concerned.  For you, however, they are collections of useful functions that you can “borrow" from as needed.
+
+Which library to use depends on your needs.  D3.js is “a JavaScript library for manipulating documents based on data.” It is best for manipulating sets of similar elements all at once, defining their attributes, styles, and reaction to events according to a corresponding value in a data array.  If you wanted, for example, a highly interactive bar chart, D3.js would be an excellent choice.
+
+Raphaël and Snap.svg are more-generic libraries with a goal of making it easy to modify or create animated graphics. Raphaël is compatible with older browsers, converting your graphics commands to forms they understand. Snap, created by the Adobe Web Platform team, is designed for modern browsers and uses SVG exclusively. This example will use Snap.
+
+All three libraries work by _wrapping_ the DOM element objects in their own custom objects, which have additional properties and methods for you to use.  In Snap, the +<svg>+ element that holds your graphic is wrapped up in a +Paper+ object.((("Snap.svg library (JavaScript)", "Paper object"))) Snap provides function calls that let you add graphics elements to the paper, modify their attributes, and handle events that occur in them.
+
+[WARNING]
+====
+There are numerous JavaScript libraries available designed to work with HTML.  Be cautious about using them for SVG.  It’s not only that they do not have any methods for specifically dealing with graphics; even basic tasks can become problematic if the library is not aware of XML namespaces.  For example, the popular JQuery library does not (at the time of writing) have any way of creating new elements in the SVG namespace; if you ask JQuery to make you a circle, it will return an +HTMLUnknownElement+ object.  In contrast, SVG-aware libraries like D3 and Snap recognize the SVG element names and will know that _circle_ means +SVGCircleElement+.
+====
+
+Here is the XML for a Snap-based ((("Snap.svg library (JavaScript)", "including the library script")))version of the animated clock:
+
+[source,xml]
+----
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     id="clock" width="250" height="250" viewBox="0 0 250 250"
+     onload="init()" >
+  <title>Snap.svg Analog Clock</title>
+
+  <script type="application/ecmascript"
+          xlink:href="snap.svg-min.js"></script>
+  <script type="application/ecmascript">
+
+  /* Initialization and update functions go here */
+
+  </script>
+</svg>
+----
+
+The first +<script>+ element brings in the Snap library. We're hosting the source code directly on our server in a minified form, meaning that the code has been processed to remove whitespace and comments and shorten variable names.  The minified version of Snap.svg v0.3.0 is a 72 KB file, without file compression.  In other words, downloading the Snap library uses up about the same bandwidth for your web page's visitors as downloading a moderately complex PNG diagram.
+
+To use an external library in an HTML file, use the attribute +src+ for the file URL, and be sure to include both an opening and closing tag; empty script elements will not work in older browsers.
+
+The second script will follow the same structure as the previous examples, with an +init()+ function to draw the clock and an +updateClock()+ to get it ticking.
+
+[WARNING]
+====
+If you're trying out these examples yourself, be sure you're using the latest version of _snap.svg-min.js_.  The library was initially designed to modify inline SVG code within an HTML page, and versions prior to 0.3.0 https://github.com/adobe-webplatform/Snap.svg/issues/88[had bugs when run in standalone SVG files].
+====
+
+<<basic-clock-snap-example>> presents the Snap script to draw the clock.((("Snap.svg library (JavaScript)", "drawing graphics")))  It follows the same structure (and creates the same graphic) as <<basic-clock-js-example>>, but demonstrates many of Snap's shortcut methods.
+
+++++
+<example id="basic-clock-snap-example">
+<title>Drawing a basic analog clock with Snap.svg</title>
+<screen language="javascript">/* the Paper object where the clock is drawn */
+var clock;
+/* references to the Snap Elements for the clock hands */
+var hourHand,
+    minuteHand,
+    secondHand;  <co id="dcws1"/>
+
+/* time conversion constants */
+var secPerMinute  = 60,
+    secPerHour    = 60*60,
+    secPer12Hours = 60*60*12;
+
+function init() { <co id="dcws2"/>
+  /* select the empty &lt;svg&gt; as a snap Paper object */
+  clock = Snap("#clock");
+
+  /* create the clock face */ <co id="dcws3"/>
+  var face = clock.circle(125, 125, 100);
+  face.attr({fill: "white", stroke: "black"});
+
+  /* create a group for the ticks */
+  var ticks = clock.g();
+  ticks.transform("t125,125"); <co id="dcws4"/>
+
+  var tickMark;
+  for (var i = 1; i &lt;= 12; i++) { <co id="dcws5"/>
+    tickMark = clock.path("M95,0 L100,-5 L100,5 Z");
+    tickMark.transform("rotate("+ (30*i) + ")");
+    ticks.add(tickMark);
+  }
+
+  /* create the hands */
+  hourHand = clock.path("M125,125 L125,75");
+  minuteHand = clock.path("M125,125 L125,45");
+  secondHand = clock.path("M125,125 L125,30");
+
+  var hands = clock.g(hourHand, minuteHand, secondHand);  <co id="dcws6"/>
+  hands.attr({stroke: "black",
+              "stroke-width": 5, <co id="dcws7"/>
+              "stroke-linecap": "round"});
+  secondHand.attr({stroke: "red", strokeWidth: "2px"});
+
+  /* add the center knob */
+  clock.circle(125, 125, 6).attr({fill: "#333"}); <co id="dcws8"/>
+
+  updateClock(); <co id="dcws9"/>
+}
+
+function updateClock()
+{
+  /* adjust the hands */
+}</screen>
+<calloutlist>
+<callout arearefs="dcws1">
+<para>
+The global variable names are the same, but their content will differ; <literal>clock</literal> will be a Snap <literal>Paper</literal> object, and the variables for the hands will point to the Snap-wrapped elements.
+</para>
+</callout>
+<callout arearefs="dcws2">
+<para>
+In the <literal>init()</literal> function, the <literal>Snap(<replaceable>selector</replaceable>)</literal> method creates the <literal>Paper</literal> object containing the <literal>&lt;svg&gt;</literal> identified by the query string (in CSS selector format).<indexterm>
+  <primary>Snap.svg library (JavaScript)</primary><secondary>Paper object</secondary>
+</indexterm>  An alternative version of the function, <literal>Snap(</literal><emphasis><literal>width</literal></emphasis><literal>,</literal> <emphasis><literal>height</literal></emphasis><literal>)</literal> will create a new SVG of the specified dimensions.
+</para>
+</callout>
+<callout arearefs="dcws3">
+<para>
+<emphasis><literal>Paper</literal></emphasis><literal>.circle(</literal><emphasis><literal>cx</literal></emphasis><literal>,</literal><emphasis><literal>cy</literal></emphasis><literal>,</literal><emphasis><literal>r</literal></emphasis><literal>)</literal> creates a <literal>&lt;circle&gt;</literal> with the given center coordinates and radius, and adds it to the SVG. The Snap-wrapped circle element is assigned to a variable so that we can change its attributes on the next line. The <emphasis><literal>Element</literal></emphasis><literal>.attr(</literal><emphasis><literal>attrValues</literal></emphasis><literal>)</literal> function sets multiple attributes at once, given in JavaScript object notation.  (We’re using presentation attributes because, as of v0.3.0, Snap doesn’t have a shorthand way to set inline styles.)
+</para>
+</callout>
+<callout arearefs="dcws4">
+<para>
+An empty <literal>&lt;g&gt;</literal> element, <literal>ticks</literal>, is created with <emphasis><literal>Paper</literal></emphasis><literal>.g()</literal>.  The <literal>transform</literal> attribute could be set with <literal>ticks.attr()</literal>, but there’s a Snap shorthand method for this common task.  There’s also a shorthand notation for the transformation commands: <literal>"t125,125"</literal> is short for <literal>"translate(125,125)"</literal>.
+</para>
+</callout>
+<callout arearefs="dcws5">
+<para>
+The <literal>for</literal> loop creates the hour marks with <emphasis><literal>Paper</literal></emphasis><literal>.path(</literal><emphasis><literal>pathData</literal></emphasis><literal>)</literal>; they are then moved into the <literal>&lt;g&gt;</literal> with the command <literal>ticks.add(tickMark)</literal>.  Just to show it can be done, the transform attribute is set with standard SVG notation.
+</para>
+</callout>
+<callout arearefs="dcws6">
+<para>
+The clock hands are created, and then grouped together all in one line: the <emphasis><literal>Paper</literal></emphasis><literal>.g(</literal><emphasis><literal>Element</literal></emphasis><literal>,</literal> <emphasis><literal>Element</literal></emphasis><literal>,</literal> <literal>&#8230;)</literal> both creates the group and moves the specified elements into it.
+</para>
+</callout>
+<callout arearefs="dcws7">
+<para>
+When using JavaScript object notation to set attributes that have a hyphen (<literal>-</literal>) in the name, you either quote the name (<literal>"stroke-width"</literal>) or convert it to camel case form (<literal>strokeWidth</literal>).
+</para>
+</callout>
+<callout arearefs="dcws8">
+<para>
+Because the Snap methods that create elements also return those elements, you can <emphasis>chain</emphasis> multiple method calls together with dot notation.
+</para>
+</callout>
+<callout arearefs="dcws9">
+<para>
+As before, the last line of the initialization function is a call to <literal>updateClock()</literal>.
+</para>
+</callout>
+</calloutlist>
+</example>
+++++
+
+If you load this file into your browser, you will see that it looks exactly the same as <<basic-clock-figure>>. The preceding SVG does what <<basic-clock-js-example>> did, but in a much more readable fashion.
+
+The only task remaining is to get our Snap-ified SVG clock working again. <<snap-animated-clock-example>> gives the code.  Instead of animating the motion ourselves with +requestAnimationFrame+, we let Snap’s +_Element_.animate()+ function handle the movement.  It uses +requestAnimationFrame+ behind the scenes and, for old browsers, defines its own substitute method that coordinates multiple animation calls.((("JavaScript/ECMAScript", "animation with", "using Snap.svg")))((("Snap.svg library (JavaScript)", "animate function and easing options")))
+
++_Element_.animate()+ has two required and two optional parameters:
+
+* An attributes object (in the same form as __++Element++__++.attr()++), giving the _final_ value for each attribute in the animation.
+* A duration in milliseconds indicating how long the animation should take to reach the final value.
+* Optionally, a function defining the rate of change of the attribute over the course of the duration (an _easing_ function). The Snap source code defines a number of functions you can use as properties of Snap’s +mina+ object: +mina.easeinout+ will give you smooth acceleration and deceleration, while +mina.bounce+ will hit the final value quickly, and then bounce back a few times before settling down.  For steady motion throughout the duration, use +mina.linear+.
+* Optionally, a callback function that will run when the animation is complete.  This can be used to cause the animation to repeat indefinitely.
+
+++++
+<example id="snap-animated-clock-example">
+<title>Animating a clock with Snap.svg</title>
+<screen language="javascript">function updateClock()
+{
+    /* get the system time */ <co id="sace1"/>
+    var date = new Date();
+    /* calculate the number of seconds since midnight */
+    var time = date.getMilliseconds()/1000 +
+               date.getSeconds() +
+               date.getMinutes()*60 +
+               date.getHours()*60*60;
+
+    /* calculate the rotation angles */
+    var s = 360*( time % secPerMinute)/secPerMinute,
+        m = 360*( time % secPerHour )/secPerHour,
+        h = 360*( time % secPer12Hours )/secPer12Hours;
+
+    secondHand.transform("r" + s +",125,125"); <co id="sace2"/>
+    minuteHand.transform("r" + m +",125,125");
+    hourHand.transform("r" + h +",125,125");
+
+   secondHand.animate({transform: "r" + [s + 360, 125, 125]}, <co id="sace3"/>
+                      60000, mina.linear);
+   minuteHand.animate({transform: "r" + [m + 6, 125, 125]},
+                      60000, mina.linear);
+   hourHand.animate({transform: "r" + [h + 0.5, 125, 125]},
+                      60000, mina.linear, updateClock); <co id="sace4"/>
+}</screen>
+<calloutlist>
+<callout arearefs="sace1">
+<para>
+The calculations are the same as in <xref linkend="js-animated-clock-example"/>.
+</para>
+</callout>
+<callout arearefs="sace2">
+<para>
+Snap shorthand functions and transformation notation are used to set the time.
+</para>
+</callout>
+<callout arearefs="sace3">
+<para>
+The <literal>animate</literal> calls get the clock ticking. The first parameter to each <literal>animate</literal> function gives the position of the hand in 1 minute’s time; the second hand turns 360 degrees, the minute hand moves 6 degrees, while the hour hand moves half a degree. The second parameter indicates that the animation should take 60,000 milliseconds (1 minute) to run, and the third parameter sets the animation to move at a steady (linear) rate.
+</para>
+</callout>
+<callout arearefs="sace4">
+<para>
+When the minute is up, the callback parameter passed to the final animate function causes <literal>updateClock()</literal> to be run again.  This resynchronizes the animated clock with the system clock, and triggers another minute’s worth of animated motion.  Note that only one of the animate functions needs the callback, as running <literal>updateClock</literal> will restart all three.
+</para>
+</callout>
+</calloutlist>
+</example>
+++++
+
+[role="online_only"]
+Here is the clock in action:
+
+[role="offline_only"]
+You can see the clock in action online:
+
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch14/snap_animated_clock.svg[width="100%", height="400px"]
+
+
+
+=== Event Handling in Snap
+
+Using a library like Snap also makes event handling much easier.((("JavaScript/ECMAScript", "using code libraries", range="endofrange", startref="ix_JSECMAlibs")))((("DOM (Document Object Model)", "events", "in Snap.svg")))((("Snap.svg library (JavaScript)", "event handling in")))((("events", "event handling in Snap"))) The following example, which uses Snap in an HTML page, is very simple: it displays a circle and a button. You can drag the circle, and clicking the button returns the circle to the center.
+
+The main Snap functions you need for this script are +Snap()+, +click()+, and +drag()+. The +Snap()+ function takes a string in the form +#_idName_+ and returns the corresponding element as an object that wraps a DOM element with extra functionality . Once you have an element, you can use its +click()+ and +drag()+ functions to have that element respond to the appropriate events.
+
+<<snap-events-html-example>> shows the necessary HTML.
+
+[[snap-events-html-example]]
+.HTML for Snap events example
+====
+[source,html]
+----
+<html xml:lang="en" lang="en"
+    xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Click and Drag Events in Snap</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <script type="text/javascript" src="snap.svg-min.js"></script>
+  <script type="text/javascript">
+    function init() {
+    }
+  </script>
+</head>
+
+<body onload="init()">
+  <h1>Click and Drag Events in Snap</h1>
+
+<div style="text-align:center">
+  <svg width="200" height="200" viewBox="0 0 200 200"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <circle id="circle" cx="100" cy="100" r="30"
+      style="fill:#663399; stroke: black"/>
+
+    <rect id="button" x="60" y="170"
+        rx="5" ry="5" width="80" height="25"
+        style="stroke:black; fill:#ddd; cursor:pointer"/>
+    <text id="buttonText" x="100" y="187" class="buttonText"
+      style="fill:black; stroke:none;
+      font-family: sans-serif; font-size: 12pt;
+      text-anchor:middle; cursor:pointer">Reset</text>
+  </svg>
+  </div>
+</body>
+</html>
+----
+====
+
+[[snap-click-section]]
+==== Clicking Objects
+
+To set a ((("click events", "click handler in Snap.svg")))click handler, call a Snap element’s +click()+ function and pass it the name ((("Snap.svg library (JavaScript)", "event handling in", "clicking objects")))((("events", "event handling in Snap", "clicking objects")))of the function that handles the click. Here is the code you need to insert in order to handle a click on the button and its text:
+
+[source,javascript]
+----
+function init() {
+  Snap("#button").click(resetFcn);
+  Snap("#buttonText").click(resetFcn);
+}
+
+function resetFcn(evt) {
+  Snap("#circle").attr({cx: 100, cy: 100});
+}
+----
+
+The handler function gets the triggering event as its parameter, but in this case, the +resetFcn()+ function doesn’t need to use it. If you try the code at this point, nothing will appear to happen, as the circle is already at the center of the drawing. Change the value of either +cx+ or +cy+ to see that the handler is really working.
+
+[[snap-drag-section]]
+==== Dragging Objects
+
+Now that the button is handled, you can add drag handling to the circle.((("events", "event handling in Snap", "dragging objects")))((("dragging objects")))((("Snap.svg library (JavaScript)", "event handling in", "dragging objects"))) The +drag()+ method has three arguments: the name of a function to handle moving, the name of a function to handle the drag start, and the name of a function to handle the drag end.
+
+The drag start function takes three parameters: the starting _x_ postion, the starting _y_ position, and the DOM event object that triggered the start.
+
+The drag end function takes only one parameter: the DOM event object at the end of the drag.
+
+The drag move function has five parameters:
+
+* +dx+, the shift in _x_ from the start point
+* +dy+, the shift in _y_ from the start point
+* +x+, the _x_ position of the mouse
+* +y+, the _y_ position of the mouse
+* +event+, the DOM event for the mouse movement
+
+You will need to remember where the circle’s starting point is:
+
+[source,javascript]
+----
+var startX = 100;
+var startY = 100;
+----
+
+Here is the code you need to add to +init()+ to assign the drag handlers to the circle:
+
+[source, javascript]
+----
+Snap("#circle").drag(dragMove, dragStart, dragEnd);
+----
+
+And here are those functions (in logical order of start, move, end):
+
+
+[source,javascript]
+----
+function dragStart(x, y, evt) {
+  // figure out where the circle currently is
+  startX = parseInt(Snap("#circle").attr("cx"), 10);
+  startY = parseInt(Snap("#circle").attr("cy"), 10);
+}
+
+function dragMove(dx, dy, x, y, evt) {
+  Snap("#circle").attr({cx: (startX + dx), cy: (startY + dy)});
+}
+
+function dragEnd(evt) {
+  // no action required
+}
+----
+
+[role="offline_only"]
+<<snap-events-figure>> shows the result, edited to save vertical space.
+
+[role="offline_only"]
+[[snap-events-figure]]
+.Screenshot of circle being dragged
+image::images/sve2_1403.png[]
+
+[role="offline_only"]
+To click and drag it yourself, test out the online interactive version:
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch14/snap_events.html[width="100%", height="300px"]
+
+
+These examples are only the very minimum of what you can do with the Snap library. For much more sophisticated examples, go to the website and see the demos. D3, Snap, and Raphaël are not the only SVG libraries out there, but they all have one thing in common: they make it easy for you to use JavaScript to create and manipulate SVG dynamically.
+((("DOM (Document Object Model)", "SVG DOM methods and properties", range="endofrange", startref="ix_DOMSVG")))

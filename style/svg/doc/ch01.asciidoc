@@ -1,0 +1,440 @@
+[[getting-started-chapter]]
+
+== Getting Started
+
+SVG, which stands for __S__calable __V__ector __G__raphics, is an application of XML that makes it possible to represent graphic information in a compact, portable form. Interest in SVG is growing rapidly.((("SVG", "defined"))) Most modern web browsers can display SVG graphics, and most vector drawing software programs can export SVG graphics. This chapter begins with a description of the two major systems of computer graphics, and describes where SVG fits into the graphics world. The chapter concludes with a brief example that uses many of the concepts that you will explore in detail in the following chapters.
+
+[[graphics-systems-section]]
+
+=== Graphics Systems
+
+The two major systems for representing graphic information on computers are((("graphics systems, raster versus vector", id="ix_graphicsys", range="startofrange"))) raster and vector graphics.
+
+[[raster-graphics-section]]
+
+==== Raster Graphics
+
+In _raster graphics_, an((("raster graphics"))) image is represented as a rectangular array of picture elements or pixels (see <<raster-graphic-figure>>). Each pixel is represented either by its RGB color values or as an index into a list of colors. This series of pixels, also called a _bitmap_,((("bitmaps"))) is often stored in a compressed format. Because most modern display devices are also raster devices, displaying an image requires a viewer program to do little more than uncompress the bitmap and transfer it to the screen.
+
+[[raster-graphic-figure]]
+
+.Raster graphic rectangle
+image::images/sve2_0101.png[]
+
+[[vector-graphics-section]]
+
+==== Vector Graphics
+
+In a _vector graphics_ system, an image is described as a series of geometric shapes (see <<vector-graphic-figure>>).((("vector graphics"))) Rather than receiving a finished set of pixels, a vector viewing program receives commands to draw shapes at specified sets of coordinates.
+
+[[vector-graphic-figure]]
+
+.Vector graphic rectangle
+image::images/sve2_0102.png[]
+
+If you think of producing an image on graph paper, raster graphics work by describing which squares should be filled in with which colors. Vector graphics work by describing the grid points at which lines or curves are to be drawn. Some people describe vector graphics as a set of instructions for a drawing, while bitmap graphics (rasters) are points of color in specific places. Vector graphics “understand” what they are—a square “knows” it’s a square, and text “knows” that it’s text.((("text", "in vector versus raster graphics"))) Because they are objects rather than a series of pixels, vector objects can change their shape and color, whereas bitmap graphics cannot. Also, all text is searchable because it really is text, no matter how it looks or how it is rotated or transformed.
+
+Another way to think of raster graphics is as paint on canvas, while vector graphics are lines and shapes made of a stretchable material that can be moved around on a background.
+
+[[raster-graphic-use-section]]
+
+==== Uses of Raster Graphics
+
+Raster graphics are most appropriate for use with photographs, which are rarely composed of distinct lines and curves.((("raster graphics", "uses of"))) Scanned images are often stored as bitmaps; even though the original may be _line art_, you want to store the image as a whole and don’t care about its individual components. A fax machine, for example, doesn’t care what you’ve drawn; it simply transmits pixels from one place to another in raster form.
+
+Tools for creating images in raster format are widespread and generally easier to use than many vector-based tools. There are many different ways to compress and store a raster image, and the internal representation of these formats is public. Program libraries to read and write images in compressed formats such as JPEG, GIF, and PNG are widely available. These are some of the reasons that web browsers have, until the arrival of SVG, supported only raster images.
+
+[[vector-graphic-use-section]]
+
+==== Uses of Vector Graphics
+
+Vector graphics are((("vector graphics", "uses of"))) used in the following:
+
+
+* Computer Assisted Drafting (CAD) programs, ((("CAD (Computer Assisted Drafting) programs")))where accurate measurement and the ability to zoom in on a drawing to see details are essential.
+
+
+* Programs for designing graphics that will be printed on high-resolution printers (e.g., Adobe Illustrator).
+
+
+* The Adobe PostScript printing and imaging language;((("PostScript"))) every character that you print is described in terms of lines and curves.
+
+
+* The vector-based Macromedia Flash system for((("Flash"))) designing animations, presentations, and websites.
+
+Because most of these files are encoded in binary format or as tightly packed bitstreams, it is difficult for a browser or other user agent to parse out embedded text, or for a server to dynamically create vector graphic files from external data. Most of the internal representations of vector graphics are proprietary, and code to view or create them is not generally available.((("graphics systems, raster versus vector", range="endofrange", startref="ix_graphicsys")))
+
+[[scalability-section]]
+
+=== Scalability
+
+Although they are not as popular as raster graphics, vector graphics have one feature that makes them invaluable in many applications—they can be scaled without loss of image quality.((("SVG", "scalability of vector graphics")))((("vector graphics", "scalability"))) As an example, here are two drawings of a cat. <<raster-unscaled-figure>> was made with raster graphics; <<vector-unscaled-figure>> is a vector image. Both are shown as they appear on a screen that displays 72 pixels per inch.
+
+[[raster-unscaled-figure]]
+.Raster image of cat
+image::images/sve2_0103.png[]
+
+[[vector-unscaled-figure]]
+.Vector image of cat
+image::images/sve2_0104.png[]
+
+When a display program zooms in on the raster graphic, it must find some way to expand each pixel.((("raster graphics", "scalability, lack of"))) The simplest approach to zooming in by a factor of four is to make each pixel four times as large. The results, shown in <<raster-expanded-figure>>, are not particularly pleasing.
+
+[[raster-expanded-figure]]
+.Expanded raster image
+image::images/sve2_0105.png[]
+
+Although it is possible to use techniques such as edge detection and anti-aliasing to make the expanded image more pleasing, these techniques are time-consuming.((("anti-aliasing"))) Furthermore, since all the pixels in a raster graphic are equally anonymous, there’s no guarantee that an algorithm can correctly detect edges of shapes. Anti-aliasing results in something like <<antialiased-raster-figure>>.
+
+[[antialiased-raster-figure]]
+.Expanded anti-aliased raster image
+image::images/sve2_0106.png[]
+
+Expanding a vector image by a factor of four, on the other hand, merely requires the display program to multiply all the coordinates of the shapes by four and redraw them at the full resolution of the display device. Thus, <<vector-expanded-figure>>, which is also a screenshot from a 72 dots per inch (DPI) screen, shows crisp, clear edges on the lines with significantly less of the stair-step effects of the expanded raster image.
+
+[[vector-expanded-figure]]
+.Expanded vector image
+image::images/sve2_0107.png[]
+
+[[svg-role-section]]
+=== SVG’s Role
+
+In 1998, the World Wide Web Consortium formed a working group to develop a pass:[<phrase role="keep-together">representation</phrase>] of vector graphics as an XML application. Because SVG is an XML application,((("World Wide Web Consortium Recommendation (SVG)")))((("SVG", "role of")))((("XML", "SVG as XML application"))) the information about an image is stored as plain text, and it brings the advantages of XML’s openness, transportability, and interoperability.
+
+CAD and graphic design programs often store drawings in a proprietary binary format. By adding the ability to import and export drawings in SVG format, applications gain a common standard format for interchanging information.
+
+Because it is an XML application, SVG cooperates with other XML applications. A mathematics textbook, for example, could use XSL Formatting Objects for explanatory text, MathML to describe equations, and SVG to generate the graphs for the equations.
+
+The SVG working group’s specification is an official World Wide Web Consortium Recommendation. Applications such as Adobe Illustrator and Inkscape can import and export drawings in SVG format.((("web browsers", "SVG support"))) On the Web, SVG is natively supported in many browsers and has many of the same transformation and animation capabilities that CSS-styled HTML has. Because the SVG files are XML, text in the SVG display is available to any user agent that can parse XML.
+
+[[creating-svg-graphic-section]]
+=== Creating an SVG Graphic
+
+In this section, you will see an SVG file that produces the image of the cat that you saw earlier in the chapter. This example introduces many of the concepts that you will read about in further detail in subsequent chapters. This file will be a good example of how to write an example file, which is not necessarily the way you should write an SVG file that will be part of a finished project.
+
+[[basic-document-structure-section]]
+==== Document Structure
+
+<<basic-structure-example>> starts with the standard XML processing instruction and +DOCTYPE+ declaration.((("document structure", "basic, in SVG")))((("XML", "document structure", "for SVG graphic"))) The root +<svg>+ element defines the +width+ and +height+ of the finished graphic in pixels.((("svg element"))) It also defines the
+SVG namespace via the +xmlns+ attribute.((("XML", "namespaces")))((("xmlns attribute", "svg element"))) The +<title>+ element’s content((("title element")))((("desc element"))) is available to a viewing program for use in a title bar or as a tooltip pointer, and the +<desc>+ element lets you give a full description of the image.
+
+[[basic-structure-example]]
+.Basic structure of an SVG document
+====
+[source,xml]
+----
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg width="140" height="170"
+  xmlns="http://www.w3.org/2000/svg">
+<title>Cat</title>
+<desc>Stick Figure of a Cat</desc>
+<!-- the drawing will go here -->
+</svg>
+----
+====
+
+[[cat-circle-section]]
+==== Basic Shapes
+
+You draw the cat’s face by adding a +<circle>+ element.((("shapes", "basic")))((("circles"))) The element’s attributes specify the center _x_-coordinate, center _y_-coordinate, and radius. The (0,0) point is the upper-left corner of the picture. __x__-coordinates increase as you move horizontally to the right; __y__-coordinates increase as you move vertically downward.
+
+The circle’s location and size are part of the drawing’s _structure_.((("document structure", "structure and presentation")))((("structure", see="document structure")))((("presentation", "versus structure"))) The color in which it is drawn is part of its _presentation_.((("shapes", "basic", "circles")))((("attributes", "presentation"))) As is customary with XML applications, you should separate structure and presentation for maximum flexibility. Presentation information is contained in the +style+ attribute.((("style attribute"))) Its value will be a series of presentation properties and values, as described in <<css-appendix>>, in <<style-anatomy-section>>. Use a stroke color of ++black++ for the outline, and a fill color of +none+ to make the face transparent. [offline_only]#The SVG is shown in <<cat-circle-example>>, and its result in <<cat-circle-figure>>.# [online_only]#The SVG is shown in <<cat-circle-example>>. Click in the SVG to edit it, then click Refresh to see the results.#
+
+[[cat-circle-example]]
+.Basic shapes--circle
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch01/ex01-02.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg width="140" height="170"
+  xmlns="http://www.w3.org/2000/svg">
+<title>Cat</title>
+<desc>Stick Figure of a Cat</desc>
+
+*<circle cx="70" cy="95" r="50" style="stroke: black; fill: none"/>*
+
+</svg>
+----
+====
+
+[[cat-circle-figure]]
+[role="offline_only"]
+.Stage one—drawing a circle
+image::images/sve2_0108.png[]
+
+
+[[styles-as-attributes-section]]
+==== Specifying Styles as Attributes
+
+Now add two more circles for the eyes in <<cat-eyes-example>>.((("styles", "presentation attributes versus")))((("stroke style", "specifying color")))((("fill style", "specifying color"))) Although their fill and stroke colors are really part of the presentation, SVG does allow you to specify them as individual attributes. In this example, the +fill+ and +stroke+ colors are written as two separate attributes rather than together inside the +style+ attribute. You probably won’t use this method often; it’s described further in <<document-structure-chapter>>, in <<presentation-attributes-section>>. We’ve put it here just to prove that it can be done. [offline_only]#The results are shown in <<cat-eyes-figure>>.#
+
+The +<?xml ...?>+ and +<!DOCTYPE?>+ have been omitted to save space in the listing.
+
+++++
+<?hard-pagebreak?>
+++++
+
+[[cat-eyes-example]]
+.Basic shapes—filled circles
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch01/ex01-03.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<svg width="140" height="170"
+  xmlns="http://www.w3.org/2000/svg">
+  <title>Cat</title>
+  <desc>Stick Figure of a Cat</desc>
+
+  <circle cx="70" cy="95" r="50" style="stroke: black; fill: none"/>
+  *<circle cx="55" cy="80" r="5" stroke="black" fill="#339933"/>
+  <circle cx="85" cy="80" r="5" stroke="black" fill="#339933"/>*
+</svg>
+----
+====
+
+[role="offline_only"]
+[[cat-eyes-figure]]
+.Stage two—drawing the face and eyes
+image::images/sve2_0109.png[]
+
+[[cat-grouping-section]]
+==== Grouping Graphic Objects
+
+<<cat-whiskers-example>> adds the whiskers on the right side of the cat’s face with two +<line>+ elements.((("shapes", "basic", "lines")))((("line element")))((("grouping"))) You want to treat these whiskers as a unit (you’ll see why in a moment), so enclose them in the +<g>+ grouping element, and give it an +id+.((("g element (group)"))) You specify a line by giving the _x-_ and __y-__coordinates for its starting point (+x1+ and +y1+) and ending point (+x2+ and +y2+). [offline_only]#<<cat-whiskers-figure>> shows the result.#
+
+[[cat-whiskers-example]]
+.Basic shapes--lines
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch01/ex01-04.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<svg width="140" height="170"
+  xmlns="http://www.w3.org/2000/svg">
+<title>Cat</title>
+<desc>Stick Figure of a Cat</desc>
+
+<circle cx="70" cy="95" r="50" style="stroke: black; fill: none;"/>
+<circle cx="55" cy="80" r="5" stroke="black" fill="#339933"/>
+<circle cx="85" cy="80" r="5" stroke="black" fill="#339933"/>
+*<g id="whiskers">
+   <line x1="75" y1="95" x2="135" y2="85" style="stroke: black;"/>
+   <line x1="75" y1="95" x2="135" y2="105" style="stroke: black;"/>
+</g>*
+</svg>
+----
+====
+
+[role="offline_only"]
+[[cat-whiskers-figure]]
+.Stage three—adding whiskers on the right side
+image::images/sve2_0110.png[]
+
+[[cat-transform-coord-section]]
+==== Transforming the Coordinate System
+
+Now you will +<use>+ the whiskers group and +transform+ it into the ((("coordinate system, transforming")))((("transformations")))left whiskers. <<cat-transform-example>> first flips the coordinate system by multiplying the _x_-coordinates by negative one in a +scale+ transformation.((("scale transformations"))) This means that the point (75,95) is now located at at the place that would have been (–75,95) in the original coordinate system. In the new scaled system, coordinates increase as you move _left_. This means you have to +translate+ (move) the((("translate transformation"))) coordinate system 140 pixels right, the negative direction, to get them where you want [online_only]#them.# [offline_only]#them, as shown in <<cat-transform-figure>>.#
+
+[[cat-transform-example]]
+.Transforming the coordinate system
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch01/ex01-05.html[width="100%", height="600px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<svg width="140" height="170"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>Cat</title>
+  <desc>Stick Figure of a Cat</desc>
+
+  <circle cx="70" cy="95" r="50" style="stroke: black; fill: none;"/>
+  <circle cx="55" cy="80" r="5" stroke="black" fill="#339933"/>
+  <circle cx="85" cy="80" r="5" stroke="black" fill="#339933"/>
+  <g id="whiskers">
+    <line x1="75" y1="95" x2="135" y2="85" style="stroke: black;"/>
+    <line x1="75" y1="95" x2="135" y2="105" style="stroke: black;"/>
+  </g>
+  *<use xlink:href="#whiskers" transform="scale(-1 1) translate(-140 0)"/>*
+</svg>
+----
+====
+
+[[cat-transform-figure]]
+[role="offline_only"]
+.Stage four—adding whiskers on the left side
+image::images/sve2_0111.png[]
+
+
+The +xlink:href+ attribute in the +<use>+ element is in a different _namespace_ (see <<xml-appendix>> for details).((("XML", "namespaces")))((("namespaces"))) To make sure your SVG document will work with all SVG viewers, you must add((("svg element", "xmlns:xlink attribute"))) the +xmlns:xlink+ attribute to the opening +<svg>+ tag.((("xmlns:xlink attribute")))
+
+The +transform+ attribute’s value lists the transformations, one after another, separated by whitespace.
+
+[[cat-other-shapes-section]]
+
+==== Other Basic Shapes
+
+<<cat-other-shapes-example>> constructs the ears and mouth with the +<polyline>+ element, which takes pairs of _x_- and _y_-coordinates as the +points+ attribute.((("polyline element")))((("shapes", "basic", "polyline element"))) You separate the numbers with either blanks or commas as you please. [offline_only]#The result is in <<cat-other-shapes-figure>>.#
+
+
+[[cat-other-shapes-example]]
+.Basic shapes—polylines
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch01/ex01-06.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<svg width="140" height="170"
+  xmlns="http://www.w3.org/2000/svg" 
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>Cat</title>
+  <desc>Stick Figure of a Cat</desc>
+
+  <circle cx="70" cy="95" r="50" style="stroke: black; fill: none;"/>
+  <circle cx="55" cy="80" r="5" stroke="black" fill="#339933"/>
+  <circle cx="85" cy="80" r="5" stroke="black" fill="#339933"/>
+  <g id="whiskers">
+    <line x1="75" y1="95" x2="135" y2="85" style="stroke: black;"/>
+    <line x1="75" y1="95" x2="135" y2="105" style="stroke: black;"/>
+  </g>
+  <use xlink:href="#whiskers" transform="scale(-1 1) translate(-140 0)"/>
+  *<!-- ears -->
+  <polyline points="108 62,  90 10,  70 45,  50, 10,  32, 62"
+    style="stroke: black; fill: none;" />
+  <!-- mouth -->
+  <polyline points="35 110, 45 120, 95 120, 105, 110"
+      style="stroke: black; fill: none;" />*
+</svg>
+----
+====
+
+[[cat-other-shapes-figure]]
+[role="offline_only"]
+.Stage five—adding ears and mouth
+image::images/sve2_0112.png[]
+
+
+[[cat-paths-section]]
+
+==== Paths
+
+All of the basic shapes are actually shortcuts for the more((("paths")))((("shapes", "basic", "paths"))) general +<path>+ element, which <<cat-paths-example>> uses to add the cat’s nose. [offline_only]#The result is in <<cat-paths-figure>>.# This element has been designed to make specifying a path, or sequence of lines and curves, as compact as possible. The path in <<cat-paths-example>> translates, in words, to “Move to coordinate (75,90). Draw a line to coordinate (65,90). Draw an elliptical arc with an _x_-radius of 5 and a _y_-radius of 10, ending back at coordinate (75,90).”
+
+[[cat-paths-example]]
+.Using the <path> element
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch01/ex01-07.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<svg width="140" height="170"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>Cat</title>
+  <desc>Stick Figure of a Cat</desc>
+
+  <circle cx="70" cy="95" r="50" style="stroke: black; fill: none;"/>
+  <circle cx="55" cy="80" r="5" stroke="black" fill="#339933"/>
+  <circle cx="85" cy="80" r="5" stroke="black" fill="#339933"/>
+  <g id="whiskers">
+    <line x1="75" y1="95" x2="135" y2="85" style="stroke: black;"/>
+    <line x1="75" y1="95" x2="135" y2="105" style="stroke: black;"/>
+  </g>
+  <use xlink:href="#whiskers" transform="scale(-1 1) translate(-140 0)"/>
+  <!-- ears -->
+  <polyline points="108 62,  90 10,  70 45,  50, 10,  32, 62"
+    style="stroke: black; fill: none;" />
+  <!-- mouth -->
+  <polyline points="35 110, 45 120, 95 120, 105, 110"
+      style="stroke: black; fill: none;" />
+  *<!-- nose -->
+  <path d="M 75 90 L 65 90 A 5 10 0  0 0 75 90"
+    style="stroke: black; fill: #ffcccc"/>*
+</svg>
+----
+====
+
+[[cat-paths-figure]]
+[role="offline_only"]
+.Stage six—adding a nose
+image::images/sve2_0113.png[]
+
+[[cat-text-section]]
+
+==== Text
+
+Finally, because this picture is so crudely drawn, there’s a good chance that people will not know it is a cat.((("text", "adding to a graphic"))) Hence, <<cat-text-example>> adds text to the picture as a label. In the +<text>+ element, the +x+ and +y+ attributes that specify the text’s location are part of the structure.((("fonts", "font family and font size for text label"))) The font family and font size are part of the presentation, and thus part of the +style+ attribute.((("styles", "font family and font size for text"))) Unlike the other elements you’ve seen, +<text>+ is a container element,((("text element"))) and its content is the text you want to display. [offline_only]#<<cat-text-figure>> shows the final result.#
+
+
+[[cat-text-example]]
+.Adding a label
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch01/ex01-08.html[width="100%", height="600px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<svg width="140" height="170"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>Cat</title>
+  <desc>Stick Figure of a Cat</desc>
+
+  <circle cx="70" cy="95" r="50" style="stroke: black; fill: none;"/>
+  <circle cx="55" cy="80" r="5" stroke="black" fill="#339933"/>
+  <circle cx="85" cy="80" r="5" stroke="black" fill="#339933"/>
+  <g id="whiskers">
+    <line x1="75" y1="95" x2="135" y2="85" style="stroke: black;"/>
+    <line x1="75" y1="95" x2="135" y2="105" style="stroke: black;"/>
+  </g>
+  <use xlink:href="#whiskers" transform="scale(-1 1) translate(-140 0)"/>
+  <!-- ears -->
+  <polyline points="108 62,  90 10,  70 45,  50, 10,  32, 62"
+    style="stroke: black; fill: none;" />
+  <!-- mouth -->
+  <polyline points="35 110, 45 120, 95 120, 105, 110"
+      style="stroke: black; fill: none;" />
+  <!-- nose -->
+  <path d="M 75 90 L 65 90 A 5 10 0  0 0 75 90"
+    style="stroke: black; fill: #ffcccc"/>
+  *<text x="60" y="165" style="font-family: sans-serif; font-size: 14pt;
+    stroke: none; fill: black;">Cat</text>*
+</svg>
+----
+====
+
+[[cat-text-figure]]
+[role="offline_only"]
+.Stage seven—finished image with label
+image::images/sve2_0114.png[]
+
+That concludes our brief overview of SVG; in the following chapters, you’ll examine these concepts in depth.

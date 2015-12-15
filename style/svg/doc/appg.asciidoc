@@ -1,0 +1,188 @@
+[[arc-conversion-appendix]]
+
+[appendix]
+== Converting Arcs to Different Formats
+
+[[convert-arc-to-svg-section]]
+
+=== Converting from Center and Angles to SVG
+
+The ((("arcs", "converting to different formats", id="ix_arcsconvert", range="startofrange")))((("arcs", "converting to different formats", "from center and angles to SVG")))following JavaScript code converts an arc specified in center-and-angles format to a form suitable for placing into an SVG +<path>+:
+
+[source,javascript]
+----
+/*
+  Convert an elliptical arc based around a central point
+  to an elliptical arc parameterized for SVG.
+
+  Parameters are:
+    center x coordinate
+    center y coordinate
+    x-radius of ellipse
+    y-radius of ellipse
+    beginning angle of arc in degrees
+    arc extent in degrees
+    x-axis rotation angle in degrees
+
+  Return value is an array containing:
+    x-coordinate of beginning of arc
+    y-coordinate of beginning of arc
+    x-radius of ellipse
+    y-radius of ellipse
+    x-axis rotation angle in degrees
+    large-arc-flag as defined in SVG specification
+    sweep-flag  as defined in SVG specification
+    x-coordinate of endpoint of arc
+    y-coordinate of endpoint of arc
+*/
+
+function centeredToSVG(cx, cy, rx, ry, theta, delta, phi)
+{
+  var endTheta, phiRad;
+  var x0, y0, x1, y1, largeArc, sweep;
+  
+  /*
+    Convert angles to radians. I need a separate variable for phi as
+    radians, because I must preserve phi in degrees for the
+    return value.
+  */
+  theta = theta * Math.PI / 180.0;
+  endTheta = (theta + delta) * Math.PI / 180.0;
+  phiRad = phi * Math.PI / 180.0;
+
+  /*
+    Figure out the coordinates of the beginning and ending points
+  */
+  x0 = cx + Math.cos(phiRad) * rx * Math.cos(theta) +
+    Math.sin(-phiRad) * ry * Math.sin(theta);
+  
+  y0 = cy + Math.sin(phiRad) * rx * Math.cos(theta) +
+    Math.cos(phiRad) * ry * Math.sin(theta);
+
+  x1 = cx + Math.cos(phiRad) * rx * Math.cos(endTheta) +
+    Math.sin(-phiRad) * ry * Math.sin(endTheta);
+  
+  y2 = cy + Math.sin(phiRad) * rx * Math.cos(endTheta) +
+    Math.cos(phiRad) * ry * Math.sin(endTheta);
+
+  largeArc = (delta > 180) ? 1 : 0;
+  sweep = (delta > 0) ? 1 : 0;
+  
+  return [x0, y0, rx, ry, phi, largeArc, sweep, x1, y1];
+}
+----
+
+[[convert-arc-to-center-and-angle-section]]
+
+=== Converting from SVG to Center and Angles
+
+The following code, adapted from the Apache Batik project,((("arcs", "converting to different formats", "from SVG to center and angles"))) converts an SVG-style arc to a center-and-angles format:
+
+[source,javascript]
+----
+/*
+  Convert an elliptical arc specified as SVG path parameters
+  to an arc based around a central point.
+
+  Parameters are:
+    x-coordinate of beginning of arc
+    y-coordinate of beginning of arc
+    x-radius of ellipse
+    y-radius of ellipse
+    x-axis rotation angle in degrees
+    large-arc-flag as defined in SVG specification
+    sweep-flag  as defined in SVG specification
+    x-coordinate of endpoint of arc
+    y-coordinate of endpoint of arc
+
+  Return value is an array containing:
+    center x coordinate
+    center y coordinate
+    x-radius of ellipse
+    y-radius of ellipse
+    beginning angle of arc in degrees
+    arc extent in degrees
+    x-axis rotation angle in degrees
+*/
+ 
+function convertArc(x0, y0, rx, ry, xAngle, largeArcFlag,
+  sweepFlag, x, y)
+{
+  // Step 1: compute half the distance between the current
+  // and final point.
+  var dx2 = (x0 - x) / 2.0;
+  var dy2 = (y0 - y) / 2.0;
+  
+  // convert angle from degrees to radians
+  var xAngle = Math.PI * (xAngle % 360.0) / 180.0;
+  var cosXAngle = Math.cos(xAngle);
+  var sinXAngle = Math.sin(xAngle);
+  
+  // Compute x1, y1
+  var x1 = (cosXAngle * dx2 + sinXAngle * dy2);
+  var y1 = (-sinXAngle * dx2 + cosXAngle * dy2);
+  
+  // Ensure radii are large enough
+  rx = Math.abs(rx);
+  ry = Math.abs(ry);
+  var rxSq = rx * rx;
+  var rySq = ry * ry;
+  var x1Sq = x1 * x1;
+  var y1Sq = y1 * y1;
+  
+  var radiiCheck = x1Sq / rxSq + y1Sq / rySq
+  if (radiiCheck > 1) {
+    rx = Math.sqrt(radiiCheck) * rx;
+    ry = Math.sqrt(radiiCheck) * ry;
+    rxSq = rx * rx;
+    rySq = ry * ry;
+  }
+  
+  // Step 2: Compute (cx1, cy1)
+  var sign = (largeArcFlag == sweepFlag) ? -1 : 1;
+  var sq = ((rxSq * rySq) - (rxSq * y1Sq) - (rySq * x1Sq)) /
+    ((rxSq * y1Sq) + (rySq * x1Sq));
+  sq = (sq < 0) ? 0 : sq;
+  var coef = (sign * Math.sqrt(sq));
+  var cx1 = coef * ((rx * y1) / ry);
+  var cy1 = coef * -((ry * x1) / rx);
+  
+  // Step 3 : Compute (cx, cy) from (cx1, cy1)
+  var sx2 = (x0 + x) / 2.0;
+  var sy2 = (y0 + y) / 2.0;
+  var cx = sx2 + (cosXAngle * cx1 - sinXAngle * cy1);
+  var cy = sy2 + (sinXAngle * cx1 + cosXAngle * cy1);
+
+  // Step 4 : Compute the angleStart and the angleExtent
+  var ux = (x1 - cx1) / rx;
+  var uy = (y1 - cy1) / ry;
+  var vx = (-x1 - cx1) / rx;
+  var vy = (-y1 - cy1) / ry;
+  var p, n;
+  // Compute the angle start
+  n = Math.sqrt((ux * ux) + (uy * uy));
+  p = ux; // (1 * ux) + (0 * uy)
+  sign = (uy < 0) ? -1.0 : 1.0;
+  var angleStart = 180.0 * (sign * Math.acos(p / n)) / Math.PI;
+
+  // Compute the angle extent
+  n = Math.sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy));
+  p = ux * vx + uy * vy;
+  sign = (ux * vy - uy * vx < 0) ? -1.0 : 1.0;
+  var angleExtent = 180.0 * (sign * Math.acos(p / n)) / Math.PI;
+  if(!sweepFlag && angleExtent > 0)
+  {
+    angleExtent -= 360.0;
+  }
+  else if (sweepFlag && angleExtent < 0)
+  {
+    angleExtent += 360.0;
+  }
+  angleExtent %= 360;
+  angleStart %= 360;
+  
+  return( [cx, cy, rx, ry, angleStart, angleExtent, xAngle] );
+}
+----
+
+((("arcs", "converting to different formats", range="endofrange", startref="ix_arcsconvert")))

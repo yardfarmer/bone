@@ -1,0 +1,157 @@
+[[svg-font-appendix]]
+
+[appendix]
+== Creating Fonts
+
+The fonts built into the system that renders your SVG documents will take care of the vast((("fonts", "creating", id="ix_fontscreate", range="startofrange"))) majority of your needs. Sometimes, though, you will want to use a custom font. It is possible to create a font for use with SVG from scratch. In brief, you use a +<font>+ element tag to describe the origin and default width of the font’s glyphs. Inside the +<font>+ is the +<font-face>+ element, ((("font-face element")))which has an immense number of attributes that describe the font’s dimensions in excessive detail. <<font-face-table>> summarizes some of the more useful  attributes. You can see them all in detail link:$$http://www.w3.org/TR/SVG/fonts.html$$[in the SVG specification].
+
+The SVG font specification was intended to allow designers to create accessible logos and graphics. Search engines and screen readers would understand the text as a sequence of characters, but the design could be completely customized and would look the same on every system. At the time of writing, this ideal has not yet been realized, because two major web browsers (Internet Explorer and Firefox) have not implemented SVG fonts.  If you create a custom SVG font, there are web services that can convert it to other font formats for use with these browsers.((("font-face element", "attributes for (table)")))
+
+++++
+<table id="font-face-table">
+<title>font-face attributes</title>
+<tgroup cols="2">
+<colspec colname="col_1" colwidth="45%"/>
+<colspec colname="col_2" colwidth="45%"/>
+<thead>
+<row>
+<entry><literal>font-family</literal></entry>
+<entry>A list of font family names</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><simpara><literal>font-style</literal></simpara></entry>
+<entry><simpara>Values of <literal>normal</literal>, <literal>italic</literal>, or <literal>oblique</literal>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>font-variant</literal></simpara></entry>
+<entry><simpara><literal>normal</literal> or <literal>small-caps</literal>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>font-weight</literal></simpara></entry>
+<entry><simpara><literal>normal</literal>, <literal>bold</literal>, or a number from 100 to 900 in steps of 100.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>font-stretch</literal></simpara></entry>
+<entry><simpara>Indicates the <literal>condensed</literal> or <literal>expanded</literal> nature of the face relative to others in its font family. Possible prefixes for <literal>condensed</literal> or <literal>expanded</literal> are <literal>ultra-</literal>, <literal>extra-</literal>, and <literal>semi-</literal>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>font-size</literal></simpara></entry>
+<entry><simpara><literal>all</literal>, suitable for most scalable fonts, or if a font is designed for a restricted range of sizes, a list of lengths (such as <literal>18pt</literal>).</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>unicode-range</literal></simpara></entry>
+<entry><simpara>The range of Unicode characters covered by this font, in the form <literal>U</literal><emphasis><literal>start</literal></emphasis><literal>-</literal><emphasis><literal>end</literal></emphasis>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>units-per-em</literal></simpara></entry>
+<entry><simpara>Coordinate units for the <emphasis>em square</emphasis>. This establishes a coordinate system for the font. The following are all measured in these units.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>cap-height</literal></simpara></entry>
+<entry><simpara>Height of uppercase glyphs.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>x-height</literal></simpara></entry>
+<entry><simpara>Height of lowercase glyphs.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>accent-height</literal></simpara></entry>
+<entry><simpara>Distance from the origin to the top of accent characters.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>ascent</literal></simpara></entry>
+<entry><simpara>Maximum unaccented height of the font.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>descent</literal></simpara></entry>
+<entry><simpara>Maximum unaccented depth of the font.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>widths</literal></simpara></entry>
+<entry><simpara>A list of widths for the glyph corresponding to each character.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>bbox</literal></simpara></entry>
+<entry><simpara>The maximal bounding box for the font; a box in which the largest character will fit.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>underline-position</literal></simpara></entry>
+<entry><simpara>Ideal position of an underline.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>underline-thickness</literal></simpara></entry>
+<entry><simpara>Ideal thickness of an underline.</simpara></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+++++
+
+Following the +<font-face>+ are +<glyph>+ elements, which contain path descriptions for each of the glyphs you wish to have in your font.
+
+While it is possible to create fonts from scratch, it’s a lot of work, and often a duplication of effort, as the glyphs you need may be in an already-existing font. If you already have a TrueType font with the desired glyphs, you are in luck. The quadratic Bézier curves used in TrueType can be easily converted to SVG glyphs.  Just be sure to include the standard TrueType font as a fallback option (as a web font or as a reference to a local font name) for web browsers that don't support SVG fonts.
+
+[[ttf2svg-section]]
+
+=== The ttf2svg Utility
+
+The Apache Batik project has created a utility that will convert your TrueType fonts to SVG.((("ttf2svg utility"))) The following summary is adapted from the Batik project’s documentation (copyright 2013 The Apache Software Foundation. All rights reserved).
+
+If you are using the Batik binary distribution, type the following at the command line:
+
+----
+java -jar batik-ttf2svg.jar [options]
+----
+
+If you are using the Batik developer distribution, type the following at the pass:[<phrase role="keep-together">command line</phrase>]:
+
+----
+build ttf2svg [options]
+----
+
+In both cases, the options are the same (these options will all go on the same line
+when typed at the command line; they are placed on separate lines here for ease
+of reading):
+
+[subs="specialcharacters,quotes"]
+----
+_ttf-path_
+[-l _range-being_]
+[-h _range-end_]
+[-ascii]
+[id _id_]
+[-o _output-path_]
+[-testcard]
+----
+
+The options have the following meanings:
+
++_ttf-path_+:: Specifies the TrueType font file that contains the characters to be converted.
+
++-l _range-begin_+::
+
+++-h++ __++range-end++__:: The low and high value of the range of characters to be converted to SVG (ASCII or Unicode values).
+
++-ascii+:: Forces usage of the ASCII character map.
+
++-id _id_+:: Specifies the value for the +id+ attribute of the generated +<font>+ element.
+
++-o _output-path_+:: Specifies the path for the generated SVG font file. If not specified, output goes to the Java console.
+
++-testcard+:: Specifies that a set of SVG +<text>+ elements should be appended to the SVG font file to visualize and test the characters in the SVG font. This provides an easy way to validate the generated SVG font file visually.
+
+For example, to convert characters 48 to 57, that is, the characters +'0'+ to +'9'+, in _myFont.ttf_ into their SVG equivalent in the _mySVGFont.svg_ file, appending a test card so that the font can be visualized easily, you would use this command:
+
+----
+java -jar batik-ttf2svg.jar /usr/home/myFont.ttf -l 48 -h 57
+   -id MySVGFont -o mySVGFont.svg -testcard
+----
+
+[WARNING]
+====
+Make sure you have the right to embed a font before you embed it in an SVG file. TrueType font files contain a flag that defines the “embeddability” of a font, and there are tools for checking that flag.
+====
+
+((("fonts", "creating", range="endofrange", startref="ix_fontscreate")))

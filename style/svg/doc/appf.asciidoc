@@ -1,0 +1,179 @@
+[[svg-with-html-appendix]]
+
+[appendix]
+== Using SVG with Other XML Applications
+
+John Donne said that no man is an island, and likewise SVG is not the only XML application in the universe.((("SVG", "using with other XML applications" id="SVGXMLapps", range="startofrange")))((("XML", "using SVG with other XML applications", id="ix_XMLSVGapps", range="startofrange"))) In fact, as an XML application, SVG is _intended_ to be used with other XML applications. We’ll explore several such uses in this appendix.
+
+[[svgess-APP-F-SECT-1]]
+
+=== Referring to an SVG Document+++<?lb?>+++ in HTML
+
+OK, so we lied. HTML isn’t an XML application, but you’ll still want to put SVG graphics in a web page.((("HTML", "referring to an SVG document in"))) For most browsers, this is done by using a plug-in. As of this writing, Adobe’s SVG viewer plugin is available for Windows and Macintosh systems. To have a plug-in display in an SVG file within an HTML document, you use the +<embed>+ element. The +src+ attribute specifies the file in which the SVG resides, and the +width+ and +height+ attributes tell how much screen space to reserve for the graphic. The graphic will be centered in the space that you specify. You must also specify a +type+ attribute with a value of +$$image/svg+xml$$+.
+
+
+----
+<embed src="some_file.svg" width="100" height="200"
+    type="image/svg+xml" />
+----
+
+Additionally, you may specify a +pluginspage+ attribute whose value is a URL where users may download the plug-in.
+
+[[svgess-APP-F-SECT-2]]
+
+=== Referring to an SVG Document+++<?lb?>+++ in XHTML
+
+This is where things get interesting.((("XHTML", "referring to an SVG document in"))) First, the +<embed>+ element is deprecated in HTML 4.0, and nonexistent in HTML 4.01 and XHTML. Obviously, this calls for other measures. In place of +<embed>+, you must use the +<object>+ element. It also needs a +height+, +width+, and +type+, but it uses the +data+ attribute to specify where the SVG document lives. Any content between the opening and closing +<object>+ tags will be displayed if the browser doesn’t support the type of object you’ve specified.
+
+
+----
+<object data="some_file.svg" width="100" height="200"
+    type="image/svg+xml">
+    <p>
+    Sorry, but your browser doesn't support
+    SVG objects. What a pity.
+    </p>
+</object>
+----
+
+If you use +<object>+, be aware that it doesn’t work at all in many browsers with version numbers less than 4.0, and is subject to annoying oddities in all but the latest browsers.
+
+[[svgess-APP-F-SECT-3]]
+
+=== Placing SVG Directly Within +++<?lb?>+++ XHTML Documents
+
+Of course, the ultimate goal is to place SVG elements directly within an XHTML document.((("XHTML", "placing SVG directly within XHTML documents"))) Whenever you mix elements from two different markup languages, you must differentiate them so that a browser or parser can tell which elements belong to which language. This is done by putting a namespace prefix on the markup for at least one of the two languages.footnote:[The technical term for this is namespaces. <<svgess-APP-A,Appendix A>> describes namespaces in more detail.]
+
+The other joker in the deck is that only the very latest browsers allow you to mix SVG and XHTML. Microsoft’s Internet Explorer version 5.5 and above, and an SVG-enabled version of Mozilla, available at link:$$http://www.croczilla.com/svg/index.html$$[], permit you to do this intermixing. <<svgess-APP-F-EX-1,Example F-1>> shows the setup for Internet Explorer.
+
+[[svgess-APP-F-EX-1]]
+.XHTML and SVG in one document
+----
+<html xmlns:svg="http://www.w3.org/2000/svg">     <1>
+
+<object id="AdobeSVG"     <2>
+   CLASSID="clsid:78156a80-c6a1-4bbf-8e6a-3cd390eeb4e2">
+</object>
+<?import namespace="svg" implementation="#AdobeSVG"?>
+<head><title>SVG Example</title></head>     <3>
+<body>
+<p>
+   Behold SVG mixed with XHTML.
+</p>
+<svg:svg width="100px" height="100px" viewBox="0 0 100 100">     <4>
+    <svg:rect x="10" y="20" width="30" height="40"
+        fill="blue" stroke="none"/>
+</svg:svg>
+<p>     <5>
+    More XHTML
+</p>
+</body>
+</html>
+----
+<1> The attribute in this element establishes that any element beginning with +svg+ is associated with the SVG specification.
+<2> These four lines are a Microsoft magic spell that loads the appropriate code to handle SVG. This magic spell is part of something that Microsoft calls “binary behaviors” and they are a proprietary method of emulating XML namespaces. This goes totally counter to the philosophy and practice of XML, but, because it does exist and people will insist upon using it, we have to mention it. If you’re using the SVG-enabled version of Mozilla, you don’t need these lines.
+<3> Standard XHTML. Nothing to look at here; keep moving along.
+<4> All the tags associated with SVG are preceded with the prefix +svg:+, just as we stated in the first line of the document. _This includes the closing tags as well as the opening tags._
+<5> More XHTML at the end of the document.
+
+[NOTE]
+====
+If you have an existing SVG document that you want to insert in an XHTML document, and you need to prefix all the tags, follow these steps in your favorite text editor:
+
+
+. Replace all +</+ with +%%/+, presuming that +%%/+ does not occur elsewhere in your text.
+
+
+. Replace all +<+ with +<svg:+. If you have any +<!\[CDATA\[..\]\]<+ sections, make sure you don’t replace the less than signs inside them.
+
+
+. Replace all +%%/+ with +</svg:+.
+
+====
+
+
+[[svgess-APP-F-SECT-4]]
+
+=== Embedding SVG in XSL+++<?lb?>+++ Formatting Objects
+
+The other XML application that supports inline SVG is Extensible Stylesheet Language Formatting Objects (XSL-FO).((("XSL-FO files "embedding SVG in"))) This is a markup language used to specify page formatting of text. You may use the Apache Software Foundation’s FOP software tool to take a document written in XSL-FO and transform it to Adobe’s PDF (Portable Document Format). You may see the XSL-FO specification at link:$$http://www.w3.org/TR/xsl/$$[] or read a brief introduction in Chapter 13 of XML in a Nutshell by Elliotte Rusty Harold and W. Scott Means. FOP is available at link:$$http://xml.apache.org$$[].
+
+<<svgess-APP-F-EX-2,Example F-2>> lays out a document with text and SVG graphics for the cover of what must surely be one of the more eccentric Compact Discs ever recorded. The graphic has nothing whatsoever to do with the subject of the disc; it’s merely an existence proof.
+
+Once we run this file through FOP, we can display it in our favorite PDF viewer. <<svgess-APP-F-FIG-1,Figure F-1>> shows a screenshot.
+
+[[svgess-APP-F-FIG-1]]
+
+.PDF output
+image::images/web/svge.af01.png[]
+
+[[svgess-APP-F-EX-2]]
+.Combined XSL-FO and SVG markup
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">     <1>
+<fo:layout-master-set>     <2>
+<fo:simple-page-master     <3>
+    margin-right="0.5cm"
+    margin-left="0.5cm"
+    margin-bottom="0.5cm"
+    margin-top="0.5cm"
+    page-height="12cm" page-width="12cm"
+    master-name="cdcover">
+<fo:region-body/>     <4>
+</fo:simple-page-master>
+</fo:layout-master-set>
+
+<fo:page-sequence master-name="cdcover">     <5>
+<fo:flow flow-name="xsl-region-body" font-family="Times">     <6>
+
+    <fo:block font-size="12pt" font-style="italic" space-after="12pt">     <7>
+    The Peoria Bagpipe and Timpani Ensemble Performs
+    </fo:block>
+
+    <fo:block font-size="24pt" font-weight="bold" space-after="24pt"
+        text-align="center">
+    Beethoven on Broadway!
+    </fo:block>
+
+    <fo:block text-align="center">      <8>
+    <fo:instream-foreign-object width="140px" height="140px">      <9>
+    <!-- Simple geometric design -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="140px" height="140px">     <10>
+        <polygon points="0 0 140 0 0 140" style="fill: #cccccc;"/>
+        <polygon points="0 140 140 140 140 0" style="fill: #666666;"/>
+        <circle cx="70" cy="70" r="35"
+            style="fill: white; stroke: black;"/>
+    </svg>
+    </fo:instream-foreign-object>
+    </fo:block>
+
+    <fo:block text-align="center" font-size="9pt" space-before="2.5cm">     <11>
+    Copyright 2001 O'Reilly &amp; Associates
+    </fo:block>
+</fo:flow>
+</fo:page-sequence>
+</fo:root>
+----
+<1> It is customary to prefix all of the tags in an XSL-FO document with +fo+, and that is what the +xmlns:fo+ attribute does. The root element of the document, therefore, is +<fo:root>+.
+<2> The document begins by specifying templates for pages. This layout will contain only one page template.
+<3> The +<fo:simple-page-master>+ lets you specify the page dimensions and margins, and an identifying name.
+<4> Every page template is divided into regions for a header, footer, left edge content, right edge content, and the page body. The +<fo:region-body>+ must always be specified. This region, too, can have margins, but we aren’t going to bother with those here. We won’t have headers or footers, so we won’t specify any other regions than the body.
+<5> After the page templates are specified, we can begin entering content that will go into a sequence of pages that are laid out according to the given +master-name+ template.
+<6> Content flows into each region that has been specified for a page sequence. Since we’ve specified only one region (the body), that’s where text will flow into.
+<7> +<fo:block>+ is one of the most important elements you can have in the flow. Each new block begins on a new line. Any attributes you specify in this element will be applied to the text in the block. This block and the next one contain simple text.
+<8> Unlike the preceding two blocks, this one will be horizontally centered on the screen.
+<9> And, it will contain an +<fo:instream-foreign-object>+ — namely, our SVG graphic. The incarnation of FOP that we used, version 0.20.1, is very finicky about its measurements. We recommend that you specify the width and height of the graphic in pixels, and that it exactly match...
+<10> ... the dimensions that you use in your +<svg>+ element. Our attempts to use millimeters as width and height units in conjunction with a +viewBox+ were entirely unsuccessful. The +xmlns+ attribute has been set up so that tags from SVG do _not_ need any prefix.
+<11> Once the +<fo:instream-foreign-object>+ and its containing +<fo:block>+ have finished, we return to a normal +<fo:block>+ for a copyright notice.
+
+[NOTE]
+====
+If you wish to keep your SVG graphic in a separate file but still include it within an XSL-FO document, you may do so using the +<fo:external-graphic>+ element. If, in the preceding example, we had put the graphics in a separate file named +design.svg+, we could replace the entire +<fo:instream-foreign-object>+ element with:
+----
+<fo:external-graphic src="design.svg"
+    content-width="140px" content-height="140px"/>
+----
+====
+((("SVG", "using with other XML applications" range="endofrange", startref="SVGXMLapps")))((("XML", "using SVG with other XML applications", range="endofrange", startref="ix_XMLSVGapps")))
+

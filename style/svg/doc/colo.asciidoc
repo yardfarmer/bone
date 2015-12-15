@@ -1,0 +1,11 @@
+[colophon]
+= Colophon
+
+The animal on the cover of _SVG Essentials_ is a great argus pheasant (_Argusianus argus_). This pheasant can be found in Malaysia, Thailand, Sumatra, and Borneo, where it lives in tropical rainforests. The males have blue faces, black crowns, and short crests; their underparts are mottled brown. The iridescent spots on their wings and tail feathers aid in attracting females. Female argus pheasants are smaller than males and lack their ornate plumage.
+
+The great argus pheasant’s wings can continue to grow into the bird’s sixth year. Its tail feathers are the longest of all birds, measuring up to 5.7 feet. Some cultures use these feathers in their headdresses.
+
+Many of the animals on O'Reilly covers are endangered; all of them are important to the world. To learn more about how you can help, go to http://animals.oreilly.com[__animals.oreilly.com__].
+
+The cover image is a 19th-century engraving from the Dover Pictorial Archive. The cover fonts are URW Typewriter and Guardian Sans. The text font is Adobe Minion Pro; the heading font is Adobe Myriad Condensed; and the code font is Dalton Maag's Ubuntu Mono.
+

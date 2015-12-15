@@ -1,0 +1,443 @@
+[[css-appendix]]
+
+[appendix]
+== Introduction to Stylesheets
+
+As mentioned((("CSS", id="ix_CSSappb", range="startofrange"))) in <<document-structure-chapter>>, some attributes of SVG elements control the element’s geometry.((("stylesheets", id="ix_stylesheet", range="startofrange"))) An example of one such attribute would be the +cx+ (center x) attribute of a +<circle>+. Other attributes, such as +fill+, control the element’s presentation. Stylesheets provide a way for you to separate the presentation from the geometric structure; this lets you control the visual display of many different SVG elements (and even documents) by changing one stylesheet referenced by all the documents.
+
+[[style-anatomy-section]]
+
+=== Anatomy of a Style
+
+A _style_ is a specification of a visual property for((("styles"))) an element and the value that you would like that property to have. The property name and the value are separated by a colon. For example, to say that you want the stroke color for some element to be blue, the appropriate style specifier would be +stroke: blue+.
+
+To specify multiple properties in a style, you separate the specifiers with semicolons. The following style specifier sets the stroke color to red, the stroke width to three pixels, and the fill color to a light blue. The last property-value pair is followed by a semicolon. This is not necessary, but is done to give the style a more consistent look.
+
+[source,css]
+----
+stroke: red; stroke-width: 3px; fill: #ccccff;
+----
+
+[[style-selectors-section]]
+
+=== Inline Styles: The style Attribute
+
+Once you have determined the visual((("inline styles")))((("styles", "inline"))) properties you’d like, you must select the element or elements to which they apply. The simplest way to apply a style specification to a single element is to make that specification the value of a +style+ attribute.((("style attribute"))) So, if you want the preceding specification to apply to a particular +<circle>+ in your document, you write this:
+
+[source,xml]
+----
+<circle cx="50" cy="40" r="12"
+    style="stroke: red; stroke-width: 3px; fill: #ccccff;"/>
+----
+
+[[internal-stylesheets-section2]]
+
+=== Internal Stylesheets
+
+If you want the style specification((("stylesheets", "internal"))) to apply to all +<circle>+ elements in a single document, add an internal stylesheet. A stylesheet consists of _selectors_ (the names of the elements you want to affect) and the style specifications for those selectors. The style specification is enclosed in curly braces. The following applies styles to +<circle>+ and +<rect>+ pass:[<phrase role="keep-together">elements</phrase>]:
+
+[source,xml]
+----
+<style type="text/css"><![CDATA[
+  circle {
+    stroke: red; stroke-width: 3px;
+    fill: #ccccff;
+  }
+  rect { fill: gray; stroke: black; }
+]]></style>
+----
+
+When you put a +<style>+ element into an SVG document, you should enclose its contents within +<!&#x5b;CDATA[+ and +]]>+. This notation tells XML parsers that the contents are pure __c__haracter _data_ and should not, under any circumstances, be treated as information for XML to parse.
+
+Because this stylesheet is within a document, it applies to that document alone. If you have many documents, all of whose circles and rectangles appear as specified in the preceding example, take the specifiers, without the +<style>+ or +<![CDATA[+  tags, and put them into a separate file named _myStyle.css_. In each SVG document, insert the following processing instruction:
+
+[source,xml]
+----
+<?xml-stylesheet href="myStyle.css" type="text/css"?>
+----
+
+Then, at a later point, if you decide that all rectangles should be filled with a light green and outlined in dark green, you can simply change the specification in _myStyle.css_ to read as follows:
+
+[source,css]
+----
+rect {fill: #ccffcc; stroke: #006600;}
+----
+
+and all your documents, once redisplayed, will have green rectangles instead of gray rectangles.
+
+[[style-classes-section]]
+
+=== Style Selector Classes
+
+The preceding stylesheet affects all +<rect>+ and +<circle>+ elements.((("classes (CSS)", seealso="pseudoclasses")))((("stylesheets", "classes as style selectors"))) Let’s say, though, that you want only some circles in your documents to be styled. Write your stylesheet with a class specifier as follows, where the dot after +circle+ indicates that the following identifier is a class name:
+
+[source,css]
+----
+circle.special {
+  stroke: red; stroke-width: 3px;
+  fill: #ccccff;
+}
+----
+
+If, in your SVG document, you had the following elements, the first circle would show up as the default (black fill, no stroke), and the second would take on the style attributes as its class name matches the class identifier in the stylesheet:
+
+[source,xml]
+----
+<circle cx="40" cy="40" r="20"/>
+<circle cx="60" cy="20" r="10" class="special"/>
+----
+
+It is possible to specify a generic class that can apply to any element. Presume that several different graphic objects serve as warning symbols. You would like them to have a yellow fill and a red border. You could write this selector, which consists only of a class name and its style specifier:
+
+
+[source,css]
+----
+.warning { fill: yellow; stroke: red; }
+----
+
+This generic class may now be applied to any SVG element. In the following example, both the rectangle and triangle will have yellow interiors and red outlines:
+
+[source,xml]
+----
+<rect class="warning" x="5" y="10" width="20" height="30"/>
+<polygon class="warning" points="40 40, 40 60, 60 50"/>
+----
+
+The +class+ attribute may ((("class attribute")))contain the names of several classes separated by whitespace; their combined properties will be applied to the element in question. The following markup adds a generic class named +seeThrough+ for translucency to the previous example and then applies both classes to the polygon:
+
+[source,xml]
+----
+<svg width="100" height="100" viewBox="0 0 100 100">
+  <style type="text/css"><![CDATA[
+    .warning { fill: yellow; stroke: red; }
+    .seeThrough { fill-opacity: 0.25; stroke-opacity: 0.5; }
+  ]]></style>
+  <rect class="warning" x="5" y="10" width="20" height="30"/>
+  <polygon class="warning seeThrough" points="40 40, 40 60, 60 50"/>
+</svg>
+----
+
+[[using-css-section]]
+
+=== Using CSS with SVG
+
+The question then becomes: which attributes in SVG elements ((("CSS", "properties", "table of properties and values for SVG")))((("styles", "table of style properties for SVG")))can also be specified in a stylesheet? <<css-reference-table>> is a list of the properties you may use in a stylesheet, the valid values (with default value shown in boldface where appropriate), and the elements to which they may be applied.((("properties", "CSS property table for SVG"))) It is a modified version of link:$$http://www.w3.org/TR/SVG/$$[the property index from the SVG specification].footnote:[Copyright (C) 2001 World Wide Web Consortium (Massachusetts Institute of Technology, Institut National de Recherche en Informatique et en Automatique, Keio University). All Rights Reserved. link:$$http://www.w3.org/Consortium/Legal/$$[].]
+
+The value of +fill+ and +stroke+ is a +_paint_+ value, which is one of the following:
+
+* +none+
+* +currentColor+
+* A color specification, as described in <<stroke-color-section>>
+* A construction of the form +url(...)+ that refers to a gradient or pattern
+
+You can specify fallback paint options, in case there is an error loading a gradient or pattern; the options are given in a whitespace-separated list starting with the preferred value.
+
+++++
+<table id="css-reference-table" orient="land">
+<title>CSS property table for SVG</title>
+<tgroup cols="3">
+<colspec colname="col_1" colwidth="20%"/>
+<colspec colname="col_2" colwidth="35%"/>
+<colspec colname="col_3" colwidth="35%"/>
+<thead>
+<row>
+<entry>Name</entry>
+<entry>Values</entry>
+<entry>Applies to</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><simpara><literal>alignment-baseline</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>auto</literal></emphasis> | <literal>baseline</literal> | <literal>before-edge</literal> | <literal>text-before-edge</literal> | <literal>middle</literal> | <literal>after-edge</literal> | <literal>text-after-edge</literal> | <literal>ideographic</literal> | <literal>alphabetic</literal> | <literal>hanging</literal> | <literal>mathematical</literal></simpara></entry>
+<entry><simpara><literal>&lt;tspan&gt;</literal>, <literal>&lt;tref&gt;</literal>, <literal>&lt;altGlyph&gt;</literal>, <literal>&lt;textPath&gt;</literal></simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>baseline-shift</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>baseline</literal></emphasis> | <literal>sub</literal> | <literal>super</literal> | <emphasis><literal>percentage</literal></emphasis> | <emphasis><literal>length</literal></emphasis></simpara></entry>
+<entry><simpara><literal>&lt;tspan&gt;</literal>, <literal>&lt;tref&gt;</literal>, <literal>&lt;altGlyph&gt;</literal>, <literal>&lt;textPath&gt;</literal> elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>clip-path</literal></simpara></entry>
+<entry><simpara><emphasis><literal>uri</literal></emphasis></simpara></entry>
+<entry><simpara>Container elements and graphics elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>clip-rule</literal></simpara></entry>
+<entry><simpara><literal>nonzero</literal> | <literal>evenodd</literal> | <literal>class=noxref</literal></simpara></entry>
+<entry><simpara>Graphics elements within a <literal>&lt;clipPath&gt;</literal> element</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>color</literal></simpara></entry>
+<entry><simpara><emphasis><literal>color</literal></emphasis></simpara></entry>
+<entry><simpara>Used to provide a potential <indexterm>
+  <primary>colors</primary><secondary>stroke color</secondary>
+</indexterm><indexterm>
+  <primary>colors</primary><secondary>fill color</secondary>
+</indexterm>indirect value (<literal>currentColor</literal>) for <literal>fill</literal>, <literal>stroke</literal>, <literal>stop-color</literal>, <literal>flood-color</literal>, and <literal>lighting-color</literal></simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>color-interpolation</literal></simpara></entry>
+<entry><simpara><literal>auto</literal> | <emphasis role="strong"><literal>sRGB</literal></emphasis> | <literal>linearRGB</literal></simpara></entry>
+<entry><simpara>Container elements, graphics elements, and <literal>&lt;animateColor&gt;</literal></simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>color-interpolation-filters</literal></simpara></entry>
+<entry><simpara><literal>auto</literal> | <literal>sRGB</literal> | <emphasis role="strong"><literal>linearRGB</literal></emphasis></simpara></entry>
+<entry><simpara>Filter primitives</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>color-profile</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>auto</literal></emphasis> | <literal>sRGB</literal> | <emphasis><literal>name</literal></emphasis> | <emphasis><literal>uri</literal></emphasis></simpara></entry>
+<entry><simpara><literal>&lt;image&gt;</literal> elements that refer to raster images</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>color-rendering</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>auto</literal></emphasis> | <literal>optimizeSpeed</literal> | <literal>optimizeQuality</literal></simpara></entry>
+<entry><simpara>Container elements, graphics elements and <literal>&lt;animateColor&gt;</literal></simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>cursor</literal></simpara></entry>
+<entry><simpara><emphasis><literal>uri</literal></emphasis> | <emphasis role="strong"><literal>auto</literal></emphasis> | <literal>crosshair</literal> | <literal>default</literal> | <literal>pointer</literal> | <literal>move</literal> | <literal>e-resize</literal> | <literal>ne-resize</literal> | <literal>nw-resize</literal> | <literal>n-resize</literal> | <literal>se-resize</literal> | <literal>sw-resize</literal> | <literal>s-resize</literal> | <literal>w-resize</literal> | <literal>text</literal> | <literal>wait</literal> | <literal>help</literal></simpara></entry>
+<entry><simpara>Container elements and graphics elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>direction</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>ltr</literal></emphasis> | <literal>rtl</literal></simpara></entry>
+<entry><simpara><literal>&lt;text&gt;</literal>, <literal>&lt;tspan&gt;</literal>, <literal>&lt;tref&gt;</literal>, and <literal>&lt;textPath&gt;</literal> elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>display</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>inline</literal></emphasis> | <literal>block</literal> | <literal>list-item</literal> | <literal>run-in</literal> | <literal>compact</literal> | <literal>marker</literal> | <literal>table</literal> | <literal>inline-table</literal> | <literal>table-row-group</literal> | <literal>table-header-group</literal> | <literal>table-footer-group</literal> | <literal>table-row</literal> | <literal>table-column-group</literal> | <literal>table-column</literal> | <literal>table-cell</literal> | <literal>table-caption</literal> | <literal>none</literal></simpara></entry>
+<entry><simpara><literal>&lt;svg&gt;</literal>, <literal>&lt;g&gt;</literal>, <literal>&lt;switch&gt;</literal>, <literal>&lt;a&gt;</literal>, <literal>&lt;foreignObject&gt;</literal>, graphics elements (including the <literal>&lt;text&gt;</literal> element), and text subelements (i.e., <literal>&lt;tspan&gt;</literal>, <literal>&lt;tref&gt;</literal>, <literal>&lt;altGlyph&gt;</literal>, <literal>&lt;textPath&gt;</literal>). All values except <literal>none</literal> are treated the same for elements in an SVG, enabling display of the graphic.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>dominant-baseline</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>auto</literal></emphasis> | <literal>use-script</literal> | <literal>no-change</literal> | <literal>reset-size</literal> | <literal>alphabetic</literal> | <literal>hanging</literal> | <literal>ideographic</literal> | <literal>mathematical</literal> | <literal>central</literal> | <literal>middle</literal> | <literal>text-after-edge</literal> | <literal>text-before-edge</literal> | <literal>text-top</literal> | <literal>text-bottom</literal></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>enable-background</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>accumulate</literal></emphasis> | <literal>new [</literal> <emphasis><literal>x y width height</literal></emphasis> <literal>]</literal></simpara></entry>
+<entry><simpara>Container elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>fill</literal></simpara></entry>
+<entry><simpara>See description of <emphasis><literal>paint</literal></emphasis> at end of table for possible values; the default is <emphasis role="strong">black</emphasis></simpara></entry>
+<entry><simpara>Shapes and text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>fill-opacity</literal></simpara></entry>
+<entry><simpara><emphasis><literal>opacity-value</literal></emphasis> (default <literal>1</literal>)</simpara></entry>
+<entry><simpara>Shapes and text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>fill-rule</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>nonzero</literal></emphasis> | <literal>evenodd</literal></simpara></entry>
+<entry><simpara>Shapes and text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>filter</literal></simpara></entry>
+<entry><simpara><emphasis><literal>uri</literal></emphasis> | <emphasis role="strong"><literal>none</literal></emphasis></simpara></entry>
+<entry><simpara>Container elements and graphics elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>flood-color</literal></simpara></entry>
+<entry><simpara><literal>currentColor</literal> | <emphasis><literal>color specifier</literal></emphasis> (default <literal>black</literal>)</simpara></entry>
+<entry><simpara><literal>&lt;feFlood&gt;</literal> elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>flood-opacity</literal></simpara></entry>
+<entry><simpara><emphasis><literal>alphavalue</literal></emphasis> (default <literal>1</literal>)</simpara></entry>
+<entry><simpara><literal>&lt;feFlood&gt;</literal> elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>font</literal></simpara></entry>
+<entry><simpara><literal>font-style</literal>, <literal>font-variant</literal>, <literal>font-weight</literal>, <literal>font-size</literal> <literal>line-height</literal>, <literal>font-family</literal> | <literal>caption</literal> | <literal>icon</literal> | <literal>menu</literal> | <literal>message-box</literal> | <literal>small-caption</literal> | <literal>status-bar</literal></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>font-family</literal></simpara></entry>
+<entry><simpara>series of <emphasis><literal>family-name</literal></emphasis> or <emphasis><literal>generic-family</literal></emphasis></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>font-size</literal></simpara></entry>
+<entry><simpara><emphasis><literal>absolute-size</literal></emphasis> | <emphasis><literal>relative-size</literal></emphasis> | <emphasis><literal>length</literal></emphasis> | <emphasis><literal>percentage</literal></emphasis></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>font-size-adjust</literal></simpara></entry>
+<entry><simpara><emphasis><literal>number</literal></emphasis> | <emphasis role="strong"><literal>none</literal></emphasis></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>font-stretch</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>normal</literal></emphasis> | <literal>wider</literal> | <literal>narrower</literal> | <literal>ultra-condensed</literal> | <literal>extra-condensed</literal> | <literal>condensed</literal> | <literal>semi-condensed</literal> | <literal>semi-expanded</literal> | <literal>expanded</literal> | <literal>extra-expanded</literal> | <literal>ultra-expanded</literal></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>font-style</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>normal</literal></emphasis> | <literal>italic</literal> | <literal>oblique</literal></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>font-variant</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>normal</literal></emphasis> | <literal>small-caps</literal></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>font-weight</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>normal</literal></emphasis> | <literal>bold</literal> | <literal>bolder</literal> | <literal>lighter</literal> | <literal>100</literal> | <literal>200</literal> | <literal>300</literal> | <literal>400</literal> | <literal>500</literal> | <literal>600</literal> | <literal>700</literal> | <literal>800</literal> | <literal>900</literal></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>glyph-orientation-horizontal</literal></simpara></entry>
+<entry><simpara><emphasis><literal>angle</literal></emphasis> (default <literal>0deg</literal>)</simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>glyph-orientation-vertical</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>auto</literal></emphasis> | <emphasis><literal>angle</literal></emphasis></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>image-rendering</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>auto</literal></emphasis> | <literal>optimizeSpeed</literal> | <literal>optimizeQuality</literal></simpara></entry>
+<entry><simpara>Images</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>kerning</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>auto</literal></emphasis> | <emphasis><literal>length</literal></emphasis></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>letter-spacing</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>normal</literal></emphasis> | <emphasis><literal>length</literal></emphasis></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>lighting-color</literal></simpara></entry>
+<entry><simpara><literal>currentColor</literal> | <emphasis><literal>color specification</literal></emphasis> (default <literal>white</literal>)</simpara></entry>
+<entry><simpara><literal>&lt;feDiffuseLighting&gt;</literal> and <literal>&lt;feSpecularLighting&gt;</literal> elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>marker</literal>, <literal>marker-end</literal>, <literal>marker-mid</literal>, <literal>marker-start</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>none</literal></emphasis> | <emphasis><literal>uri</literal></emphasis></simpara></entry>
+<entry><simpara><literal>&lt;path&gt;</literal>, <literal>&lt;line&gt;</literal>, <literal>&lt;polyline&gt;</literal>, and <literal>&lt;polygon&gt;</literal> elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>mask</literal></simpara></entry>
+<entry><simpara><emphasis><literal>uri</literal></emphasis> | <emphasis role="strong"><literal>none</literal></emphasis></simpara></entry>
+<entry><simpara>Container elements and graphics elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>opacity</literal></simpara></entry>
+<entry><simpara><emphasis><literal>alphavalue</literal></emphasis> (default <literal>1</literal>)</simpara></entry>
+<entry><simpara>Container elements and graphics elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>overflow</literal></simpara></entry>
+<entry><simpara><literal>visible</literal> | <literal>hidden</literal> | <literal>scroll</literal> | <literal>auto</literal></simpara></entry>
+<entry><simpara>Elements that establish a new viewport, <literal>&lt;pattern&gt;</literal> elements, and <literal>&lt;marker&gt;</literal> elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>pointer-events</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>visiblePainted</literal></emphasis> | <literal>visibleFill</literal> | <literal>visibleStroke</literal> | <literal>visible</literal> | <literal>painted</literal> | <literal>fill</literal> | <literal>stroke</literal> | <literal>all</literal> | <literal>none</literal></simpara></entry>
+<entry><simpara>Graphics elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>shape-rendering</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>auto</literal></emphasis> | <literal>optimizeSpeed</literal> | <literal>crispEdges</literal> | <literal>geometricPrecision</literal></simpara></entry>
+<entry><simpara>Shapes</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stop-color</literal></simpara></entry>
+<entry><simpara><literal>currentColor</literal> | <emphasis><literal>color specification</literal></emphasis> (default <literal>black</literal>)</simpara></entry>
+<entry><simpara><literal>&lt;stop&gt;</literal> elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stop-opacity</literal></simpara></entry>
+<entry><simpara><emphasis><literal>alphavalue</literal></emphasis> (default <literal>1</literal>)</simpara></entry>
+<entry><simpara><literal>&lt;stop&gt;</literal> elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke</literal></simpara></entry>
+<entry><simpara>See description of <emphasis><literal>paint</literal></emphasis> at end of table for possible values; the default is <emphasis role="strong">none</emphasis></simpara></entry>
+<entry><simpara>Shapes and text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-dasharray</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>none</literal></emphasis> | <emphasis><literal>dasharray</literal></emphasis></simpara></entry>
+<entry><simpara>Shapes and text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-dashoffset</literal></simpara></entry>
+<entry><simpara><emphasis><literal>dashoffset</literal></emphasis> (default <literal>0</literal>)</simpara></entry>
+<entry><simpara>Shapes and text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-linecap</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>butt</literal></emphasis> | <literal>round</literal> | <literal>square</literal></simpara></entry>
+<entry><simpara>Shapes and text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-linejoin</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>miter</literal></emphasis> | <literal>round</literal> | <literal>bevel</literal></simpara></entry>
+<entry><simpara>Shapes and text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-miterlimit</literal></simpara></entry>
+<entry><simpara><emphasis><literal>miterlimit</literal></emphasis> (default <literal>4</literal>)</simpara></entry>
+<entry><simpara>Shapes and text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-opacity</literal></simpara></entry>
+<entry><simpara><emphasis><literal>opacity-value</literal></emphasis> (default <literal>1</literal>)</simpara></entry>
+<entry><simpara>Shapes and text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>stroke-width</literal></simpara></entry>
+<entry><simpara><emphasis><literal>width</literal></emphasis> (default <literal>1</literal>)</simpara></entry>
+<entry><simpara>Shapes and text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>text-anchor</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>start</literal></emphasis> | <literal>middle</literal> | <literal>end</literal></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>text-decoration</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>none</literal></emphasis> | <literal>underline</literal> | <literal>overline</literal> | <literal>line-through</literal> | <literal>blink</literal></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>text-rendering</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>auto</literal></emphasis> | <literal>optimizeSpeed</literal> | <literal>optimizeLegibility</literal> | <literal>geometricPrecision</literal></simpara></entry>
+<entry><simpara><literal>&lt;text&gt;</literal> elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>unicode-bidi</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>normal</literal></emphasis> | <literal>embed</literal> | <literal>bidi-override</literal></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>visibility</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>visible</literal></emphasis> | <literal>hidden</literal> | <literal>collapse</literal></simpara></entry>
+<entry><simpara>Graphics elements (including the <literal>&lt;text&gt;</literal> element) and text sub-elements (i.e., <literal>&lt;tspan&gt;</literal>, <literal>&lt;tref&gt;</literal>, <literal>&lt;altGlyph&gt;</literal>, <literal>&lt;textPath&gt;</literal>, and <literal>&lt;a&gt;</literal>)</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>word-spacing</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>normal</literal></emphasis> | <emphasis><literal>length</literal></emphasis></simpara></entry>
+<entry><simpara>Text content elements</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>writing-mode</literal></simpara></entry>
+<entry><simpara><emphasis role="strong"><literal>lr-tb</literal></emphasis> | <literal>rl-tb</literal> | <literal>tb-rl</literal> | <literal>lr</literal> | <literal>rl</literal> | <literal>tb</literal></simpara></entry>
+<entry><simpara><literal>&lt;text&gt;</literal> elements</simpara></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+++++
+((("stylesheets", range="endofrange", startref="ix_stylesheet")))((("CSS", startref="ix_CSSappb")))

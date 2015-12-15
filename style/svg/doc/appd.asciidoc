@@ -1,0 +1,201 @@
+[[matrix-algebra-appendix]]
+
+[appendix]
+== Matrix Algebra
+
+_Matrix algebra_ is a branch of mathematics that defines operations on _matrices_,((("matrix algebra", id="ix_matrices", range="startofrange"))) which are series of numbers arranged in rows and columns. In addition to its many uses in science and engineering, matrix algebra makes the computations for graphic operations very efficient. The purpose of this appendix is to introduce you to the fundamental concepts of matrix algebra that SVG uses “behind the scenes.”
+
+[[matrix-terminology-section]]
+
+=== Matrix Terminology
+
+We describe a matrix by its number of rows and columns. <<two-by-seven-matrix-figure>> displays a matrix that arranges a series of daily temperatures over a two-week period into two rows of seven columns each.((("matrix algebra", "matrix terminology"))) This matrix is called a _2-by-7 matrix_. Matrices are enclosed in square brackets when written.
+
+[[two-by-seven-matrix-figure]]
+
+.2-by-7 matrix of daily temperatures
+image::images/sve2_ad01.png[]
+
+Here are some other terms that you may encounter when dealing with matrix operations: a _square matrix_ is a matrix with the same number of rows as columns. A _vector_ is a matrix with only one row, and a _column vector_ is a matrix with only one column. The individual numbers in a matrix are called _entries_, and the technical term for a plain number is a _scalar_. Now you can bring these sure-fire conversation stoppers to the next party you attend.
+
+Applying the concept of a matrix to SVG, you might express a set of _x_- and _y_-coordinates as a 2-by-1 matrix. This isn’t the way we’ll ultimately end up representing coordinates, but it’s a good place to start, as it’s easy to understand. In this representation, the point (3,5) is expressed as shown in <<simple-coordinate-matrix-figure>>.
+
+[[simple-coordinate-matrix-figure]]
+
+.Coordinates expressed as a matrix
+image::images/sve2_ad02.png[]
+
+[[matrix-addition-section]]
+
+=== Matrix Addition
+
+The easiest matrix operation is addition. To add two matrices, you add their corresponding elements. This, of course, requires that your matrices have exactly the same number of rows and columns. <<matrix-addition-figure>> shows the addition of two matrices, each 3 by 2.
+
+[[matrix-addition-figure]]
+
+.Addition of two 3-by-2 matrices
+image::images/sve2_ad03.png[]
+
+You can see that the +translate+ transformation in SVG could be accomplished easily by matrix addition. For example, the matrix addition in <<matrix-translate-simple-figure>> would implement +transform="translate(7, 2)"+ for any point (_x_,_y_).
+
+[[matrix-translate-simple-figure]]
+
+.Simple method to translate coordinates
+image::images/sve2_ad04.png[]
+
+The order in which you add matrices doesn’t matter. Mathematicians say that matrix addition is _commutative_ (A + B = B + A). It is also _associative_; given three matrices A, B, and C: (A + B) + C is the same as A + (B + C). There is such a thing as matrix subtraction; just subtract the corresponding elements of the two matrices. Just as with regular subtraction, matrix subtraction is not commutative.
+
+[[matrix-multiplication-section]]
+
+=== Matrix Multiplication
+
+You may be thinking that matrix multiplication works in a similar manner, and that’s how you can do a +scale()+ transformation. Unfortunately, the easy way doesn’t work this time.((("matrix algebra", "matrix multiplication"))) Matrix multiplication is significantly more complicated than matrix addition. In the first examples that follow, this complexity appears to be needless. Later in this appendix, you’ll see that the usefulness of matrix multiplication far outweighs its pass:[<phrase role='keep-together'>difficulty</phrase>].
+
+In order to multiply two matrices, the number of _columns_ of the first matrix must equal the number of _rows_ of the second matrix. Such matrices are called _compatible_. This means you can multiply a 3-by-5 matrix times a 5-by-4 matrix, but not a 3-by-5 matrix times a 3-by-2 matrix. The matrices in <<compatible-matrix-figure>> are compatible and can be multiplied.
+
+[[compatible-matrix-figure]]
+
+.Two matrices to be multiplied
+image::images/sve2_ad05.png[]
+
+The resulting matrix will have the same number of rows as the first matrix, and the same number of columns as the second matrix. Thus, the example’s 2-by-3 matrix times the 3-by-2 matrix will result in a 2-by-2 matrix.
+
+The entry that will go in row one, column one of the result matrix is the dot product of the first row of the first matrix and the first column of the second matrix. _Dot product_ is a fancy way of saying “add up the products of the corresponding entries in a row and column” as shown in <<matrix-multiply-step-1-figure>>.
+
+[[matrix-multiply-step-1-figure]]
+
+.First entry in multiplied matrices
+image::images/sve2_ad06.png[]
+
+To find the quantity to place in row two, column one (the lower left) of the result matrix, take the dot product of row two in the first matrix and column one in the second matrix, as shown in <<matrix-multiply-step-2-figure>>.
+
+[[matrix-multiply-step-2-figure]]
+
+.Second entry in multiplied matrices
+image::images/sve2_ad07.png[]
+
+Calculating the remaining items produces the result shown in <<matrix-multiply-result-figure>>.
+
+[[matrix-multiply-result-figure]]
+
+.Completed multiplication of matrices
+image::images/sve2_ad08.png[]
+
+Given this information, you can now use matrix multiplication to express the calculations needed to scale a point (_x_,_y_) by a factor of 3 horizontally and a factor of 1.5 vertically. The transformation matrix will have to have two rows and two columns so it is compatible with the two-row by one-column coordinates, as shown in <<matrix-simple-scaling-figure>>.
+
+[[matrix-simple-scaling-figure]]
+
+.Simple scaling by multiplying matrices
+image::images/sve2_ad09.png[]
+
+
+[WARNING]
+====
+Unlike multiplication of single numbers, matrix multiplication is not commutative. If two matrices, A and B, aren’t square matrices, then A·B won’t have the same number of rows and columns as B·A (if they’re even compatible in both directions). Even if A and B are both 3-by-3 square matrices, there’s no guarantee that A times B will result in the same answer as B times A. In fact, they’ll come out equal in only a very few special cases.
+====
+
+
+There is another limited form of multiplication: multiplying a matrix by a _scalar_ (a plain number) will multiply every item in the matrix by the scalar, as shown in <<scalar-times-matrix-figure>>. We didn’t mention this in conjunction with scaling, because this construct scales uniformly, and SVG scaling isn’t always the same horizontally and vertically.
+
+[[scalar-times-matrix-figure]]
+
+.Multiplying a scalar by a matrix
+image::images/sve2_ad10.png[]
+
+There is no such thing as matrix division _per se_. There is a construct called a __matrix inverse__, which is analogous to the reciprocal of a number; if you multiply matrix A times B times the inverse of B, the result is simply A.  Another way of describing an invert matrix is that the inverse of B is the matrix that, when multiplied by B, creates an _identity matrix_.  An identity matrix is a square matrix with values of 1 along the diagonal and values of 0 in every other position; multiplying by an identity matrix does not change the original matrix.
+
+In SVG, inverse matrix calculations are used for converting between coordinate systems, where it is necessary to calculate the reverse of a transformation.  Not all matrix transformations are invertable, however; if the original transformation resulted in the loss of information about one or more dimensions of the matrix, no subsequent multiplication can re-create it.  While multiplying by the identity matrix is analagous to multiplying a number by 1, multiplying by a noninvertable matrix is analagous to multiplying a number by 0.  And just like trying to divide by 0, trying to invert a noninvertable matrix will cause your processor to throw an error.
+
+
+
+[[matrix-transformations-section]]
+
+=== How SVG Uses Matrix Algebra for Transformations
+
+The approach we’ve taken to translation and scaling works, but it’s not ideal.((("transformations", "use of matrix algebra by SVG for")))((("matrix algebra", "use by SVG for transformations"))) For instance, if you want to translate a point and then scale it, you need to do one matrix addition and then a matrix multiplication. SVG uses a clever trick to represent coordinates and transformation matrices so you can do scaling and translation all with one operation. First, it adds a third value, which is always equal to 1, to the coordinate matrix. This means that the point (3,5) will be represented as shown in <<matrix-coordinate-figure>>.
+
+[[matrix-coordinate-figure]]
+
+.SVG representation of a coordinate
+image::images/sve2_ad11.png[]
+
+SVG uses a 3-by-3 matrix, again set up with extra zeros and ones, to specify the transformation. <<matrix-translate-figure>> shows a matrix that translates a point by a horizontal distance of +tx+ and a vertical distance of +ty+.
+
+[[matrix-translate-figure]]
+
+.SVG representation of translation
+image::images/sve2_ad12.png[]
+
+<<matrix-scale-figure>> shows a transformation matrix that will scale a point by a factor of +sx+ in the horizontal direction and +sy+ in the vertical direction.
+
+[[matrix-scale-figure]]
+
+.SVG representation of scaling
+image::images/sve2_ad13.png[]
+
+What this buys you is a consistent notation; all the transformations, including rotation and skewing, can be represented with 3-by-3 matrices. Furthermore, because everything is 3-by-3, you can construct a chain of transformations by multiplying those matrices together; they’re guaranteed to be compatible. For example, to do a translation followed by a scaling, you multiply the matrices in that order (see <<matrix-translate-scale-figure>>).
+
+[[matrix-translate-scale-figure]]
+
+.Translation followed by scaling
+image::images/sve2_ad14.png[]
+
+Again, it seems as if this is  needlessly complicating matters. In order to transform the point (3,5), you now need two matrix multiplications. To transform another point would require two more multiplications. Given a +<path>+ element with several hundred points, this could run into some serious computing time.
+
+Here’s where SVG does something clever: it multiplies the first two matrices together, and stores that result, as shown in <<matrix-pre-multiply-figure>>.
+
+[[matrix-pre-multiply-figure]]
+
+.Result of multiplying translation and scaling matrices
+image::images/sve2_ad15.png[]
+
+This “pre-multiplied” matrix now embodies both of the transformations. By multiplying this new matrix times a coordinate point’s matrix, the translation and scaling occurs with a single matrix multiplication (see <<matrix-translate-scale-result-figure>>). Now conversion of a hundred points would require only 100 multiplications, not 200.
+
+[[matrix-translate-scale-result-figure]]
+
+.Result of premultiplying translation and scaling matrices
+image::images/sve2_ad16.png[]
+
+If you had to do a translation followed by a rotation followed by a scale, you’d create three 3-by-3 matrices; one to do the translation, one to do the rotation, and one to do the scaling. You’d multiply them all together (in that order), and the resulting matrix would embody all the calculations needed to do all three transformations.
+
+
+[NOTE]
+====
+As mentioned in <<matrix-multiplication-section>>, matrix multiplication is not commutative. If you change the order of the transformation matrices, you get a different result. This is the mathematics behind the fact that the sequence of transformations makes a difference in the resulting graphic, as described in <<transformation-chapter>>, in <<transform-sequence-section>>.
+====
+
+This, then, is the power of matrix algebra; it lets you combine the information about as many transformations as you want into one single 3-by-3 matrix, thus dramatically reducing the amount of calculation necessary to transform points. The matrices in <<matrix-other-transforms-figure>> are the ones used to specify a rotation by an angle +a+, a skew along the _x_-axis of +ax+, and a skew along the _y_-axis of +ay+.
+
+[[matrix-other-transforms-figure]]
+
+.Rotate, skew x, and skew y transformation matrices
+image::images/sve2_ad17.png[]
+
+You can use the ++matrix(++__++a++__++,++ __++b++__++,++ __++c++__++,++ __++d++__++,++ __++e++__++,++ __++f++__++)++ transformation to specify six numbers that fill in the entries in the transformation matrix; the relationship of the numbers to the matrix is shown in <<matrix-generic-transform-figure>>.
+
+[[matrix-generic-transform-figure]]
+.Generic transformation matrix
+image::images/sve2_ad18.png[]
+
+SVG also uses matrix algebra quite heavily in the calculations associated with filters, which are described in <<filters-chapter>>. There, a pixel’s red, green, blue, and alpha (opaqueness) values are described as a matrix with five rows and one column. It also adds a fifth row so that a 5-by-5 transformation matrix can add a constant amount to any of the values as well as multiply them by any desired factor. The economies of scale we get by pre-multiplying coordinate transformation matrices work equally well when pre-multiplying pixel manipulation matrices.
+
+The +<feColorMatrix>+ filter, described in <<filters-chapter>> in <<feColorMatrix-section>>, lets you specify all 20 values. Thus, this markup:
+
+[subs="specialcharacters,quotes"]
+----
+<feColorMatrix type="matrix"
+  values=
+   "a~0~  a~1~  a~2~  a~3~  a~4~ 
+    a~5~  a~6~  a~7~  a~8~  a~9~ 
+    a~10~ a~11~ a~12~ a~13~ a~14~ 
+    a~15~ a~16~ a~17~ a~18~ a~19~"/>
+----
+
+would be placed in the pixel transformation matrix, as shown in <<matrix-color-transform-figure>>.
+    
+
+[[matrix-color-transform-figure]]
+.Color transformation matrix
+image::images/sve2_ad19.png[]
+
+((("matrix algebra", range="endofrange", startref="ix_matrices")))

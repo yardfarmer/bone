@@ -1,0 +1,662 @@
+[[transformation-chapter]]
+
+== Transforming the Coordinate System
+
+Up to this point, all graphics have been displayed as is—drawn exactly where and how they are defined in their attributes.((("coordinate system, transforming", id="ix_coordtrans", range="startofrange")))((("transformations", seealso="coordinate system, transforming"))) There will be times when you have a graphic you would like to rotate, scale, or move to a new location. To accomplish these tasks, you add the +transform+ attribute to the appropriate SVG elements. This chapter examines the details of these transformations.
+
+[[translate-transform-section]]
+
+=== The translate Transformation
+
+In <<document-structure-chapter>>, you saw that you can use +x+ and +y+ attributes with the +<use>+ element to place a group of graphic objects at a specific place.((("translate transformation")))((("coordinate system, transforming", "translate transformation")))((("use element", "moving a graphic with"))) Look at the SVG in <<two-squares-example>>, which defines a square and draws it at the upper-left corner of the grid, then redraws it with the upper-left corner at coordinates (50,50). The dotted lines in <<two-squares-figure>> aren’t part of the SVG, but serve to show the part of the canvas we’re interested in.
+
+[[two-squares-example]]
+.Moving a graphic with use
+
+====
+[source,xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+    <g id="square">
+        <rect x="0" y="0" width="20" height="20"
+            style="fill: black; stroke-width: 2;"/>
+    </g>
+    <use xlink:href="#square" x="50" y="50"/>
+</svg>
+----
+====
+
+As it turns out, the +x+ and +y+ values are really shorthand for one form of the more general and more powerful +transform+ attribute. Specifically, the +x+ and +y+ values are equivalent to an attribute like ++transform="translate(++__++x-value++__, __++y-value++__++)"++, where +translate+ is a fancy technical term for _move_. The _x-value_ and _y-value_ are measured in the current user coordinate system. Let’s use +transform+ to get the same effect of making a second square with its upper-left corner at (50,50). <<translate-1-example>> lists the SVG.((("use element", "transform attribute")))
+
+[[two-squares-figure]]
+.Result of moving with use
+image::images/sve2_0601.png[]
+
+
+[[translate-1-example]]
+.Moving the coordinate system with translation
+====
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+    <g id="square">
+        <rect x="0" y="0" width="20" height="20"
+            style="fill: none; stroke:black; stroke-width: 2;"/>
+    </g>
+    <use xlink:href="#square" *transform="translate(50,50)"*/>
+</svg>
+----
+====
+
+The resulting display will look exactly like that in <<two-squares-figure>>. You might think this was accomplished by moving the square to a different place on the grid, as shown conceptually in <<translate-illusion-figure>>, but you would be wrong.
+
+[[translate-illusion-figure]]
+
+.How moving appears to work (but really doesn’t)
+image::images/sve2_0602.png[]
+
+What is really going on behind the scenes is an entirely different story. Rather than moving the square, the +translate+ specification picks up the _entire grid_ and moves it to a new location on the canvas. As far as the square is concerned, it’s still being drawn with its upper-left corner at (0,0), [offline_only]#as depicted in <<translate-reality-figure>>.# [online_only]#as you can experiment with here.#
+
+[[translate-reality-figure]]
+.How moving with translate really works
+[role="offline_only"]
+image::images/sve2_0603.png[]
+
+[role="offline_only"]
+The online example allows you to experiment with different coordinates:
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch06/translate.html[width="100%", height="450px"]
+
+
+[WARNING]
+====
+A transformation _never_ changes a graphic object’s grid coordinates; rather, it changes the position of the grid on the canvas.
+====
+
+At first glance, using +translate+ seems as ridiculous and inefficient as moving your couch further away from the outside wall of the house by moving the entire living room, walls and all, to a new position. Indeed, if translation were the only transformation available, moving the entire coordinate system would be wasteful. However, you will soon see other transformations and combinations of a sequence of transformations that are more mathematically and conceptually convenient if they apply to the entire coordinate system.
+
+[[scale-transform-section]]
+
+=== The scale Transformation
+
+It is possible to make an object appear larger or smaller than the size at which it was defined((("coordinate system, transforming", "scale transformation")))((("scale transformations")))((("transformations", "scale transformation"))) by scaling the coordinate system. Such a transformation is specified as follows:
+
+++transform="scale(++__++value++__++)"++::
+  Multiplies all _x_- and _y_-coordinates by the given +_value_+.
+
+++transform="scale(++__++x-value++__, __++y-value++__++)++"::
+  Multiplies all __x__-coordinates by the given _++x-value++_ and all __y__-coordinates by the given _++y-value++_.
+
+<<scale-example>> is an example of the first kind of scaling transformation, which uniformly doubles the scale of both axes. [offline_only]#Once again, the dotted lines in <<scale-figure>> aren’t in the SVG; they simply show the area of the canvas we’re interested in.# Note that the square’s upper-left corner is at (10,10).
+
+[[scale-example]]
+.Uniformly scaling a graphic
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch06/scale.html[width="100%", height="450px"]
+
+[role="offline_only"]
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+    <g id="square">
+        <rect x="10" y="10" width="20" height="20"
+            style="fill: none; stroke: black;"/>
+    </g>
+    <use xlink:href="#square" *transform="scale(2)"*/>
+</svg>
+----
+====
+
+[[scale-figure]]
+[role="offline_only"]
+.Result of using scale transformation
+image::images/sve2_0604.png[]
+
+[role="offline_only"]
+You might be thinking, “Wait a minute—I can understand why the square got larger. But I didn’t ask for a +translate+, so why is the square in a different place?” Everything becomes clear when you look at <<scale-showing-grid-figure>> to see what has actually occurred. The grid hasn’t moved; the (0,0) point of the coordinate system is still in the same place, but each user coordinate is now twice as large as it used to be.((("stroke style", "scale transformations and"))) You can see from the grid lines that the upper-left corner of the rectangle is still at (10,10) on the new, larger grid, because objects _never_ move. This also explains why the outline of the larger square is thicker. The +stroke-width+ is still one user unit, but that unit has now become twice as large, so the stroke thickens.
+
+[role="offline_only"]
+[[scale-showing-grid-figure]]
+.How the scale transformation works
+image::images/sve2_0605.png[]
+
+[role="online_only"]
+You might be thinking, “Wait a minute—I can understand why the square got larger. But I didn’t ask for a +translate+, so why is the square in a different place?” The grid hasn’t moved; the (0,0) point of the coordinate system is still in the same place, but each user coordinate is now twice as large as it used to be. You can see from the grid lines that the upper left corner of the rectangle is still at (10,10) on the new, larger grid, since objects _never_ move. This also explains why the outline of the larger square is thicker. The +stroke-width+ is still one user unit, but that unit has now become twice as large, so the stroke thickens.
+
+[WARNING]
+====
+A scaling transformation _never_ changes a graphic object’s grid pass:[<phrase role="keep-together">coordinates</phrase>] or its stroke width; rather, it changes the size of the coordinate system (grid) with respect to the canvas.
+====
+
+It is possible to specify a different scale factor for the _x_-axis and _y_-axis of the coordinate system by using the second form of the +scale+ transformation. <<unequal-scale-example>> draws the square with the _x_-axis scaled by a factor of three and the _y_-axis scaled by a factor of one and a half.((("stroke style", "scale transformations and", "nonuniform scaling"))) As you can see in <<unequal-scale-figure>>, the one-unit stroke width is also nonuniformly scaled.
+
+[[unequal-scale-example]]
+.Nonuniform scaling of a graphic
+====
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <g id="square">
+    <rect x="10" y="10" width="20" height="20"
+      style="fill: none; stroke: black;"/>
+  </g>
+  <use xlink:href="#square" *transform="scale(3, 1.5)"*/>
+</svg>
+----
+
+====
+[[unequal-scale-figure]]
+.Result of using nonuniform scale transformation
+image::images/sve2_0606.png[]
+
+To this point, the examples have applied the +transform+ attribute to only the +<use>+ element. You can apply a transformation to a series of elements by grouping ((("grouping", "transforming the group")))them and transforming the group:
+
+[source,xml]
+----
+<g id="group1" transform="translate(3, 5)">
+  <line x1="10" y1="10" x1="30" y2="30"/>
+  <circle cx="20" cy="20" r="10"/>
+</g>
+----
+
+You may also apply a transformation to a single object or basic shape. For example, here is a rectangle whose coordinate system is scaled by a factor of three:
+
+
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<rect x="15" y="20" width="10" height="5"
+  transform="scale(3)"
+  style="fill: none; stroke: black;"/>
+----
+
+It’s fairly clear that the width and height of the scaled rectangle should be three times as large as the unscaled rectangle. However, you may wonder if the _x_- and _y_-coordinates are evaluated before or after the rectangle is scaled. The answer is that SVG applies transformations to the coordinate system before it evaluates any of the shape’s pass:[<phrase role="keep-together">coordinates</phrase>]. <<scaled-rectangle-example>> is the SVG for the scaled rectangle, shown in <<scaled-rectangle-figure>> with grid lines that are drawn in the unscaled coordinate system.
+
+
+[[scaled-rectangle-example]]
+.Transforming a single graphic
+====
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<!-- grid guide lines in non-scaled coordinate system -->
+<line x1="0" y1="0" x2="100" y2="0" style="stroke: black;"/>
+<line x1="0" y1="0" x2="0" y2="100" style="stroke: black;"/>
+<line x1="45" y1="0" x2="45" y2="100" style="stroke: gray;"/>
+<line x1="0" y1="60" x2="100" y2="60" style="stroke: gray;"/>
+
+<!-- rectangle to be transformed -->
+<rect x="15" y="20" width="10" height="5"
+    transform="scale(3)"
+    style="fill: none; stroke: black;"/>
+----
+====
+
+[[scaled-rectangle-figure]]
+.Result of transforming a single graphic
+image::images/sve2_0607.png[]
+
+
+[NOTE]
+====
+The effect of applying a transformation to a shape is the same as if the shape were enclosed in a transformed group.((("shapes", "transformation applied to"))) In the preceding example, the scaled rectangle is equivalent to this SVG:
+[source,xml]
+----
+<g transform="scale(3)">
+   <rect x="15" y="20" width="10" height="5"
+     style="fill: none; stroke: black;"/>
+</g>
+----
+====
+
+
+[[transform-sequence-section]]
+
+=== Sequences of Transformations
+
+It is possible to do more than one transformation on a graphic object.((("coordinate system, transforming", "sequences of transformations")))((("transformations", "sequences of"))) You just put the transformations, optionally separated by whitespace or a comma, in the value of the +transform+ attribute. Here is a rectangle that undergoes two transformations, a translation followed by a scaling. (The axes are drawn to show that the rectangle has, indeed, moved.)
+
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<!-- draw axes -->
+<line x1="0" y1="0" x2="0" y2="100" style="stroke: gray;"/>
+<line x1="0" y1="0" x2="100" y2="0" style="stroke: gray;"/>
+
+<rect x="10" y="10" height="15" width="20"
+  transform="translate(30, 20) scale(2)"
+  style="fill: gray;"/>
+----
+
+This is the equivalent of the following sequence of nested groups, and both ((("scale transformations", "translate followed by scale")))((("translate transformation", "translate followed by scale")))will produce what you see in <<translate-scale-figure>>:
+
+[source,xml]
+----
+<g transform="translate(30, 20)">
+  <g transform="scale(2)">
+  <rect x="10" y="10" height="15" width="20"
+    style="fill: gray;"/>
+  </g>
+</g>
+----
+
+[[translate-scale-figure]]
+
+.Result of translate followed by scale
+image::images/sve2_0608.png[]
+
+<<translate-scale-stages-figure>> shows what is happening at each stage of the transformation.
+
+[[translate-scale-stages-figure]]
+
+.How translate followed by scale works
+image::images/sve2_0609.png[]
+
+
+[NOTE]
+====
+The order in which you do a sequence of transformations affects the result. In general, transformation A followed by transformation B will not give the same result as transformation B followed by transformation A.
+====
+
+<<scale-translate-example>> draws the same rectangle as in the previous example, in gray. Then it draws the rectangle again in black, but does the +scale+ before the +translate+. As you can see from the result in <<scale-translate-figure>>, the rectangles end up in very different places on the canvas.((("translate transformation", "scale followed by translate")))((("scale transformations", "scale followed by translate")))
+
+[[scale-translate-example]]
+.Sequence of transformations--scale followed by translate
+====
+[language="xml"]
+[subs="specialcharacters,quotes"]
+----
+<!-- draw axes -->
+<line x1="0" y1="0" x2="0" y2="100" style="stroke: gray;"/>
+<line x1="0" y1="0" x2="100" y2="0" style="stroke: gray;"/>
+
+<rect x="10" y="10" width="20" height="15"
+    transform="translate(30, 20) scale(2)" style="fill: gray;"/>
+
+<rect x="10" y="10" width="20" height="15"
+    *transform="scale(2) translate(30, 20)"*
+    style="fill: black;"/>
+----
+====
+
+[[scale-translate-figure]]
+.Result of scale followed by translate
+image::images/sve2_0610.png[]
+
+The reason the black rectangle ends up farther away from the origin is that the scaling is applied first, so the translate of 20 units in the _x_-direction and 10 units in the _y_-direction is done with units that are now twice as large, as shown in <<scale-translate-stages-figure>>.
+
+[[scale-translate-stages-figure]]
+
+.How scale followed by translate works
+image::images/sve2_0611.png[]
+
+[role="online_only"]
+Give it a try and see for yourself how it works. In the interactive example, the gray rectangle is in its original, untransformed position.
+
+[role="offline_only"]
+In the online example, you can experiment with any sequence of transformations, and compare the transformed rectangle against the original:
+
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch06/sequence.html[width="100%", height="450px"]
+
+
+[[cartesian-coordinate-sectoin]]
+
+=== Technique: Converting from Cartesian Coordinates
+
+If you are transferring data from other systems to SVG, you may have to deal with vector drawings that use Cartesian coordinates (the ones you learned about in high school algebra) to represent data.((("Cartesian coordinates, converting from")))((("coordinate system, transforming", "converting from Cartesian coordinates")))((("transformations", "converting from Cartesian coordinates"))) In this system, the (0,0) point is at the lower left of the canvas, and _y_-coordinates increase as you move upward. <<cartesian-trapezoid-figure>> shows the coordinates of a trapezoid drawn with Cartesian coordinates.
+
+[[cartesian-trapezoid-figure]]
+
+.Trapezoid drawn with Cartesian coordinates
+image::images/sve2_0612.png[]
+
+The _y_-axis is “upside-down” relative to the SVG default, so the coordinates need to be recalculated. Rather than do it by hand, you can use a sequence of transformations to have SVG do all the work for you. First, translate the picture into SVG, with the coordinates exactly as shown in <<cartesian-original-example>>. (The example also includes the axes as a guide.) To nobody’s surprise, the picture will come out upside-down. Note that the image in <<cartesian-original-figure>> is _not_ left-to-right reversed, because the _x_-axis points in the same direction in both Cartesian coordinates and the default SVG coordinate system.
+
+[[cartesian-original-example]]
+.Direct use of Cartesian coordinates
+
+====
+[source,xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <!-- axes -->
+  <line x1="0" y1="0" x2="100" y2="0" style="stroke: black;"/>
+  <line x1="0" y1="0" x2="0" y2="100" style="stroke: black;"/>
+
+  <!-- trapezoid -->
+  <polygon points="40 40, 100 40, 70 70, 40 70"
+      style="fill: gray; stroke: black;"/>
+</svg>
+----
+
+====
+
+[[cartesian-original-figure]]
+
+.Result of using original Cartesian coordinates
+image::images/sve2_0613.png[]
+
+To flip the image back right-side-up, you can take advantage of the fact that scaling a shape by a negative value reverses the order of coordinates.  However, because the entire grid ends up flipped to the other side of the 0 coordinate, you also need to translate the shape back onto the visible part of the canvas.  The conversion follows these steps:
+
+. Find the maximum _y_-coordinate in the original drawing. In this case, it turns out to be 100, the endpoint of the _y_-axis in the original.
+
+. Enclose the entire drawing in a +<g>+ element.
+
+. Enter a translate that moves the coordinate system downward by((("translate transformation", "in Cartesian coordinates conversion"))) the maximum +y+ value: ++transform="translate(0, _max-y_)"++.
+
+. The next transform will be to scale the _y_-axis((("scale transformations", "when converting from Cartesian coordinates"))) by a factor of –1, flipping it upside-down: ++transform="translate(0, _max-y_) scale(1, -1)"++.
+
+[NOTE]
+====
+You don’t want to change the _x_-axis values, but you still need to specify an _x_-value for both the translate and scale functions. The do-nothing value for the translate is +0+, but the do-nothing value for the scale transform is +1+, because coordinates are _multiplied_ by the scale factor.  A +scale(0)+ transform would collapse your shape to a single point (because every coordinate, multiplied by zero, would pass:[<phrase role="keep-together">become zero</phrase>]).
+====
+
+<<cartesian-fixed-example>> incorporates this transformation, producing a right-side-up trapezoid in <<cartesian-fixed-figure>>.
+
+
+[[cartesian-fixed-example]]
+.Transformed Cartesian coordinates
+====
+[source,xml]
+----
+<svg width="200px" height="200px" viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(0,100) scale(1,-1)">
+    <!-- axes -->
+    <line x1="0" y1="0" x2="100" y2="0" style="stroke: black;"/>
+    <line x1="0" y1="0" x2="0" y2="100" style="stroke: black;"/>
+
+    <!-- trapezoid -->
+    <polygon points="40 40, 100 40, 70 70, 40 70"
+        style="fill: gray; stroke: black;"/>
+  </g>
+</svg>
+----
+====
+
+[[cartesian-fixed-figure]]
+
+.Transformed Cartesian coordinates
+image::images/sve2_0614.png[]
+
+[[rotate-transform-section]]
+
+=== The rotate Transformation
+
+It is also possible to rotate the coordinate system by a specified angle.((("coordinate system, transforming", "rotate transformation")))((("rotate transformation")))((("transformations", "rotate transformation"))) In the default coordinate system, angle measure increases as you rotate clockwise, with a horizontal line having an angle of 0 degrees, as shown in <<rotation-angle-figure>>.
+
+[[rotation-angle-figure]]
+
+.Default measurement of angles
+image::images/sve2_0615.png[]
+
+Unless you specify otherwise, the _center of rotation_ (a fancy term for the _pivot point_) is presumed to be (0,0). <<rotation-example>> shows a square drawn in gray, then drawn again in black after the coordinate system is rotated 45 degrees.((("origin (coordinate system)", "rotation around"))) The axes are also shown as a guide. [offline_only]#<<rotation-figure>> shows the result.# If you’re surprised that the square has appeared to move, you shouldn’t be. Remember, [offline_only]#as shown in <<rotation-explanation-figure>>,# the entire coordinate system has been rotated.footnote:[All the figures in this chapter are static pictures. This one shows two squares (one rotated and one unrotated). To show an animation of a rotating square, use +<animateTransform>+, which we will discuss in <<animation-chapter>>, in <<animateTransform-section>>.]
+
+[[rotation-example]]
+.Rotation around the origin
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch06/rotate.html[width="100%", height="500px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<!-- axes -->
+<polyline points="100 0, 0 0, 0 100" style="stroke: black; fill: none;"/>
+
+<!-- normal and rotated square -->
+<rect x="70" y="30" width="20" height="20" style="fill: gray;"/>
+<rect x="70" y="30" width="20" height="20"
+    transform="rotate(45)" style="fill: black;"/>
+----
+====
+
+[[rotation-figure]]
+[role="offline_only"]
+.Result of rotation around the origin
+image::images/sve2_0616.png[]
+
+[[rotation-explanation-figure]]
+[role="offline_only"]
+.How rotation around the origin works
+image::images/sve2_0617.png[]
+
+
+Most of the time, you will not want to rotate the entire coordinate system around the origin; you’ll want to rotate a single object around a point other than the origin. You can do that via this series of transformations: ++translate(++__++centerX++__, __++centerY++__++)++ ++rotate(++__++angle++__++)++ ++translate(-++__++centerX++__, ++-++__++centerY++__++)++. SVG provides another version of +rotate+ to make this common task easier. In this second form of the +rotate+ transformation, you specify the angle and the center point around which you want to rotate:
+
+[subs="specialcharacters,quotes"]
+----
+rotate(_angle_, _centerX_, _centerY_)
+----
+
+This has the effect of temporarily establishing a new system of coordinates with the origin at the specified center _x_ and _y_ points, doing the rotation, and then re-establishing the original coordinates. [offline_only]#<<rotate-center-example>> shows this form of +rotate+ to create multiple copies of an arrow, shown in <<rotate-center-figure>>.# [online_only]#<<rotate-center-example>> lets you experiment with this form of +rotate+.#
+
+[[rotate-center-example]]
+.Rotation around a center point
+====
+[role="online_only"]
+iframe::http://oreillymedia.github.io/svg-essentials-examples/ch06/rotate-center.html[width="100%", height="400px"]
+
+[role="offline_only"]
+[source,xml]
+----
+<!-- center of rotation -->
+<circle cx="50" cy="50" r="3" style="fill: black;"/>
+
+<!-- non-rotated arrow -->
+<g id="arrow" style="stroke: black;">
+    <line x1="60" y1="50" x2="90" y2="50"/>
+    <polygon points="90 50, 85 45, 85 55"/>
+</g>
+
+<!-- rotated around center point -->
+<use xlink:href="#arrow" transform="rotate(60, 50, 50)"/>
+<use xlink:href="#arrow" transform="rotate(-90, 50, 50)"/>
+<use xlink:href="#arrow" transform="rotate(-150, 50 50)"/>
+----
+====
+
+[[rotate-center-figure]]
+[role="offline_only"]
+.Result of rotation around a center point
+image::images/sve2_0618.png[]
+
+[[center-scaling-section]]
+
+=== Technique: Scaling Around a Center Point
+
+While it’s possible to rotate around a point other than the origin, there is no corresponding((("scale transformations", "scaling around a center point")))((("coordinate system, transforming", "scaling around a center point"))) capability to +scale+ around a point. You can, however, make concentric symbols with a simple series of transformations. To scale an object by a given factor around a center point, do this:
+
+[subs="specialcharacters,quotes"]
+----
+translate(-_centerX*(factor-1)_, -_centerY*(factor-1)_)
+scale(_factor_)
+----
+
+You may also want to divide the +stroke-width+ by the scaling factor so((("stroke-width style", "scaling transformations and"))) the outline stays the same width while the object becomes larger. <<center-scaling-example>> draws the set of concentric rectangles shown in <<center-scaling-figure>>.footnote:[This is also a static picture, a “square bull's-eye.” If you want to show an animation of an expanding square, you’ll use +<animateTransform>+, which we will discuss in <<animation-chapter>>, in <<animateTransform-section>>.]
+
+[[center-scaling-example]]
+.Scaling around a center point
+
+====
+[source,xml]
+----
+<!-- center of scaling -->
+<circle cx="50" cy="50" r="2" style="fill: black;"/>
+
+<!-- non-scaled rectangle -->
+<g id="box" style="stroke: black; fill: none;">
+    <rect x="35" y="40" width="30" height="20"/>
+</g>
+
+<use xlink:href="#box" transform="translate(-50,-50) scale(2)"
+    style="stroke-width: 0.5;"/>
+<use xlink:href="#box" transform="translate(-75,-75) scale(2.5)"
+    style="stroke-width: 0.4;"/>
+<use xlink:href="#box" transform="translate(-100,-100) scale(3)"
+    style="stroke-width: 0.33;"/>
+----
+====
+
+[[center-scaling-figure]]
+
+.Result of scaling around a center point
+image::images/sve2_0619.png[]
+
+[[skew-transform-section]]
+
+=== The skewX and skewY Transformations
+
+SVG also has two other transformations: +skewX+ and +skewY+, which let you skew one of the axes.((("skewX and skewY transformations")))((("transformations", "skewX and skewY transformations")))((("coordinate system, transforming", "skewX and skewY transformations"))) The general form is +skewX(_angle_)+ and +skewY(_angle_)+. The +skewX+ transformation “pushes” all _x_-coordinates by the specified angle, leaving _y_-coordinates pass:[<phrase role="keep-together">unchanged</phrase>]. +skewY+ skews the _y_-coordinates, leaving _x_-coordinates unchanged, as shown in <<skew-transform-figure>>, which is drawn with the code in <<skew-transform-example>>.
+
+++++
+<example id="skew-transform-example">
+<title>skewX and skewY</title>
+<?iframe src="http://oreillymedia.github.io/svg-essentials-examples/ch06/skew.html" width="100%" height="650px"?>
+<programlisting language="xml">&lt;!-- guide lines --&gt; <co id="sXsY1"/>
+&lt;g style="stroke: gray; stroke-dasharray: 4 4;"&gt;
+    &lt;line x1="0" y1="0" x2="200" y2="0"/&gt;
+    &lt;line x1="20" y1="0" x2="20" y2="90"/&gt;
+    &lt;line x1="120" y1="0" x2="120" y2="90"/&gt;
+&lt;/g&gt;
+
+&lt;g transform="translate(20, 0)"&gt;     <co id="sXsY2"/>
+    &lt;g transform="skewX(30)"&gt;     <co id="sXsY3"/>
+        &lt;polyline points="50 0, 0 0, 0 50"      <co id="sXsY4"/>
+             style="fill: none; stroke: black; stroke-width: 2;"/&gt;
+        &lt;text x="0" y="60"&gt;skewX&lt;/text&gt;     <co id="sXsY5"/>
+    &lt;/g&gt;
+&lt;/g&gt;
+
+&lt;g transform="translate(120, 0)"&gt;     <co id="sXsY6"/>
+    &lt;g transform="skewY(30)"&gt;
+        &lt;polyline points="50 0, 0 0, 0 50"
+            style="fill: none; stroke: black; stroke-width: 2;"/&gt;
+        &lt;text x="0" y="60"&gt;skewY&lt;/text&gt;
+    &lt;/g&gt;
+&lt;/g&gt;</programlisting>
+<calloutlist>
+<callout arearefs="sXsY1">
+<para>
+These dashed lines are drawn in the default coordinate system, before any transformation has occurred.
+</para>
+</callout>
+<callout arearefs="sXsY2">
+<para>
+This will move the entire skewed “package” to the desired location.
+</para>
+</callout>
+<callout arearefs="sXsY3">
+<para>
+Skew the <emphasis>x</emphasis>-coordinates 30 degrees. This transformation doesn’t change the origin, which will still be at (0,0) in the new coordinate system.
+</para>
+</callout>
+<callout arearefs="sXsY4">
+<para>
+To make things easier, we draw the object at the origin.
+</para>
+</callout>
+<callout arearefs="sXsY5">
+<para>
+Text will be covered in more detail in <xref linkend="text-chapter"/>.
+</para>
+</callout>
+<callout arearefs="sXsY6">
+<para>
+These elements are organized exactly like the preceding ones, except the <emphasis>y</emphasis>-coordinates are skewed.
+</para>
+</callout>
+</calloutlist>
+</example>
+++++
+
+[[skew-transform-figure]]
+[role="offline_only"]
+.Result of skewX and skewY transformations
+image::images/sve2_0620.png[]
+
+
+Notice that +skewX+ leaves the horizontal lines horizontal, and +skewY+ leaves the vertical lines untouched. Go figure.
+
+[[transform-reference-section]]
+
+=== Transformation Reference Summary
+
+<<transform-reference-table>> gives a quick summary of ((("coordinate system, transforming", "reference summary of transformations in SVG")))((("transformations", "summary table")))the transformations available in SVG.
+
+++++
+<table id="transform-reference-table">
+<title>SVG transformations</title>
+<tgroup cols="2">
+<colspec colname="col_1" colwidth="40%"/>
+<colspec colname="col_2" colwidth="50%"/>
+<thead>
+<row>
+<entry>Transformation</entry>
+<entry>Description</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><simpara><literal>translate(</literal><emphasis><literal>x</literal></emphasis>, <emphasis><literal>y</literal></emphasis><literal>)</literal></simpara></entry>
+<entry><simpara>Moves the user coordinate system by the specified <emphasis><literal>x</literal></emphasis> and <emphasis><literal>y</literal></emphasis> amounts. Note: If you don’t specify a <emphasis><literal>y</literal></emphasis> value, 0 is assumed.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>scale(</literal><emphasis><literal>xFactor</literal></emphasis>, <emphasis><literal>yFactor</literal></emphasis><literal>)</literal></simpara></entry>
+<entry><simpara>Multiplies all user coordinate systems by the specified <emphasis><literal>xFactor</literal></emphasis> and <emphasis><literal>yFactor</literal></emphasis>. The factors may be fractional or negative.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>scale(</literal><emphasis><literal>factor</literal></emphasis><literal>)</literal></simpara></entry>
+<entry><simpara>Same as <literal>scale(</literal><emphasis><literal>factor</literal></emphasis>, <emphasis><literal>factor</literal></emphasis><literal>)</literal>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>rotate(</literal><emphasis><literal>angle</literal></emphasis><literal>)</literal></simpara></entry>
+<entry><simpara>Rotates the user coordinate by the specified <emphasis><literal>angle</literal></emphasis>. The center of rotation is the origin (0,0). In the default coordinate system, angle measure increases as you rotate clockwise, with a horizontal line having an angle of 0 degrees.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>rotate(</literal><emphasis><literal>angle</literal></emphasis>, <emphasis><literal>centerX</literal></emphasis>, <emphasis><literal>centerY</literal></emphasis><literal>)</literal></simpara></entry>
+<entry><simpara>Rotates the user coordinate by the specified <emphasis><literal>angle</literal></emphasis>. The center of rotation is specified by <emphasis><literal>centerX</literal></emphasis> and <emphasis><literal>centerY</literal></emphasis>.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>skewX(</literal><emphasis><literal>angle</literal></emphasis><literal>)</literal></simpara></entry>
+<entry><simpara>Skews all <emphasis>x</emphasis>-coordinates by the specified <emphasis><literal>angle</literal></emphasis>. Visually, this makes vertical lines appear at an angle.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>skewY(</literal><emphasis><literal>angle</literal></emphasis><literal>)</literal></simpara></entry>
+<entry><simpara>Skews all <emphasis>y</emphasis>-coordinates by the specified <emphasis><literal>angle</literal></emphasis>. Visually, this makes horizontal lines appear at an angle.</simpara></entry>
+</row>
+<row>
+<entry><simpara><literal>matrix(</literal><emphasis><literal>a</literal></emphasis> <emphasis><literal>b</literal></emphasis> <emphasis><literal>c</literal></emphasis> <emphasis><literal>d</literal></emphasis> <emphasis><literal>e</literal></emphasis> <emphasis><literal>f</literal></emphasis><literal>)</literal></simpara></entry>
+<entry><simpara>Specifies a transformation in the form of a transformation matrix of six values. See <xref linkend="matrix-algebra-appendix"/>.</simpara></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+++++
+
+[[css-vs-svg-transform-section]]
+
+=== CSS Transformations and SVG
+
+As of this writing, CSS also has a link:$$http://www.w3.org/TR/css-transforms-1/$$[working draft of a transformations module].((("CSS", "transformations and SVG")))((("transformations", "CSS"))) Because it is a working draft, details may change and browser support may vary. If you are already using CSS transforms, there are some important differences from SVG:
+
+* SVG 1.1 transforms are in user units or implicit degrees. CSS transforms use CSS length and angle units, although the specification would also allow implicit user units when applied to SVG elements.
+
+* SVG 1.1 transforms are structural attributes, whereas CSS transforms can be specified in stylesheets. Stylesheet specifications override attribute values.
+
+* In CSS, you cannot have space between the transform type and the opening parenthesis, and you must use commas to separate numerical values.
+
+* CSS transforms include a separate property to specify the origin for rotation and scaling. In SVG, the rotation origin is part of the +rotate()+ function, and you cannot specify an origin for scaling.
+
+* CSS transforms include 3D effects.((("coordinate system, transforming", range="endofrange", startref="ix_coordtrans")))

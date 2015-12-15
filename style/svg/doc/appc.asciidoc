@@ -1,0 +1,304 @@
+[[programming-concepts-appendix]]
+
+[appendix]
+== Programming Concepts
+
+Many graphic designers want to use the scripting capability of SVG as described in <<scripting-chapter>>.((("programming concepts", id="ix_programming", range="startofrange")))((("JavaScript/ECMAScript", "programming concepts", id="ix_scriptprog", range="startofrange"))) If they’re not familiar with programming, they tend to practice what might be called _voodoo scripting_. In the popular-culture stereotype,footnote:[Unlike the actual practice of Santería and voudon, which are much more complex and not inherently evil.] voodoo works by reciting a mysterious spell and hoping that your enemies die horribly. Voodoo scripting works by copying someone else’s mysterious script into your SVG document and hoping that your document continues to live. We’re under no illusion (nor even a spell) that reading this brief, purposely oversimplified summary will turn you into a master programmer. Our goal is simply to introduce enough of the elementary programming concepts to remove some of the mystery from the scripts that you copy and modify. The particular programming language that we will discuss in this appendix is called ECMAScript; it is the standardized version of the JavaScript language. The concepts used in ECMAScript are common to many other programming languages.
+
+[[js-constants-section]]
+
+=== Constants
+
+A _constant_ is a fancy word for a number or string of characters that never changes.((("programming concepts", "constants")))((("constants"))) Examples are +2+, +2.71828+, +"message"+, and `'communication'`. The last two are called _string constants_. In ECMAScript, you can use either single or double quotes to mark the boundaries of a string. This is good if you ever need to write things like +&quot;O&apos;Reilly Media&quot;+ or +&apos;There is no &quot;there&quot; there.&apos;+
+
+You will sometimes see the two Boolean constants +true+ and +false+, which are used for yes-or-no situations.
+
+[[js-variables-section]]
+
+=== Variables
+
+A _variable_ is a block of memory reserved to hold some value that may change from time to time.((("variables")))((("programming concepts", "variables"))) You can think of it as a mailbox with a name on it; the mailbox holds a slip of paper with information written on it. Let’s say you need to keep track of the current width of a rectangle and need to store a changeable message; in ECMAScript you define these variables like this:
+
+[source,javascript]
+----
+var currentWidth;
+var message;
+----
+
+You may visualize them as shown in <<js-variables-figure>>.
+
+[[js-variables-figure]]
+
+.Two empty variables
+image::images/sve2_ac01.png[]
+
+Variables defined this way have nothing in their “mailbox”; the technical term is that these variables contain the undefined value. Variable names must start with a letter or an underscore and can contain only letters, digits, and underscores. They are case sensitive, so +width+, +Width+, and +WIDTH+ are names of three different variables.
+
+[[js-assignment-section]]
+
+=== Assignment and Operators
+
+You can put a value into a variable by using an assignment statement,((("programming concepts", "assignment and operators"))) which starts with a variable name, an equal sign, and ((("variables", "assigning values to")))((("assignment")))the value. Examples:
+
+[source,javascript]
+----
+currentWidth = 32;
+message = "I love SVG.";
+----
+
+You can read these as “set the value of +currentWidth+ equal to +32+&#8221; and “set the value of +message+ equal to "++I love SVG++."&#x201d; In reality, this statement works from right to left; whatever is on the righthand side of the equal sign is placed into the variable on the lefthand side. Note that all our ECMAScript statements end with a semicolon. There are cases where you don’t need one, but we’d rather have the semicolon and not need it than need it and not have it. <<js-assignment-figure>> shows the “after” picture for these assignments.
+
+[[js-assignment-figure]]
+
+.Two assigned variables
+image::images/sve2_ac02.png[]
+
+Actually, we told you a small lie a few sentences ago. Whatever the righthand side of the equal sign _works out to_ goes into the variable on the lefthand side.((("operators, in JavaScript/ECMAScript"))) This lets us do mathematical operations, as in the following code:
+
+++++
+<screen language="javascript">var info;     <co id="mathops1"/>
+info = 7 + 2;     <co id="mathops2"/>
+info = 7 * 2;    <co id="mathops3"/>
+info = info + 1;     <co id="mathops4"/>
+info = "door";     <co id="mathops5"/>
+info = info + "bell"     <co id="mathops6"/></screen>
+<calloutlist>
+<callout arearefs="mathops1">
+<para>
+Create an empty variable named <literal>info</literal>.
+</para>
+</callout>
+<callout arearefs="mathops2">
+<para>
+<literal>info</literal> will now contain the value <literal>9</literal> (7 plus 2). You use the minus sign (<literal>-</literal>) for subtraction.
+</para>
+</callout>
+<callout arearefs="mathops3">
+<para>
+The asterisk is used for multiplication, because the multiplication symbol is too easily confused with the letter <literal>x</literal>. <literal>info</literal> will contain <literal>14</literal> (7 times 2). The previous value of 9 will be discarded. You use the forward slash (<literal>/</literal>) for division.
+</para>
+</callout>
+<callout arearefs="mathops4">
+<para>
+This is illegal in high school algebra, but not in ECMAScript. Start with the righthand side of the equal sign: take the current value of <literal>info</literal>, which is <literal>14</literal>, and add 1 to it. The righthand side works out to <literal>15</literal>. This result goes into the variable on the left side of the equal, which just happens to be <literal>info</literal>. At the end of this statement, <literal>info</literal> will contain the value <literal>15</literal>.
+</para>
+</callout>
+<callout arearefs="mathops5">
+<para>
+This takes the string <literal>"door"</literal> and puts it into <literal>info</literal>. In ECMAScript, a variable can hold any sort of information at any time.
+</para>
+</callout>
+<callout arearefs="mathops6">
+<para>
+This takes the current value of <literal>info</literal>, which is <literal>"door"</literal>, and “adds” (appends) the string constant <literal>"bell"</literal> to the end of it. The resulting value is the word <literal>"doorbell"</literal>, which goes back into <literal>info</literal> on the left side of the equal sign. The plus sign is the only operator that works with strings; you can’t subtract, multiply, or divide them. Be careful when mixing addition and string concatenation: <literal>&quot;The answer is &quot; &#43; 2 &#43; 2</literal> produces <literal>"The answer is 22"</literal>; <literal>&quot;The answer is &quot; &#43; (2 &#43; 2)</literal> produces <literal>"The answer is 4"</literal>
+</para>
+</callout>
+</calloutlist>
+++++
+
+You can define a variable and set its initial value all in one fell swoop. This is called _initializing_ a variable. You can have more than one operation on the righthand side of the equal sign. In the following code, an empty variable named +celsius+ is created, then a variable named +fahrenheit+ with value +212+, and then the Fahrenheit temperature is converted to Celsius:
+
+[source,javascript]
+----
+var celsius;
+var fahrenheit = 212;
+celsius = ((fahrenheit - 32) / 9 ) * 5;
+----
+
+[[js-arrays-section]]
+
+=== Arrays
+
+An _array_ is an ordered collection of data, indexed by number.((("programming concepts", "arrays")))((("arrays, in JavaScript"))) We compared a simple variable to a mailbox (send mail to the “Smith Residence”). An array is like a set of numbered apartment mailboxes (send mail to the “A-List Apartments, #12”). The only difference is that array index numbers start at 0 rather than 1.footnote:[This is not done to be contrary; it’s because programs often use a mathematical formula to select the relevant item. These formulas are invariably easier when you start counting at zero.] Here’s a declaration of an array of radius sizes for circles. This form initializes the array. The second statement sets the value of the last element of the array to +9+. You access one of the “slots” of an array by putting its index number in square brackets. <<js-arrays-figure>> shows the results after the code has finished:
+
+
+[source, javascript]
+----
+var radiusSizes = [8.5, 6.4, 12.2, 7];
+radiusSizes[3] = 9;
+----
+
+[[js-arrays-figure]]
+
+.Depiction of an array
+image::images/sve2_ac03.png[]
+
+[[js-comments-section]]
+
+=== Comments
+
+_Comments_ provide a way to document your programs so that other people can figure out what you did.((("programming concepts", "comments")))((("comments", "in ECMAScript"))) There are two kinds of comments in ECMAScript. If you place two forward slashes in a row (+//+), they and everything to the end of that line are considered to be a comment. If you want a multiline comment, start with +/\*+ and end with +*/+ as shown here:
+
+[source, javascript]
+----
+var interest;   // this is accumulated on a daily basis
+var rate;       // expressed as a decimal; 75% is a rate of 0.75
+
+/* Figure out the payment amount given a principal
+   of $10,000 and 180 monthly payments. */
+----
+
+[[js-conditionals-section]]
+
+=== Conditional Statements
+
+Ordinarily, your program statements are carried out in the order in which they appear.((("conditional statements, in scripting", seealso="switch element")))((("programming concepts", "conditional statements"))) Sometimes you may want to do different calculations depending upon some condition. You use the +if+ statement to do this. Here’s a calculation for wages that depends upon the number of hours worked. We presume that all the +var+ statements have been set up appropriately:
+
+++++
+<screen language="javascript">if (hours &lt;= 40)     <co id="conditionals1"/>
+{
+  pay = hours * rate;     <co id="conditionals2"/>
+}
+else     <co id="conditionals3"/>
+{
+  pay = 40 * rate + (hours - 40) * rate * 1.5;     <co id="conditionals4"/>
+}</screen>
+<calloutlist>
+<callout arearefs="conditionals1">
+<para>
+The expression in the parentheses is called the <emphasis>condition</emphasis>. It always asks a yes-or-no question. In this case, the question is “is the value of the <literal>hours</literal> variable less than or equal to 40?” Other comparison operations are less than (&lt;), greater than (&gt;) greater than or equal (&gt;=), equal (==), and not equal (!=).<footnote><simpara>There are also the <literal>===</literal> and <literal>!==</literal> operators; when you use them, Boolean values and strings containing numbers won’t automatically be converted into numbers when compared against a number.</simpara></footnote> Note that asking if two things are equal to each other requires two equal signs, not one!
+</para>
+</callout>
+<callout arearefs="conditionals2">
+<para>
+If the answer to the question is yes, then the program will do everything between the opening and closing braces <literal>{</literal> and <literal>}</literal>&#8230;
+</para>
+</callout>
+<callout arearefs="conditionals3">
+<para>
+&#8230;otherwise (<literal>else</literal>)&#8230;
+</para>
+</callout>
+<callout arearefs="conditionals4">
+<para>
+&#8230;do everything between the other set of curly braces. The curly braces are used to signify that one or more statements should be grouped together, much in the way that XML opening and closing tags tell where content begins and ends.
+</para>
+</callout>
+</calloutlist>
+++++
+
+[[js-loop-section]]
+
+=== Repeated Actions
+
+Sometimes you want to repeat an action a specific number of times (“fill 10 2-liter containers from a large water tank”). You use a +for+ loop to do the first sort of task.((("repeated actions, in JavaScript/ECMAScript")))((("loops")))((("programming concepts", "repeated actions"))) It’s called a _loop_ because, if you were to draw arrows representing the path the computer takes through your program, they would form a loop as the program repeated the actions.((("for loop"))) Here’s the container-filling scenario translated into ECMAScript, with variables for the water tank and the containers presumed to be defined. The loop body, that is, the actions you want repeated, are enclosed in curly braces:
+
+[source,javascript]
+----
+var i;              // a counter variable
+for (i = 0;         // start counting at zero
+     i < 10;        // up to (but not including) 10
+     i++)           // add one to the count at every repetition
+{
+  container[i] = 2;                // fill container number "i"
+  waterTank = waterTank - 2;  // take 2 liters out of the tank
+}
+----
+
+Other times, you want to repeat an action as long as some condition is true (“keep filling 2-liter containers from a large water tank as long as there is any water left”).((("while loop"))) For this, you use a +while+ loop:
+
+[source,javascript]
+----
+i = 0;                          // start with container number zero
+while ( waterTank > 0 )         // while there is water left
+{
+  container[i] = 2;                // fill container number "i"
+  waterTank = waterTank - 2;  // take 2 liters out of the tank
+  i = i + 1;                  // move on to the next container
+}
+----
+
+[[js-function-section]]
+
+=== Functions
+
+You can accomplish some surprisingly sophisticated tasks with this small number of programming concepts.((("programming concepts", "functions")))((("functions"))) You collect sets of ECMAScript statements designed to perform a specific task into functions. Think of a function as a recipe card that gives a list of ingredients and instructions which, when followed, create a specific dish. A function starts with the keyword +function+ followed by the function name. The name should be indicative of the task that it does, and it follows the same rules that variable names do. Following the function name, in parentheses, are the parameters of the function. A parameter is extra information that the function needs when it does its task. Consider this imaginary recipe:
+
+[quote]
+____
+Korean Kimch’i Surprise
+
+Take 100 grams of kimch’i per serving, 25 grams of ko-ju-jang red pepper paste per serving, and 50 grams of mushrooms per serving. Mix well. Serve.
+____
+
+
+Before you can make the recipe, you have to supply some extra information—the number of servings you intend to make. Our script might look like this:
+
+[source,javascript]
+----
+function makeKimchiSurprise(numberOfServings)
+{
+  var kimchi = 100 * numberOfServings;
+  var kojujang = 25 * numberOfServings;
+  var mushrooms = 50 * numberOfServings;
+  var surprise = kimchi + kojujang + mushrooms;
+}
+----
+
+This is only the definition of the function. It does absolutely _nothing_ until it is invoked, or called on. (You may have hundreds of recipe cards in a file box at home. They just sit there, inactive, until someone asks you to pull one card out and perform the cooking tasks.) You will often call a function as the result of an event. In the following example, a click on the blue rectangle will call the function. The number +5+ in the parentheses will fill in the “extra information” required by the +numberOfServings+ parameter:
+
+[source,javascript]
+----
+<rect x="10" y="10" width="100" height="30" style="fill: blue;"
+  onclick="makeKimchiSurprise( 5 )" />
+----
+
+[NOTE]
+====
+Even if the function doesn’t need any parameters, you still have to put the parentheses after its name in order to call it. Without the parentheses, +area+ is just another object to be utilized. Unlike other languages, ECMAScript doesn’t let you declare both a variable +area+ and a function +area()+ in the same namespace.
+====
+
+Functions can also call other functions. For example, a function that calculates compound interest might need to call upon another function that determines whether a year is a leap year or not. A parameter lets the interest function tell the leap year function what year it’s interested in. The +return+ statement will let the leap year function communicate its result back to the caller. This allows you to modularize a program into generally useful building blocks. In cooking terms, the +makeHollandaiseSauce()+ function can be called from the +makeEggsBenedict()+ function as well as from +makeChickenFlorentine()+.
+
+[[js-objects-section]]
+
+=== Objects, Properties, and Methods
+
+Take a power supply with its on-off switch, a plastic dial, a lever with a spring, and a metal chassis with rectangular slots and coils of wire in it. Put all these parts together, and you get a toaster.((("programming concepts", "objects, properties, and methods")))
+
+Each of these parts is an object.((("objects, in scripting"))) Some of them have characteristics that are of interest: the power supply has a voltage of 110 or 220 volts, the chassis has a color and a number of slots, and the dial has a minimum and maximum setting. (The lever has no interesting characteristics.)
+
+You do actions with each of these objects: you push the lever down or pop it up, you insert bread into the slots, you turn the power supply on or off, and you turn the dial to the desired setting.
+
+Let’s take this toaster into the world of ECMAScript. Now the mailboxes can hold many slips of paper, each representing different data properties of the object.  Simple data types (like numbers or strings) are written down on the slip of paper directly. More complex data types require their own “mailboxes" to hold all the information, so the “slip of paper” contains information on where to find the full object (a _pointer_ to the data); as a consequence, multiple variables can reference the same object.  A mailbox can also hold a set of instructions (functions, like our recipe cards) so that they can perform actions. When a variable is inside another mailbox, we call the inner variable a _property_. When a function is inside a mailbox, we call it a _method_. ((("methods, of JavaScript/ECMAScript objects")))The diagram for the toaster looks like <<js-objects-figure>>.
+
+
+[[js-objects-figure]]
+
+.The object diagram for a toaster
+image::images/sve2_ac04.png[]
+
+This is a very flexible way of modeling a toaster, but it’s introduced a problem. To set the toaster’s color or voltage or to pop out the bread, you can’t just say things like this:
+
+[source,javascript]
+----
+color = "gold";
+voltage = 220;
+popUp();
+----
+
+The +color+ property is nested inside the +toaster+ variable, the +voltage+ really ((("properties", "of JavaScript/ECMAScript objects")))belongs to the +powerSupply+ inside the +toaster+, and it’s the ++toaster++’s +lever+ that does the +popUp+ function. For these reasons, you must say:
+
+[source,javascript]
+----
+toaster.color = "gold";
+toaster.powerSupply.voltage = 220;
+toaster.lever.popUp();
+----
+
+These are easy to figure out if you read them from right to left and say “of” whenever you see a period: “Put gold into the color of the toaster.” “Put 220 into the voltage of the power supply of the toaster.” “Call the pop up method of the lever of the toaster.”footnote:[If you insist upon reading left to right, adapt the suggestion for reading path names made by Elizabeth Castro in her book, _Visual Quickstart Guide to HTML for the World Wide Web_: read the period as “contains.” Then +toaster.powerSupply.voltage = 220;+ is read as “the toaster contains a power supply, which contains a voltage. Set that voltage to 220.”] Think of this as the grown-up version of nested objects and methods that you learned as a child: “This is the dog that chased the cat that killed the rat that ate the malt that lay in the house that Jack built.”
+
+By using objects to model the behavior of a toaster, you’ve built a "Toaster Object Model.” Similarly, there is a Document Object Model (DOM) that lets ECMAScript access a document’s properties and invoke its methods. Almost all of your access to an SVG document will be through methods that begin with the word +set+ or +get+. To set the pass:[<phrase role="keep-together">radius of a <literal>&lt;circle&gt;</literal></phrase>] element with an +id+ of +wheel+, you might write +svgDocument.getElementById("wheel").setAttribute("r", 3)+. In some cases, you will use properties. For example, if you receive a mouse click event and want to find its _x_-coordinate, you would write +evt.clientX+. 
+
+
+[NOTE]
+====
+The SVG Document Object Model is actually a superset of the XML Document Object Model; once you learn to manipulate the structure of an SVG document, you can immediately apply that knowledge to other XML documents, so the time you spend in learning the DOM will be amply repaid.
+====
+
+[[js-conclusion-section]]
+
+=== What, Not How
+
+We’ve given you an overview of the _what_ of programming, which can serve as a base for reading programs that other people have written and making sense of them (the programs, not the people). _How_ you define a task and lay out the programming steps to solve it is another problem altogether, and far beyond the scope of this book. If you enjoy solving crossword puzzles or brain teasers, or just solving problems in general, you may well enjoy writing programs. If you would like to go in depth with JavaScript, we recommend pass:[<emphasis><ulink url="http://bit.ly/javascript-tdg-6e" role="orm:hideurl">JavaScript: The Definitive Guide, 6th Edition</ulink></emphasis>] by David Flanagan (pass:[<phrase role="keep-together">O'Reilly</phrase>]).
+((("programming concepts", range="endofrange", startref="ix_programming")))((("JavaScript/ECMAScript", "programming concepts", range="endofrange", startref="ix_scriptprog")))

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="gbk">
+    <title></title>
+</head>
+<body>
+<style>
+    .container {
+        width: 100%;
+    }
+    svg {
+        /*width: 500px;*/
+        /*height: 300px;*/
+        border: 1px solid green;
+        margin: 0 auto;
+        display: block;
+    }
+</style>
+
+<div class="container">
+    <svg width="4cm" height="5cm" viewBox="0 0 64 80">
+        <image xlink:href="http://oreillymedia.github.io/svg-essentials-examples/ch03/pixel_ruler.svg" width="200" height="200" alt=""></image>
+        <circle cx="0" cy="0" r="2" style="stroke: #000; fill:none;"></circle>
+        <circle cx="70" cy="95" r="50" style="stroke: #000; fill:none;"></circle>
+        <circle cx="55" cy="95" r="5" style="stroke: #000; fill:#393;"></circle>
+        <circle cx="85" cy="95" r="5" style="stroke: #000; fill:#393;"></circle>
+        <!--group-->
+        <g id="whiskers">
+            <line x1="75" y1="95" x2="135" y2="85" style="stroke: #000;"></line>
+            <line x1="75" y1="95" x2="135" y2="105" style="stroke: #000;"></line>
+        </g>
+        <!--group end-->
+
+        <use xlink:href="#whiskers" transform="scale(-1 1) translate(-140 0)"></use>
+    </svg>
+</div>
+
+</body>
+</html>
