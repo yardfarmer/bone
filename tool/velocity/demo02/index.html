@@ -1,0 +1,65 @@
+<script src="../bower_components/jquery/dist/jquery.min.js"></script>
+<script src="../bower_components/velocity/velocity.min.js"></script>
+<script src="../bower_components/velocity/velocity.ui.min.js"></script>
+<style>
+
+    .mod-one, .mod-two, .mod-three {
+        /*border: 1px solid;*/
+        /*position: relative;*/
+        height: 20px;
+        width: 20px;
+    }
+
+    .box {
+        border: 1px solid red;
+        height: 100px;
+        width: 100px;
+    }
+</style>
+
+<div class="mod-one" style="background: coral;"></div>
+<div class="mod-two" style="background: aquamarine;"></div>
+<div class="mod-three" style="background: darkkhaki;"></div>
+
+<div class="box"></div>
+<div class="placeholder" style="height: 10000px;"></div>
+
+<script>
+    $element = $('.mod-one');
+</script>
+
+
+<script>
+    var $element1 = $(".mod-one");
+    var $element2 = $(".mod-two");
+    var $element3 = $(".mod-three");
+    var $box = $(".box");
+
+
+    $(window).scroll(function (e) {
+        var $box = $(".box");
+        var scrollTop = $box.scrollTop();
+        var scrollHeight = $box[0].scrollHeight || $('body')[0].scrollHeight;
+        var maxScroll = scrollHeight - $box.height();
+
+        // $(window).scrollTop()
+        // 获取当前窗口已经滚动的距离
+
+        console.log($(window).scrollTop(), $box.position(), scrollTop, scrollHeight, maxScroll);
+    });
+
+
+    //    if (scrollTop >= maxScroll) {
+    //        return activeTarget != (i = targets.last()[0]) && this.activate(i)
+    //    }
+
+
+    var mySequence = [
+        {e: $element1, p: {translateY: "-=100"}, o: {duration: 1000, sequenceQueue: true}},
+        {e: $element2, p: {translateY: "-=200"}, o: {duration: 1000, sequenceQueue: true}},
+        {e: $element3, p: {translateY: "-=300"}, o: {duration: 1000, sequenceQueue: true}}
+    ];
+
+    $.Velocity.RunSequence(mySequence);
+
+</script>

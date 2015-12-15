@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="gbk">
+    <title></title>
+    <style>
+        .demo {
+            perspective: 1px;
+            padding: 0;
+            height: 600px;
+            overflow: auto;
+        }
+
+        .box {
+            height: 1280px;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .nav_1 {
+            position: absolute;
+            left: 50px;
+            /*transform: translate3D(-50%, 0px, 1px) scale(.5);*/
+            border:1px solid red;
+            height: 20px;
+            width:50px;
+        }
+
+        .list {
+            position: absolute;
+            left: 100px;
+            width: 800px;
+            border:1px solid crimson;
+            overflow: hidden;
+        }
+
+        .smile, .flower, .music, .pdf {
+            width: 25%;
+            height: 400px;
+            float: left;
+        }
+        .smile, .music {
+            background: #f0ad4e;
+        }
+    </style>
+</head>
+<body>
+
+<div class="demo">
+    <div class="box">
+        <div style="height: 500px;"></div>
+        <div class="nav_1">
+        </div>
+        <div class="list">
+            <i class="smile"></i>
+            <i class="flower"></i>
+            <i class="music"></i>
+            <i class="pdf"></i>
+        </div>
+    </div>
+</div>
+
+<div style="height: 10000px;"></div>
+
+</body>
+</html>
