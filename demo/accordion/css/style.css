@@ -1,0 +1,85 @@
+
+body {
+  background: #f77462;
+}
+
+.container {
+  width: 100%;
+}
+
+.accordion {
+  /*background: #5ab2ca;*/
+  width: 1190px;
+  display: block;
+  list-style-type: none;
+  overflow: hidden;
+  height: 200px;
+  margin: 0 auto;
+  font-size: 0;
+}
+
+.tabs {
+  display: inline-block;
+  /*background-color: #6dc5dd;*/
+  border-right: #5ab2ca 1px solid;
+  width: 196px;
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+  margin: 0;
+  font-size: 16px;
+  transition: all 0.3s ease-in-out 0.1s;
+}
+
+
+
+.tabs:hover {
+  width: 392px;
+}
+
+.tabs:hover .left-panel .a .before {
+  margin-left: -170px;
+}
+
+.tabs:hover .right-panel {
+  margin-left: 100px;
+}
+
+
+.tabs .left-panel .a .after {
+  margin-left: -55px;
+}
+
+
+
+.tabs .right-panel {
+  position: relative;
+  width: 290px;
+  margin-left: 196px;
+  height: 200px;
+  background: #fff;
+  transition: all .3s ease-in-out .1s;
+}
+
+.left-panel {
+  display: block;
+}
+.left-panel .a {
+  display: block;
+}
+
+.left-panel .a .before,
+.left-panel .a .after {
+  transition: all 0.3s ease-in-out 0.1s;
+  width: 196px;
+  height: 200px;
+  position: absolute;
+  text-indent: 0;
+  display: block;
+  color: #fff;
+}
+
+.left-panel .a .after {
+  font-size: 48px;
+  margin-left: 196px;
+}

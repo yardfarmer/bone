@@ -1,146 +1,172 @@
 <!DOCTYPE html>
 <html>
 <head lang="en">
-<meta charset="UTF-8">
-	<title>
+    <meta charset="UTF-8">
+    <title>
 
     </title>
-<script src="//cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+    <script src="//cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
 
 </head>
 <body>
 
 <script>
-	$(function(){
-		// insert you code 
+    $(function () {
+        // insert you code
 
-		// ajax  & promise
-		$.ajax({
-			url: "http://localhost:9365/data"
-		})
-		// deferred.then(doneFilter [, failFilter] [, progressFilter])
-		.then(
-			// done
-			function(response){
-				console.info(response);	
-			},
-			// fail
-			function(response){
-				console.log('get failed');
-			},
-			// progress
-			function(response){
-				console.log('get in progress');
-				// console.info(response);	
-			}
-		).then(function(){
-			console.log('the end');
-		});
-		
-
-		// state
-		var deferred = $.Deferred();
-		var state = deferred.state();
-		console.log(state)
-
-		// state = deferred.resolve().state();
-		// console.log(state)
-
-		state = deferred.reject().state();
-		console.log(state)
+        // ajax  & promise
+        $.ajax({
+                    url: "http://localhost:8080/bone/javascript/2014-11-16/demo.json"
+                })
+                // deferred.then(doneFilter [, failFilter] [, progressFilter])
+                .then(
+                        // done
+                        function (response) {
+                            console.info(response);
+                        },
+                        // fail
+                        function (response) {
+                            console.log('get failed');
+                        },
+                        // progress
+                        function (response) {
+                            console.log('get in progress');
+                            // console.info(response);
+                        }
+                ).then(function () {
+            console.log('the end');
+        });
 
 
-		var deferred = $.Deferred();
-		// done & resolve
-		deferred.done(function(value){
-			console.log(value);
-		}).resolve("hello world");
+        // state
+        var deferred = $.Deferred();
+        var state = deferred.state();
+        console.log('deferred state', state);
 
-		// always
-		$.Deferred()
-			.done(function(){console.log(1)})
-			.fail(function(){console.log(2)})
-			.always(function(){console.log(3)})
-			// .resolve()
-			// .reject()
-			;
-		
+        // state = deferred.resolve().state();
+        // console.log(state)
 
-		// notify & progress
-
-		var userProgress = $.Deferred(),
-			count = 0;
-
-		userProgress.progress(function(signal) {
-			console.log('receive signal:' + signal)
-			console.log('on progress:'+ ++count);
-		});
-
-		userProgress.done(function(command) {
-			console.log(command+'->done.!');
-		});
-
-		userProgress.notify('green');
-		userProgress.notify('green');
-		userProgress.notify('green');
-		userProgress.notify('yellow');
-		userProgress.notify('red');
-		userProgress.resolve('the end.');
-
-		$.ajax("http://localhost:9365/data?foo=1", {dataType: "json"})
-		.then(function( data ){
-			console.log(data);
-			return $.ajax("http://localhost:9365/data", 
-				{ 
-					data:{
-						"bar":3,
-						"uid":197723712306688
-					}
-				});
-		})
-		.done(function( data ){
-			// url2 data
-			console.log(data);
-		});
-		
-
-		var d = $.Deferred();
-		d.then(function() {
-			// throw new Error('err');
-		}).fail(function() {
-			console.log('fail');
-		});
-
-		d.resolve();
-
-		// when & then
-		var d1 = $.Deferred();
-
-		var promise = $.when('Hello').then(function(h){
-			// double shoot
-			return $.when(h, d1);	
-		});
-
-		// double both ok
-		promise.done(function(s1,s2){
-			console.log(s1);
-			console.log(s2);
-		});
-		
-		console.log('debug use');
-		// d1.resolve();
+        state = deferred.reject().state();
+        console.log('reject state', state);
 
 
-		$.wait = function(time) {
-			var dfd = $.Deferred();
-			setTimeout(dfd.resolve,time);
-			return dfd;
-		}
+        deferred = $.Deferred();
+        // done & resolve
+        deferred.done(function (value) {
+            console.log(value);
+        }).resolve("hello world");
 
-		$.wait(5000).then(function(){
-			console.log('from future');
-		});
-	});
+        // always
+        $.Deferred()
+                .done(function () {
+                    console.log('deferred done')
+                })
+                .fail(function () {
+                    console.log('deferred fail')
+                })
+                .always(function () {
+                    console.log('deferred always')
+                })
+            // .resolve()
+            // .reject()
+        ;
+
+
+        // notify & progress
+
+        var userProgress = $.Deferred(),
+            count        = 0;
+
+        userProgress.progress(function (signal) {
+            console.log('receive signal:' + signal);
+            console.log('on progress:' + ++count);
+        });
+
+        userProgress.done(function (command) {
+            console.log(command + '->done.!');
+        });
+
+        userProgress.notify('green');
+        userProgress.notify('green');
+        userProgress.notify('green');
+        userProgress.notify('yellow');
+        userProgress.notify('red');
+        userProgress.resolve('the end.');
+
+        $.ajax("http://localhost:8080/bone/javascript/2014-11-16/demo.json", {dataType: "json"})
+                .then(function (data) {
+                    console.log(data);
+                    return $.ajax("http://localhost:8080/bone/javascript/2014-11-16/demo.json",
+                            {
+                                data: {
+                                    "bar": 3,
+                                    "uid": 197723712306688
+                                }
+                            });
+                })
+                .done(function (data) {
+                    // url2 data
+                    console.log(data);
+                });
+
+
+        var d = $.Deferred();
+        d.then(function () {
+            // throw new Error('err');
+        }).fail(function () {
+            console.log('fail');
+        });
+
+        d.resolve();
+
+        // when & then
+        var d1 = $.Deferred();
+
+        var promise = $.when('Hello').then(function (h) {
+            // double shoot
+            return $.when(h, d1);
+        });
+
+        // double both ok
+        promise.done(function (s1, s2) {
+            console.log(s1);
+            console.log(s2);
+        });
+
+        console.log('debug use');
+        // d1.resolve();
+
+
+        $.wait = function (time) {
+            var dfd = $.Deferred();
+            setTimeout(dfd.resolve, time);
+            return dfd;
+        }
+
+        $.wait(5000).then(function () {
+            console.log('from future');
+        });
+    });
+
+
+    var d1 = $.Deferred();
+    var d2 = $.Deferred();
+    var d3 = $.Deferred();
+
+    $.when( d1, d2, d3 ).done(function ( v1, v2, v3 ) {
+        console.log('multi deferred combo');
+        console.log( v1 ); // v1 is undefined
+        console.log( v2 ); // v2 is "abc"
+        console.log( v3 ); // v3 is an array [ 1, 2, 3, 4, 5 ]
+    });
+
+    d1.resolve('d1 ok');
+//    d2.resolve( "abc" );
+    d3.resolve( 1, 2, 3, 4, 5 );
+    console.log('wait d2 to complete ...');
+    setTimeout(function() {
+        d2.resolve('d2 completed!');
+    }, 1000)
 </script>
 
 </body>
