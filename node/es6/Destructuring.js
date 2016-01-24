@@ -1,4 +1,6 @@
 //解构函数还不支持 2015-10-18
+'use strict';
+
 let [foo, [[bar], baz]] = [1, [[2], 3]];
 
 console.log(foo, bar, baz);
