@@ -3,6 +3,8 @@
  */
 
 
+
+
 var hsf = require('hsf-client');
 var Configclient = require('@alipay/configclient');
 var configclient = new Configclient();
