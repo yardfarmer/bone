@@ -1,0 +1,55 @@
+#blur-div {
+  width: 710px;
+  height: 360px;
+  position: relative;
+  margin: 0 auto;
+}
+
+#blur-image {
+  display: block;
+  width: 710px;
+  height: 360px;
+  margin: 0 auto;
+  position: absolute;
+  left: 0;
+  top: 0;
+  -webkit-filter: blur(10px);
+}
+
+#canvas {
+  display: block;
+  margin: 0 auto;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  /*background-color: red;*/
+}
+
+.button {
+  display: block;
+  position: absolute;
+  z-index: 200;
+  width: 100px;
+  height: 30px;
+
+  color: white;
+  text-decoration: none;
+  text-align: center;
+
+  line-height: 30px;
+  border-radius: 5px;
+}
+
+#reset-button {
+  left: 200px;
+  bottom: 20px;
+  background-color: #058;
+}
+
+#show-button {
+  right: 200px;
+  bottom: 20px;
+  background-color: #085;
+}
+

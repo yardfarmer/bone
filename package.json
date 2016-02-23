@@ -11,5 +11,9 @@
     "chai": "^3.3.0",
     "http-server": "^0.7.4",
     "should": "^7.1.0"
+  },
+  "dependencies": {
+    "@alipay/configclient": "~4.2.1",
+    "hsf-client": "~6.2.0"
   }
 }

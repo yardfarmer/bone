@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<!-- /#canvas -->
+
+
+<!--save-->
+<!--canvas 状态的保存和恢复-->
+
+<!--
+画 圆弧
+context.arc
+    (
+        center_x, center_y, radius(半径),
+        startingAngle(开始角度), endingAngle(结束角度)
+        antiClockWise(是否逆时针)
+    )
+-->
+
+<script>
+    var canvas = document.getElementById('canvas');
+    canvas.width = 800;
+    canvas.height = 800;
+    var context = canvas.getContext('2d');
+
+    context.lineWidth = 5;
+    context.strokeStyle = '#005588';
+
+    for (var i = 0; i < 10; i++) {
+        context.beginPath();
+        context.arc(50 + i * 100, 180, 40, 0, 2 * Math.PI * (i + 1) / 10);
+
+
+//        context.closePath(); // 封闭路径
+
+        context.stroke();
+    }
+
+</script>
+</body>
+</html>

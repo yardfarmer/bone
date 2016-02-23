@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #00a7e1;
+            height: 100px;
+            width: 600px;
+        }
+
+        .inner {
+            position: relative;
+        }
+
+        .tag {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: #00a300;
+            background-color: #ee0511;
+        }
+    </style>
+</head>
+<body>
+<!--外层不使用 relative-->
+<div class="container">
+    <!--里面使用 relative空标签, 减去外层 relative 的层叠压力-->
+    <div class="inner">
+        <div class="tag">hi</div>
+    </div>
+</div>
+</body>
+</html>

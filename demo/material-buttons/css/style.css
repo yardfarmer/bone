@@ -1,0 +1,158 @@
+@import url(http://fonts.googleapis.com/css?family=Noto+Sans:400,700);
+[am-button] {
+  display: block;
+  position: relative;
+  width: 100%;
+  margin: 0 0 2rem;
+  padding: 0.8rem;
+  border: 0;
+  outline: 0;
+  border-radius: 0.125em;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+  background: #cfcfcf;
+  color: #333;
+}
+[am-button][am-button~="raised"] {
+  box-shadow: 0 0 0.2em rgba(0, 0, 0, 0.2), 0 0.2em 0.2em rgba(0, 0, 0, 0.2);
+}
+[am-button][am-button~="raised"]:active {
+  box-shadow: 0 0 0.6em rgba(0, 0, 0, 0.2), 0 0.6em 0.6em rgba(0, 0, 0, 0.2);
+}
+[am-theme~="dark"] [am-button] {
+  background: #2195F2;
+  color: #fff;
+}
+[am-theme~="dark"] [am-button][am-button~="raised"] {
+  box-shadow: 0 0 0.3em rgba(0, 0, 0, 0.6), 0 0.2em 0.2em rgba(0, 0, 0, 0.6);
+}
+[am-theme~="dark"] [am-button][am-button~="raised"]:active {
+  box-shadow: 0 0 0.6em rgba(0, 0, 0, 0.6), 0 0.6em 0.6em rgba(0, 0, 0, 0.6);
+}
+
+[am-button~="disabled"],
+[am-button~="disabled"]:hover,
+[am-button~="disabled"]:focus {
+  box-shadow: none;
+  cursor: default;
+  background: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.26);
+}
+:root[am-theme~="dark"] [am-button~="disabled"], :root[am-theme~="dark"]
+[am-button~="disabled"]:hover, :root[am-theme~="dark"]
+[am-button~="disabled"]:focus {
+  box-shadow: none;
+  cursor: default;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+:root [am-button~="floating"],
+:root [am-button~="floating"]:hover,
+:root [am-button~="floating"]:focus {
+  position: relative;
+  display: inline-block;
+  width: 56px;
+  height: 56px;
+  margin: 0;
+  padding: 0;
+  background: #db4437;
+  border-radius: 50%;
+  color: #fff;
+}
+:root [am-button~="floating"]:before,
+:root [am-button~="floating"]:hover:before,
+:root [am-button~="floating"]:focus:before {
+  content: "Theme";
+  position: absolute;
+  right: 120%;
+  top: 30%;
+  opacity: 0;
+  padding: 0 0.5em;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+:root [am-button~="floating"] svg.ink,
+:root [am-button~="floating"]:hover svg.ink,
+:root [am-button~="floating"]:focus svg.ink {
+  border-radius: 50%;
+}
+:root [am-button~="floating"] svg.icon,
+:root [am-button~="floating"]:hover svg.icon,
+:root [am-button~="floating"]:focus svg.icon {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  margin-left: 16px;
+  margin-top: 16px;
+  fill: #fff;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+:root [am-button~="floating"]:hover:before,
+:root [am-button~="floating"]:hover:hover:before,
+:root [am-button~="floating"]:focus:hover:before {
+  opacity: 1;
+}
+:root [am-button~="floating"]:hover svg.icon,
+:root [am-button~="floating"]:hover:hover svg.icon,
+:root [am-button~="floating"]:focus:hover svg.icon {
+  transform: rotate(180deg);
+}
+
+svg.ink {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+svg.ink circle {
+  fill: rgba(0, 0, 0, 0.2);
+}
+:root[am-theme~="dark"] svg.ink circle {
+  fill: rgba(255, 255, 255, 0.2);
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+:root {
+  height: 100%;
+  background-color: #fff;
+  color: #333;
+  font-family: Noto Sans, sans-serif;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+:root[am-theme~="dark"] {
+  background-color: #333;
+  color: #ccc;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+
+article {
+  width: 100%;
+  padding: 2rem;
+  max-width: 12em;
+  margin: auto;
+}
+
+aside {
+  position: absolute;
+  bottom: 3rem;
+  right: 3rem;
+}

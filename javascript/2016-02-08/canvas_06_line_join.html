@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<!-- /#canvas -->
+
+
+<script>
+    var canvas = document.getElementById('canvas');
+    canvas.width = 800;
+    canvas.height = 600;
+    // 用 context 进行绘制
+    // canvas 基于状态进行绘制
+    var context = canvas.getContext('2d');
+    //    context.beginPath()
+    // 基于新的状态,不会保持老状态
+    context.beginPath();
+    context.rect(10, 10, 100, 50);
+    context.closePath(); // 封闭多边形
+
+
+    context.fillStyle = 'yellow';
+    context.strokeStyle='blue';
+    context.lineWidth = 10;
+//    context.lineJoin = 'bevel';
+    context.lineJoin = 'round';
+
+
+    context.fill();
+    context.stroke();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        /*绝对定位: 拉伸*/
+        div {
+            height: 100px;
+            width: 100px;
+        }
+        .c1 {
+            background-color: #0ae;
+            /* 这里会影响层叠 */
+            /*position: relative;*/
+        }
+        .c2 {
+            background-color: #00a300;
+            margin-top: -50px;
+        }
+    </style>
+</head>
+<body>
+ <div class="c1"></div>
+ <div class="c2"></div>
+</body>
+</html>
