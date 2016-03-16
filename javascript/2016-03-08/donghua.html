@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title></title>
+    <style>
+        .banner {
+            position: relative;
+            width: 1190px;
+            margin: 0 auto;
+        }
+
+    </style>
+</head>
+<body>
+<div class="banner">
+    <!--进货单-->
+    <img src="https://cbu01.alicdn.com/cms/upload/2016/606/385/2583606_1521533443.png" alt="">
+    <!--进货单 ??-->
+    <!--https://cbu01.alicdn.com/cms/upload/2016/836/085/2580638_1521533443.png-->
+
+    <!--进货单100-->
+    <!--https://cbu01.alicdn.com/cms/upload/2016/936/085/2580639_1521533443.png-->
+    <div id="showImg" style="width:247px; height:258px;"></div>
+</div>
+<!-- /.banner -->
+
+<button id="start">开始</button>
+<button id="stop">停止</button>
+<input type="text" value="200" id="speed"/>
+</body>
+</html>
+<script type="text/javascript">
+
+    /*{
+     target:null,
+     img:url,
+     frames:number, 帧数
+     speed:500 hm,
+     loop:true,
+     width:null, //舞台尺寸
+     height:null
+     }*/
+    var FBFAnimation = (function () {
+        function start() {
+            if (this.timeLine) {
+                return;
+            }
+            var speed = (this.options.speed ? this.options.speed : 500), self = this;
+            this.timeLine = setInterval(function () {
+                animation.apply(self);
+            }, speed);
+        }
+
+        function stop() {
+            if (this.timeLine) {
+                clearTimeout(this.timeLine);
+            }
+            this.timeLine = null;
+        }
+
+        function setSpeed(val) {
+            if (!val) {
+                return;
+            }
+            this.options.speed = val;
+        }
+
+        function getPosition() {
+            var x = 0, y = 0;
+            if ((this.startFrames == this.endFrames) && this.options.loop) {
+                this.startFrames = 0;
+            }
+            x = -(this.width * this.startFrames);
+
+            this.startFrames++;
+            return {x: x, y: y};
+        }
+
+        function animation() {
+            if (!this.options.loop && this.startFrames == this.endFrames - 1) {
+                this.stop();
+            }
+            var offset = getPosition.apply(this);
+            this.options.target.style.backgroundPosition = "" + offset.x + "px " + offset.y + "px";
+        }
+
+        function init() {
+            var target = this.options.target;
+            this.width = 0;
+            this.height = 0;
+            this.startFrames = 0;
+            this.endFrames = this.options.frames;
+            target.style.backgroundImage = 'url(' + this.options.img + ')';
+            target.style.backgroundRepeat = "no-repeat";
+            target.style.backgroundPosition = "0 0";
+
+            if (!this.options.width) {
+                this.width = parseInt(this.options.target.style.width);
+            }
+            if (!this.options.height) {
+                this.height = parseInt(this.options.target.style.height);
+            }
+        }
+
+        return function (args) {
+            this.options = args || {};
+
+            if (!this.options.target) {
+                throw new Error('target is not exist!');
+            }
+            if (!this.options.img) {
+                throw new Error('img not exist!');
+            }
+            if (!this.options.frames) {
+                throw new Error('frames number not exist');
+            }
+            if (typeof this.options.loop == "undefined") {
+                this.options.loop = true;
+            }
+
+            init.apply(this);       //initialize
+
+            this.start = start;     //interface
+            this.stop = stop;
+            this.setSpeed = setSpeed;
+        };
+    })();
+
+    var s = new FBFAnimation({
+        target: document.getElementById('showImg'),
+        img: 'https://cbu01.alicdn.com/cms/upload/2016/936/085/2580639_1521533443.png',
+        frames: 4,
+        loop:false,
+        speed: 50
+    });
+
+    document.getElementById('start').onclick = function () {
+        s.start();
+    };
+
+    document.getElementById('stop').onclick = function () {
+        s.stop();
+    };
+
+    document.getElementById('speed').onchange = function () {
+        s.setSpeed(document.getElementById('speed').value);
+    }
+</script>

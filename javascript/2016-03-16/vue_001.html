@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>001</title>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/vue/1.0.17/vue.min.js"></script>
+</head>
+<body>
+
+<div id="demo">
+    <p>{{message}}</p>
+    <input v-model="message">
+</div>
+
+<script>
+    var demo = new Vue({
+        el: '#demo',
+        data: {
+            message: 'Hello Vue.js!'
+        }
+    })
+</script>
+
+</body>
+</html>
