@@ -36,20 +36,17 @@ context.arc
     var context = canvas.getContext('2d');
 
     context.lineWidth = 5;
-    context.strokeStyle = '#005588';
-    context.lineJoin = 'round';
-
-    for (var i = 0; i < 10; i++) {
-        context.beginPath();
-        context.arc(50 + i * 100, 180, 40, 0, 2 * Math.PI * (i + 1) / 10);
-
-        context.lineJoin = 'round';
-//        context.closePath(); // 封闭路径
-
-
-
-        context.stroke();
-    }
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.moveTo(50, 50);
+    context.bezierCurveTo(50,50, 150,50, 150,150);
+    //context.lineTo(150, 150);
+    context.lineTo(150, 50);
+    context.lineTo(50, 50);
+    context.stroke();
+    context.fillStyle = "#F00";
+    context.fill();
+    context.stroke();
 
 </script>
 </body>

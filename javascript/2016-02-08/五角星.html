@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<!-- /#canvas -->
+
+
+<!--save-->
+<!--canvas 状态的保存和恢复-->
+
+<!--
+画 圆弧
+context.arc
+    (
+        center_x, center_y, radius(半径),
+        startingAngle(开始角度), endingAngle(结束角度)
+        antiClockWise(是否逆时针)
+    )
+-->
+
+<script>
+    var canvas = document.getElementById('canvas');
+    canvas.width = 800;
+    canvas.height = 800;
+    var context = canvas.getContext('2d');
+
+    drawRoundRect(context, 20, 20, 200, 200, 20);
+
+    function drawRoundRect(ctx, x, y, width, height, radius) {
+        ctx.save();
+        ctx.translate(x, y);
+        pathRoundRect(ctx, width, height, radius);
+        ctx.strokeStyle = 'black';
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function pathRoundRect(ctx, width, height, radius) {
+        var PI = Math.PI;
+        ctx.beginPath();
+
+        // 下面的坐标从左下角开始
+        // 见图片
+        // https://cbu01.alicdn.com/cms/upload/2016/909/855/2558909_1521533443.png
+
+        // 右下角圆弧顺时针
+        ctx.arc(width - radius, height - radius, radius, 0, PI / 2);
+        // 右下角圆弧的中点
+        ctx.lineTo(radius, height); // 画到左下角
+
+        ctx.arc(radius, height - radius, radius, PI / 2, PI);
+        ctx.lineTo(0, radius);
+
+        ctx.arc(radius, radius, radius, PI, 3 / 2 * PI);
+        ctx.lineTo(width - radius, 0);
+
+        ctx.arc(width-radius, radius, radius, 3/2*PI, 2*PI);
+//        ctx.lineTo(width, height - radius);
+
+        ctx.closePath();
+    }
+
+</script>
+</body>
+</html>
