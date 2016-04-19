@@ -4,21 +4,104 @@
     <meta charset="UTF-8">
     <title>001</title>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/vue/1.0.17/vue.min.js"></script>
+    <style>
+
+        .class-a {
+            color: red;
+        }
+
+        .class-b {
+            background: green;
+        }
+
+    </style>
 </head>
 <body>
 
 <div id="demo">
-    <p>{{message}}</p>
+    <p>{{ message}}</p>
     <input v-model="message">
+
+    {{ message.split('').reverse().join('') | filterA}}
+
+    <div class="static" v-bind:class="{ 'class-a': isA, 'class-b': isB }">
+        bind class
+    </div>
+
+
+    <div class="static" v-bind:class="classObject">
+        bind class by obj
+    </div>
+
+
+    <div v-bind:style="{ color: activeColor, fontSize: fontSize + 'px' }"></div>
+
+
+    <h1 v-if="ok">Yes</h1>
+    <h1 v-else>No</h1>
+
+    <template v-if="ok">
+        <h1>Title</h1>
+        <p>p1</p>
+        <p>p2</p>
+    </template>
+
+
+
+
+    <div id="mount-point"></div>
+
+
+    <my-component>
+        asdfklasd
+    </my-component>
+
 </div>
 
 <script>
     var demo = new Vue({
         el: '#demo',
         data: {
-            message: 'Hello Vue.js!'
+            message: 'hell Vue.js!',
+            isA: true,
+            isB: false,
+            classObject: {
+                'class-a': false,
+                'class-b': true
+            }
+        },
+        method: {
+            filterA: function (str) {
+                return str.toUpperCase();
+            }
         }
-    })
+    });
+
+
+    // 创建可复用的构造器
+    var Profile = Vue.extend({
+        template: '<p>{{firstName}} {{lastName}} aka {{alias}} ~ </p>'
+    });
+    // 创建一个 Profile 实例
+    var profile = new Profile({
+        data: {
+            firstName: 'Walter',
+            lastName: 'White',
+            alias: 'Heisenberg'
+        }
+    });
+    // 挂载到元素上
+    profile.$mount('#mount-point');
+
+    // 定义
+    var MyComponent = Vue.extend({
+        template: '<div>A custom ....</div>'
+    });
+
+    // 注册
+    Vue.component('my-component', MyComponent);
+
+
 </script>
 
 </body>

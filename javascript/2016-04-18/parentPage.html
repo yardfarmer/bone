@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Parent Frame</title>
+    <script>
+      // 这里使用 document 是错误的
+      // document.addEventListener("load", function(event) {
+      //   console.log("所有的资源已经加载完成!");
+      // });
+      window.addEventListener('beforeunload', function(event) {
+        console.log('I am the 1st one.');
+      });
+      window.addEventListener('unload', function(event) {
+        console.log('I am the 3rd one.');
+      });
+    </script>
+  </head>
+  <body>
+    <script>
+      // 这里也没有生效
+      // mdn 上推荐使用 window.addEventListener
+      document.addEventListener("load", function(event) {
+        console.log("所有的资源已经加载完成!");
+      });
+      </script>
+    <!-- <iframe src="unloadEvent.html"></iframe> -->
+  </body>
+</html>

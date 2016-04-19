@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>从居中点向两边展开条</title>
+  <style>
+    ul {
+      list-style: none;
+    }
+    li {
+      float: left;
+      height: 30px;
+      width: 50px;
+      text-align: center;
+      position: relative;
+    }
+    li a {
+      text-decoration: none;
+    }
+    
+    li a:after {
+      content: '';
+      position: absolute;
+      width:0;
+      height: 2px;
+      left: 50%;
+      margin-top: 50%;
+      background: green;
+      transition: .3s all ease;
+    }
+    li a:hover:after{
+      width: 100%;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <ul>
+    <li>
+      <a href="">A</a>
+    </li>
+    <li>
+      <a href="">A</a>
+    </li>
+    <li>
+      <a href="">A</a>
+    </li>
+    <li>
+      <a href="">A</a>
+    </li>
+    <li>
+      <a href="">A</a>
+    </li>
+    </li>
+  </ul>
+</body>
+</html>
