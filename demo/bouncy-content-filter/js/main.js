@@ -10,7 +10,7 @@ jQuery(document).ready(function($){
 				filter_list_placeholder = filter_list_container.find('.placeholder a'),
 				filter_list_placeholder_text = filter_list_placeholder.text(), 
 				filter_list_placeholder_default_value = 'Select',
-				gallery_item_wrapper = $this.children('.cd-gallery').find('.cd-item-wrapper');
+				gallery _item_wrapper = $this.children('.cd-gallery').find('.cd-item-wrapper');
 
 			//store gallery items
 			var gallery_elements = {};

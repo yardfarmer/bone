@@ -24,10 +24,7 @@
 
 window.Modernizr = (function( window, document, undefined ) {
 
-    var version = '2.7.1',
-
-    Modernizr = {},
-
+    var version 
     /*>>cssclasses*/
     // option for enabling the HTML classes to be added
     enableClasses = true,
@@ -50,12 +47,7 @@ window.Modernizr = (function( window, document, undefined ) {
     /*>>smile*/
     smile = ':)',
     /*>>smile*/
-
-    toString = {}.toString,
-
-    // TODO :: make the prefixes more granular
-    /*>>prefixes*/
-    // List of property values to set for css tests. See ticket #21
+  to set for css tests. See ticket #21
     prefixes = ' -webkit- -moz- -o- -ms- '.split(' '),
     /*>>prefixes*/
 
