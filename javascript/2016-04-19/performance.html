@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>performance</title>
+  <style>
+    .demo {
+      width: 100px;
+      height: 100px;
+      background-color: green;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo">
+    demo conetent
+  </div>
+  
+  <script>
+    var div = document.querySelectsor('.demo')
+    
+    // element.cloneNode(isDeep)
+    // 当传入参数 true 才进行 深拷贝
+    var isDeep = true;
+    
+    // 准备进行离线 dom 操作
+    // 拉去分支，在本地分支开发，然后合并到主干节点
+    var dupNode = div.cloneNode(isDeep);
+    
+    
+    dupNode.style.color = 'blue';
+    dupNode.style.margin = 100 + 'px';
+    
+    // parentNode.replaceChild(newChild, oldChild);
+    // 注意参数，第一个参数才是新的 node 节点，而不是第二个
+    div.parentNode.replaceChild(dupNode, div);
+  </script>
+  
+</body>
+</html>
