@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+
+<!-- 
+1. 弹性容器 flex container， display flex/inline-flex 
+2. 弹性项目 flex item
+3. axis 每个 main axis/ cross axis
+4. flex-direction 确定主轴
+5. justify-content 定义了在当前行上弹性项目沿主轴如何默认排布
+6. align-items 定义了在 当前行上弹性项目沿侧轴如何排布
+7. align-self 定义了单个弹性项目在侧轴上如何对其， 这个定义覆盖 align-items 所确立的默认值
+8. order 决定哪些元素先出现
+9. flex-flow 属性是 flex-direction 和 flex-wrap 属性的简写，决定弹性项目如何排布
+10. line 行, 根据 flex-wrap 属性，弹性项目可以排布在单个行或者多个行中。 此属性控制侧轴的方向和新行排列的方向
+11. flex 属性是 flex-grow, flex-shrink, flex-basic 属性的简写
+ -->
+<style>
+
+.flex {
+    /* 
+        flex 使弹性容器成为块级元素
+        inline-flex 使弹性容器成为单个不可分的行内元素
+    */
+    width: 350px;
+    height: 200px;
+    border: 1px solid #555;
+
+    display: flex;
+    flex-direction: row;
+ }
+
+
+ .flex > div {
+    flex: 1 1 auto;
+    width: 30px;
+    transition: width 0.7s ease-out;
+ }
+
+.flex > div:nth-child(1){ background : #009246; }
+.flex > div:nth-child(2){ background : #F1F2F1; }
+.flex > div:nth-child(3){ background : #CE2B37; }
+
+ .flex > div:hover {
+    width: 200px;
+ }
+</style>
+
+<div class="flex">
+    <div>Lorem ipsum.</div>
+    <div>Lorem ipsum.</div>
+    <div>Lorem ipsum.</div>
+  </div>
+</body>
+</html>

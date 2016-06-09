@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Absolute Center</title>
+</head>
+<body>
+	<style>
+		/* 宽高固定 */
+		main{
+			/*方法一*/
+			/*
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin-top: -3em;
+			margin-left: -9em;
+			width: 18em;
+			height: 6em;
+			border: 1px solid #ddd;
+			*/
+		
+			/*方法二*/
+			position: absolute;
+			top: calc(50% - 3em);
+			left: calc(50% - 9em);
+			width: 18em;
+			height: 6em;
+			border: 1px solid #ddd;
+		}
+	</style>
+	<main>
+		<h1>Am centerd yet?</h1>
+		<p>Center me, pleaes!</p>
+	</main>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>vh/vw Center</title>
+</head>
+<body>
+	<ul>
+		<li>margin 的百分比是以父元素的解析标准的</li>
+		<li>vw/vh 是以视口相关的  1vh 是视口高度的 1% </li>
+	</ul>
+	<style>
+		main{
+			width: 18em;
+			margin: 50vh auto 0;
+			transform: translateY(-50%);
+
+			border: 1px solid #ddd;
+		}
+	</style>
+	<main>
+		<h1>Am centerd yet?</h1>
+		<p>Center me, pleaes!</p>
+	</main>
+</body>
+</html>

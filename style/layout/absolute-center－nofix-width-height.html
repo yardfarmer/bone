@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Absolute Center</title>
+</head>
+<body>
+	<style>
+		/* 宽高无需固定 */
+		main{
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			
+		transform: translate(-50%, -50%);
+			
+			/*hack*/
+			transform-style: preserve-3d;
+
+			border: 1px solid #ddd;
+		}
+	</style>
+	<main>
+		<h1>Am centerd yet?</h1>
+		<p>Center me, pleaes!</p>
+	</main>
+</body>
+</html>

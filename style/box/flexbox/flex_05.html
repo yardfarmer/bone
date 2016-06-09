@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+
+<!-- 
+1. 弹性容器 flex container， display flex/inline-flex 
+2. 弹性项目 flex item
+3. axis 每个 main axis/ cross axis
+4. flex-direction 确定主轴
+5. justify-content 定义了在当前行上弹性项目沿主轴如何默认排布
+6. align-items 定义了在 当前行上弹性项目沿侧轴如何排布。 在多行时不生效
+7. align-self 定义了 单个 弹性项目 在侧轴上如何对齐， 这个定义覆盖 align-items 所确立的默认值
+8. order 决定哪些元素先出现
+9. flex-flow 属性是 flex-direction 和 flex-wrap 属性的简写，决定弹性项目如何排布
+10. line 行, 根据 flex-wrap 属性，弹性项目可以排布在单个行或者多个行中。 此属性控制侧轴的方向和新行排列的方向
+11. flex 属性是 flex-grow, flex-shrink, flex-basic 属性的简写
+12. align-content 多行的弹性盒模型容器，当伸缩容器的 侧轴 还有多余空间时，本属性可以用来调准「伸缩行」在伸缩容器里的对齐方式，这与调准伸缩项目在主轴上对齐方式的 <' justify-content '> 属性类似。 请注意本属性在只有一行的伸缩容器上没有效果。
+ -->
+ <style>
+
+  body {
+   font: 24px Helvetica;
+   background: #ddd;
+  }
+
+  #main {
+       min-height: 600px;
+       margin: 0px;
+       padding: 0px;
+
+       display: flex;
+       flex-flow: row;
+   }
+ 
+  #main > article {
+       margin: 4px;
+       padding: 30px;
+       border: 1px solid #cccc33;
+       border-radius: 7pt;
+       background: #dddd88;
+
+      /*
+        flex: none/ flex-grow flex-shrink flex-basic;
+        
+        flex-grow: 用来制定扩展比例，空间有剩余时此 flex 子项相对于 flex 容器里其他 flex 子项 能分配到的空间比例;
+
+        flex－shrink: 用来制定收缩比例，即剩余空间是负值时 相对于其他子项的 能收缩的空间比例;
+
+        flex－basic： 用来指定伸缩基准值，即在根据伸缩比率计算出剩余空间的分布前，flex 长度起始值；
+
+        在 flex 属性中该值如果被省略则默认为 0；
+        在 flex 属性中该值如果被指定为 auto， 则伸缩基准值是自身 width 值，如果自身的宽度没有定义，则取决于内容；
+
+        flex: 1 -> [1 1 0%];
+        flex: auto  -> [1 1 auto];
+        flex: none  -> [0 0 auto]
+        flex: 0 auto; / flex: initial;  -> [0 1 auto]
+      
+       */
+       flex: 3 1 60%;
+       order: 2;
+   }
+  
+  #main > nav {
+       margin: 4px;
+       padding: 5px;
+       border: 1px solid #8888bb;
+       border-radius: 7pt;
+       background: #ccccff;
+
+       flex: 1 6 20%;
+       order: 1;
+   }
+  
+  #main > aside {
+       margin: 4px;
+       padding: 5px;
+       border: 1px solid #8888bb;
+       border-radius: 7pt;
+       background: #ccf;
+       
+       flex: 1 6 20%;
+       order: 3;
+   }
+ 
+  header, footer {
+       display: block;
+       margin: 4px;
+       padding: 5px;
+       min-height: 50px;
+       border: 1px solid #eebb55;
+       border-radius: 7pt;
+       background: #feb;
+   }
+ 
+  /* 窄到已不足以支持三栏 */
+  @media all and (max-width: 640px) {
+  
+       #main, #page {
+            flex-direction: column;
+       }
+
+       #main > article, 
+       #main > nav, 
+       #main > aside {
+        /* 恢复到文档内的自然顺序 */
+            order: 0;
+       }
+      
+       #main > nav, 
+       #main > aside, 
+       header, footer {
+            min-height: 50px;
+            max-height: 50px;
+       }
+  }
+
+ </style>
+
+    <header>header</header>
+
+    <div id='main'>
+        <article>article</article>
+        <nav>nav</nav>
+        <aside>aside</aside>
+    </div>
+    
+    <footer>footer</footer>
+
+</body>
+
+</html>
