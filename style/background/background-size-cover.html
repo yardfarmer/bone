@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		.box {
+			width: 1000px;
+			height: 1000px;
+			border: 1px solid red;
+			background: url(../pic.jpg) no-repeat;
+
+			/* 默认背景是真实大小的，不会充满全屏 */
+
+			/* cover: 保持高宽比，充满容器; */
+			background-size: cover;  
+			
+			/* contain: 保持高宽比， 与容器的高或宽保持一致; */
+			background-size: contain;
+		}
+	</style>
+</head>
+<body>
+	<div class="box">
+		
+	</div>
+</body>
+</html>
