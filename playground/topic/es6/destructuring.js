@@ -1,21 +1,23 @@
-/**
- * Created by cyk on 15-4-22.
- */
+//解构函数还不支持 2015-10-18
+'use strict';
 
-/**
- * destructuring
- * 解构
- * iojs 目前还不支持
- */
+let [foo, [[bar], baz]] = [1, [[2], 3]];
 
-var [a, b, c] = [1, 2, 3];
-console.log(a);
+console.log(foo, bar, baz);
 
-var [foo = true] = [];
-console.log(foo);
+let [,,third] = ["foo", "bar", "baz"];
 
-var { foo, bar } = {
-    foo: "aaa",
-    bar: "bbb"
-};
+console.log(third);
 
+let [x, , y] = [1, 2, 3];
+
+
+// 剩下的全收下
+let [head, hi, ...tail] = [1, 2, 6, 4];
+console.log(head, hi, tail);
+
+var [js = true] = [3,1,3];  //  如果给变量赋的值为 undefined, 则使用默认参数
+console.log(js);
+
+[x, y = 'b'] = ['a']; // x='a', y='b'
+[x, y = 'b'] = ['a', undefined]; // x='a', y='b'

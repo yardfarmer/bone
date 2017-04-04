@@ -1,8 +1,0 @@
-@startuml
-'create 强调本次消息是新建对象
-create Bob
-create Alice
-Bob -> Alice: hello
-
-
-@enduml
