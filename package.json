@@ -10,8 +10,8 @@
   "devDependencies": {
     "chai": "^3.3.0",
     "http-server": "^0.7.4",
-    "should": "^7.1.0"
+    "should": "^7.1.0",
+    "thunkify": "^2.1.2"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

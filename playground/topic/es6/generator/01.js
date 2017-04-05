@@ -4,7 +4,7 @@
 
 "use strict";
 
-function *simple() {
+function* simple() {
 
     console.log(1);
     yield 1;

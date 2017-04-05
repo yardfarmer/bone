@@ -14,21 +14,39 @@
  * @type {Promise}
  */
 var p1 = new Promise(function (resolve, reject) {
-    /**
-     * 这里是异步工作
-     */
-    setTimeout(()=> reject(new Error('...Fail')), 3000);
+  /**
+   * 这里是异步工作
+   */
+  setTimeout(() => reject(new Error('fail')), 3000);
 });
 
-var p2 = new Promise(function (resolve, reject) {
-    setTimeout(() => resolve(p1), 1000);
-});
+// var p2 = new Promise(function (resolve, reject) {
+//   setTimeout(() => resolve(p1), 1000);
+// });
 
 p1.then(function () {
-    console.log(1);
-}, function () {
-    console.log(2);
-});
+  console.log('success');
+}).catch(function (err) {
+  console.log(32, err)
+})
+//   .catch(function () {
+//     console.log('catch error')
+//   })
+//   .then(function () {
+//     console.log('error')
+//   })
+//   .catch(function () {
+//     console.log('catch error')
+//   })
 
-p2.then(result => console.log(result));
-p2.catch(error => console.log(error));
+// p2.then(result => console.log(result))
+//   .catch(error => console.log(error));
+
+/**
+ * result:
+ */
+// /usr/local/bin/node /promise/02.js
+// 22
+// (node:10521) UnhandledPromiseRejectionWarning: Unhandled promise rejection (rejection id: 1): Error: ...Fail
+//
+// Process finished with exit code 0
