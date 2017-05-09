@@ -8,10 +8,15 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.4.0",
     "chai": "^3.3.0",
     "http-server": "^0.7.4",
     "should": "^7.1.0",
     "thunkify": "^2.1.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "babel-runtime": "^6.23.0",
+    "redux-actions": "^2.0.2"
+  }
 }

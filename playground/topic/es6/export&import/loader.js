@@ -7,7 +7,3 @@
 "use strict";
 
 import {firstName, year} from './profile'
-
-
-
-
