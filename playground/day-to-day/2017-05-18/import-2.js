@@ -1,13 +1,3 @@
-// import d, {
-//   a,
-//   b,
-//   c, 
-//   foo,
-//   A,
-//   e,
-//   f
-// } from './export-1'
-
 import Foo from './export-1'
 import { c } from './export-1'
 

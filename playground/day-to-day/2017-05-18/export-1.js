@@ -7,8 +7,11 @@ export const c = {
   b: 666
 }
 
-let d = 888
-export default d
+// // 默认导出
+// export default {
+//   D: 'Ha',
+//   E: 'En'
+// }
 
 export function foo() {
   console.log('foo exe')
