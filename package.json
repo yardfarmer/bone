@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "babel-runtime": "^6.23.0",
+    "co": "^4.6.0",
+    "node-fetch": "^1.7.1",
     "redux-actions": "^2.0.2"
   }
 }

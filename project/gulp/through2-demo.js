@@ -5,7 +5,7 @@
  */
 
 var all = [];
-var fs       = require('fs'),
+var fs = require('fs'),
     through2 = require('through2');
 
 fs.createReadStream('data.csv')
