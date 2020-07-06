@@ -6,3 +6,5 @@ var b = new Buffer(13);
 b.write('ab');
 
 console.log(b);
+
+
